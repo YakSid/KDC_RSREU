@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StartDialog</class>
+ <widget class="QDialog" name="StartDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>291</width>
+    <height>331</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Master KDA - Начало работы</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox_start">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>271</width>
+     <height>311</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="title">
+    <string>Начать новую разработку</string>
+   </property>
+   <widget class="QGroupBox" name="groupBox_vid_akta">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>251</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Вид акта:</string>
+    </property>
+    <widget class="QRadioButton" name="rbSOSH">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>45</y>
+       <width>236</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Коллективный договор СОШ</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rbVUZ">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>21</y>
+       <width>236</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Коллективный договор ВУЗа</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rbDOU">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>69</y>
+       <width>236</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Коллективный договор ДОУ</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rbREGSOGL">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>93</y>
+       <width>236</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Региональное соглашение</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_rejim_razrabotki">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>251</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Режим разработки:</string>
+    </property>
+    <widget class="QRadioButton" name="rbRed">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>21</y>
+       <width>238</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Редактирование</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rbRedRazd">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>45</y>
+       <width>238</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Редактирование по разделам</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rbCompil">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>69</y>
+       <width>238</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Компилирование</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rbAuto">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>93</y>
+       <width>238</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Автосодержание</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="Start">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>270</y>
+      <width>251</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Начать</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
