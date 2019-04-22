@@ -41,6 +41,12 @@ QVariant modelList::data(const QModelIndex &index, int role) const
             QModelIndex NewIndex2 = QAbstractItemModel::createIndex(index.row(),index.column()+7);
             return 1.5*QSqlTableModel::data(NewIndex, role).toDouble() + QSqlTableModel::data(NewIndex2, role).toDouble();
         }
+        if (role == Qt::FontRole)
+        {
+            QFont Font;
+            Font.setBold(true);
+            return Font;
+        }
     }
     if (index.column() == 5)
     {

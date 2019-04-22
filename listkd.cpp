@@ -30,8 +30,7 @@ ListKD::ListKD(QWidget *parent) :
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(modelForList);
     ui->tableView->setModel(proxyModel);
-    //ui->tableView->setModel(modelForList);
-    ui->tableView->sortByColumn(0, Qt::AscendingOrder);
+    ui->tableView->sortByColumn(1, Qt::AscendingOrder);
     modelForList->insertColumns(1,2);
     modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
     modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));
