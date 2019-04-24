@@ -27,6 +27,7 @@ private:
     ListKD lDialog;
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
+    QString SelectedKD;
 };
 
 #endif // MAINWINDOW_H

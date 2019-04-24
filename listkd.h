@@ -24,7 +24,7 @@ class ListKD : public QDialog
 public:
     explicit ListKD(QWidget *parent = nullptr);
     ~ListKD();
-    int SelectedKD=-1;
+    QString SelectedKD = "";
 
 private slots:
     void on_Ref_clicked();
@@ -33,11 +33,13 @@ private slots:
 
     void on_SelectKD_clicked();
 
+    void on_tableView_clicked(const QModelIndex &index);
+
 private:
     Ui::ListKD *ui;
-    //QSqlRelationalTableModel *modelForList;
     modelList *modelForList;
     QSqlDatabase DatabaseForList;
+    QSortFilterProxyModel *proxyModel;
 };
 
 #endif // LISTKD_H

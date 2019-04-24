@@ -25,11 +25,11 @@ QVariant modelList::data(const QModelIndex &index, int role) const
             if (!a_query.exec())
             {
                 qDebug() << a_query.lastError().text();
-            };
+            }
             if (!a_query.next())
             {
                 qDebug() << a_query.lastError().text();
-            };
+            }
             return a_query.value(0).toString();
         }
     }

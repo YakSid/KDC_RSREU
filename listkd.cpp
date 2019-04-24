@@ -26,8 +26,9 @@ ListKD::ListKD(QWidget *parent) :
     modelForList->select();
     modelForList->setEditStrategy(QSqlTableModel::OnManualSubmit);
     ui->setupUi(this);
+    ui->SelectKD->setEnabled(false);
 
-    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+    proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(modelForList);
     ui->tableView->setModel(proxyModel);
     ui->tableView->sortByColumn(1, Qt::AscendingOrder);
@@ -64,6 +65,11 @@ void ListKD::on_DetailKTR_clicked()
 
 void ListKD::on_SelectKD_clicked()
 {
-    SelectedKD = 0;
     ListKD::close();
+}
+
+void ListKD::on_tableView_clicked(const QModelIndex &index)
+{
+    SelectedKD = proxyModel->data(index.siblingAtColumn(0), Qt::DisplayRole).toString();
+    ui->SelectKD->setEnabled(true);
 }
