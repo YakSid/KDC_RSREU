@@ -19,21 +19,6 @@
    <string>Master KDA - Разработка проекта</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTreeView" name="TreeViewRazd">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>130</y>
-      <width>241</width>
-      <height>601</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-   </widget>
    <widget class="QPlainTextEdit" name="TextCenter">
     <property name="geometry">
      <rect>
@@ -641,7 +626,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>108</x>
        <y>0</y>
-       <width>351</width>
+       <width>359</width>
        <height>82</height>
       </rect>
      </property>
@@ -971,6 +956,24 @@ p, li { white-space: pre-wrap; }
     <property name="readOnly">
      <bool>true</bool>
     </property>
+   </widget>
+   <widget class="QTreeWidget" name="treeWidgetRazd">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>241</width>
+      <height>601</height>
+     </rect>
+    </property>
+    <property name="headerHidden">
+     <bool>true</bool>
+    </property>
+    <column>
+     <property name="text">
+      <string notr="true">1</string>
+     </property>
+    </column>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
