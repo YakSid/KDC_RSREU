@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     startdialog.cpp \
     listkd.cpp \
-    modellist.cpp
+    modellist.cpp \
+    fragment.cpp
 
 HEADERS += \
         mainwindow.h \
     startdialog.h \
     listkd.h \
-    modellist.h
+    modellist.h \
+    fragment.h
 
 FORMS += \
         mainwindow.ui \

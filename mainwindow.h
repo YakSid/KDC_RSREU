@@ -8,6 +8,7 @@
 #include <QtWidgets>
 #include "startdialog.h"
 #include "listkd.h"
+#include "fragment.h"
 
 namespace Ui {
 class MainWindow;
