@@ -68,9 +68,25 @@ MainWindow::MainWindow(QWidget *parent) :
                 ui->KPSP->setText(ui->startKPSP->text());
                 ui->KEF->setText(ui->startKEF->text());
             }
+            //Создание дерева
+            ui->treeWidgetRazd->setColumnCount(1);
+            Tree_currentItem = NULL;
+            Tree_currentColumn = 0;
+            //Заполнение заголовков дерева
+            QString TreeHead[10] = {"1. Общие положения (ПСП)","2. Трудовой договор, занятость (ДОГ)","3. Рабочее время (РВ)",
+                                    "4. Время отдыха (ВО)","5. Заработная плата (ЗП)","6. Охрана труда (ОТ)","7. Производственные вопросы (ПР)",
+                                    "8. Трудовые споры (ТСП)", "9. Гарантии деятельности профкома (ГДП)","10. Социально-бытовые вопросы (СЦ)"};
+            QString AbbreviationTreeHead[10] = {"ПСП", "ДОГ", "РВ", "ВО", "ЗП", "ОТ", "ПР", "ТСП", "ГДП", "СЦ"};
+            QVector <QTreeWidgetItem*> TreeParentsList;
+            for (int i=0; i<10; i++)
+            {
+                QTreeWidgetItem *newItem = new QTreeWidgetItem(ui->treeWidgetRazd, NULL);
+                newItem->setText(Tree_currentColumn, TreeHead[i]);
+                TreeParentsList.append(newItem);
+            }
             //Заполнение центрального поля
             int QuestionNum = 0;
-            in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1");
+            in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
             in2_query.bindValue(":val1", SelectedKD);
             if (!in2_query.exec())
             {
@@ -80,6 +96,22 @@ MainWindow::MainWindow(QWidget *parent) :
             {
                 ui->TextCenter->appendPlainText(in2_query.value(2).toString());
                 ui->TextCenter->appendPlainText("");
+                /*//Вычленение номера фрагмента
+                QString Clause = in2_query.value(2).toString();
+                int PosIndex=-1;
+                for (int i=0; i<Clause.size(); i++)
+                {
+                    if (Clause[i].isLetter())
+                    {
+                        PosIndex = i;
+                        break;
+                    }
+                }
+                Clause.remove(PosIndex, Clause.length()-PosIndex);
+                if (Clause.length()!=0)
+                    if (Clause[Clause.length()-1]==" ")
+                        Clause.remove(Clause.length()-1, 1);
+                qDebug() << Clause;*/
                 QuestionNum = in2_query.value(6).toInt();
                 in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
                 in3_query.bindValue(":val1", QuestionNum);
@@ -89,32 +121,17 @@ MainWindow::MainWindow(QWidget *parent) :
                 }
                 while (in3_query.next())
                 {
-                    qDebug() << in3_query.value(2);
+                    qDebug() << in3_query.value(2) << in3_query.value(1);
+                    for (int i=0; i<10; i++)
+                        if (in3_query.value(2) == AbbreviationTreeHead[i])
+                        {
+                            Tree_currentItem = TreeParentsList[i];
+                            break;
+                        }
+                    Tree_InsertItem(Tree_currentItem, in3_query.value(3).toString() + " (" + in3_query.value(1).toString() + ")");
                 }
             }
-            //Создание дерева
-            Tree_count = 0;
-            ui->treeWidgetRazd->setColumnCount(1);
-            //QStringList headers;
-            //headers << tr("Навигация по разделам");
-            //ui->treeWidgetRazd->setHeaderLabels(headers);
-            Tree_currentItem = NULL;
-            Tree_currentColumn = 0;
-            //Заполнение дерева
 
-            if (Tree_currentItem)
-            {
-                QString word = Tree_currentItem->text(Tree_currentColumn);
-                Tree_InsertItem(Tree_currentItem, word + " " + QString("%1").arg(Tree_count++));
-            }
-            else
-            {
-                QTreeWidgetItem *newItem = new QTreeWidgetItem(ui->treeWidgetRazd, ui->treeWidgetRazd->currentItem());
-                //указываем 2-м параметром текущий элемент как предшествующий
-                newItem->setText (Tree_currentColumn, "" + QString("%1").arg(Tree_count++));
-                newItem->setExpanded(true);
-            }
-            Tree_currentItem = NULL;
         }
     }
     else exit(2);
@@ -127,15 +144,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::Tree_InsertItem(QTreeWidgetItem *parent, QString text)
 {
-    if (!parent->isExpanded())
-        parent->setExpanded(true);
-    QTreeWidgetItem *newItem = new QTreeWidgetItem(parent, ui->treeWidgetRazd->currentItem());
+    QTreeWidgetItem *newItem = new QTreeWidgetItem(parent, 0);
     newItem->setText(Tree_currentColumn, text);
-    newItem->setExpanded(true);
 }
 
 void MainWindow::on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column)
 {
-    Tree_currentItem = item;
-    Tree_currentColumn = column;
+    //
 }
