@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Master KDA - Начало работы</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/new/prefix1/KDA1.ico</normaloff>:/new/prefix1/KDA1.ico</iconset>
+  </property>
   <widget class="QGroupBox" name="groupBox_start">
    <property name="geometry">
     <rect>
@@ -196,6 +200,8 @@
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

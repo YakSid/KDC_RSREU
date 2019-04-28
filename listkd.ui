@@ -18,6 +18,10 @@
   <property name="windowTitle">
    <string>Master KDA - Список КД</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/new/prefix1/KDA1.ico</normaloff>:/new/prefix1/KDA1.ico</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QTableView" name="tableView">
@@ -168,6 +172,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

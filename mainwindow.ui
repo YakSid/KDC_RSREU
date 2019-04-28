@@ -18,14 +18,18 @@
   <property name="windowTitle">
    <string>Master KDA - Разработка проекта</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/new/prefix1/KDA1.ico</normaloff>:/new/prefix1/KDA1.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPlainTextEdit" name="TextCenter">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>330</x>
       <y>170</y>
-      <width>311</width>
-      <height>561</height>
+      <width>461</width>
+      <height>601</height>
      </rect>
     </property>
     <property name="font">
@@ -370,7 +374,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>740</y>
-      <width>271</width>
+      <width>311</width>
       <height>31</height>
      </rect>
     </property>
@@ -381,10 +385,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="GoRight">
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>230</y>
-      <width>91</width>
-      <height>41</height>
+      <x>800</x>
+      <y>200</y>
+      <width>31</width>
+      <height>91</height>
      </rect>
     </property>
     <property name="text">
@@ -394,10 +398,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="GoLeft">
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>280</y>
-      <width>91</width>
-      <height>41</height>
+      <x>800</x>
+      <y>330</y>
+      <width>31</width>
+      <height>91</height>
      </rect>
     </property>
     <property name="text">
@@ -446,10 +450,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="NewClause">
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>440</y>
+      <x>640</x>
+      <y>130</y>
       <width>91</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -460,13 +464,13 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>490</y>
+      <y>130</y>
       <width>91</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Удалить</string>
+     <string>Удалить пункт</string>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
@@ -936,9 +940,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="ClauseName">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>330</x>
       <y>130</y>
-      <width>311</width>
+      <width>301</width>
       <height>31</height>
      </rect>
     </property>
@@ -962,7 +966,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>130</y>
-      <width>401</width>
+      <width>311</width>
       <height>601</height>
      </rect>
     </property>
@@ -971,8 +975,14 @@ p, li { white-space: pre-wrap; }
       <pointsize>11</pointsize>
      </font>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::ActionsContextMenu</enum>
+    </property>
     <property name="horizontalScrollBarPolicy">
      <enum>Qt::ScrollBarAsNeeded</enum>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustToContents</enum>
     </property>
     <property name="headerHidden">
      <bool>true</bool>
@@ -1014,6 +1024,8 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -48,3 +48,17 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    KDA1.ico
+
+RESOURCES += \
+    res.qrc
+
+win32:{
+    RC_FILE += ic.rc
+    VERSION = 1.0
+    QMAKE_TARGET_COMPANY = Yakov Sidorenko
+    QMAKE_TARGET_PRODUCT = Master KDA
+    QMAKE_TARGET_COPYRIGHT = Yakov Sidorenko
+}
