@@ -6,10 +6,11 @@
 class fragment
 {
 public:
-    fragment(QString, int, int);
+    fragment(QString txt, int p1, int p2, QString kach, QString akt);
     ~fragment();
     QString text;
-    int PositionOfFirst, PositionOfLast, Razdel;
+    int PositionOfFirst, PositionOfLast, Size;
+    QString Kachestvo, Akt, VoprosABR, Razdel;
 };
 
 #endif // FRAGMENT_H
