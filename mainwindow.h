@@ -27,6 +27,10 @@ public:
 private slots:
     void on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column);
 
+    void on_TextCenter_cursorPositionChanged();
+
+    void on_DeleteClause_clicked();
+
 private:
     Ui::MainWindow *ui;
     StartDialog sDialog;
@@ -39,6 +43,10 @@ private:
     QTreeWidgetItem *Tree_currentItem;
     int Tree_currentColumn;
     //
+    fragment *frag;
+    QVector <fragment*> Fragments;
+    bool WindowIsReady = false;
+    int SelectedFragment = -1;
 };
 
 #endif // MAINWINDOW_H

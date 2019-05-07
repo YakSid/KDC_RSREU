@@ -23,24 +23,6 @@
     <normaloff>:/new/prefix1/KDA1.ico</normaloff>:/new/prefix1/KDA1.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPlainTextEdit" name="TextCenter">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>170</y>
-      <width>461</width>
-      <height>601</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
@@ -450,7 +432,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="NewClause">
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>740</x>
       <y>130</y>
       <width>91</width>
       <height>31</height>
@@ -463,7 +445,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="DeleteClause">
     <property name="geometry">
      <rect>
-      <x>740</x>
+      <x>640</x>
       <y>130</y>
       <width>91</width>
       <height>31</height>
@@ -952,7 +934,7 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
     <property name="text">
-     <string/>
+     <string>20</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -992,6 +974,16 @@ p, li { white-space: pre-wrap; }
       <string notr="true">1</string>
      </property>
     </column>
+   </widget>
+   <widget class="QTextEdit" name="TextCenter">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>170</y>
+      <width>461</width>
+      <height>601</height>
+     </rect>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

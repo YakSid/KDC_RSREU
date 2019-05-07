@@ -1,5 +1,6 @@
 #include "startdialog.h"
 #include "ui_startdialog.h"
+#include <QDebug> // del this
 
 StartDialog::StartDialog(QWidget *parent) :
     QDialog(parent),

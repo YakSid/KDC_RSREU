@@ -92,10 +92,39 @@ MainWindow::MainWindow(QWidget *parent) :
             {
                 qDebug() << in2_query.lastError().text();
             }
+            int rnCount = 0;
+            int posbegin=0, posend=0;
             while (in2_query.next())
             {
-                ui->TextCenter->appendPlainText(in2_query.value(2).toString());
-                ui->TextCenter->appendPlainText("");
+                QTextDocument *document = ui->TextCenter->document();
+                QTextCursor cursor(document);
+                if (Fragments.count() < 40)
+                {
+                    cursor.movePosition(QTextCursor::End);
+                    posbegin = cursor.position();
+                    cursor.insertText(in2_query.value(2).toString());
+                    cursor.insertBlock();
+                    posend = cursor.position();
+                    frag = new fragment(in2_query.value(2).toString(), posbegin, posend);
+                    Fragments.append(frag);
+                    qDebug() << Fragments.last()->PositionOfFirst << Fragments.last()->PositionOfLast;
+                }
+                /*rnCount = frag->text.count("\r\n"); // \r\n 4 символа заменяются одним
+                if (rnCount != 1)
+                {
+                    frag->PositionOfLast = frag->PositionOfLast-rnCount*3;
+                }*/
+
+                //Выделение фрагмента
+                /*if (Fragments.count()%2)
+                {
+                    cursor.setPosition(frag->PositionOfFirst, QTextCursor::MoveAnchor);
+                    cursor.setPosition(frag->PositionOfLast, QTextCursor::KeepAnchor);
+                }
+                QTextCharFormat format;
+                format.setFontWeight(QFont::Bold);
+                cursor.mergeCharFormat(format);*/
+                //
                 /*//Вычленение номера фрагмента
                 QString Clause = in2_query.value(2).toString();
                 int PosIndex=-1;
@@ -121,7 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 }
                 while (in3_query.next())
                 {
-                    qDebug() << in3_query.value(2) << in3_query.value(1);
+                    //qDebug() << in3_query.value(2) << in3_query.value(1);
                     for (int i=0; i<10; i++)
                         if (in3_query.value(2) == AbbreviationTreeHead[i])
                         {
@@ -131,7 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     Tree_InsertItem(Tree_currentItem, in3_query.value(3).toString() + " (" + in3_query.value(1).toString() + ")");
                 }
             }
-
+            WindowIsReady = true;
         }
     }
     else exit(2);
@@ -149,6 +178,48 @@ void MainWindow::Tree_InsertItem(QTreeWidgetItem *parent, QString text)
 }
 
 void MainWindow::on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column)
+{
+    //
+}
+
+void MainWindow::on_TextCenter_cursorPositionChanged()
+{
+    if (WindowIsReady)
+    {
+        //Начать работу с текстом
+        QTextDocument *document = ui->TextCenter->document();
+        QTextCursor cursor(document);
+        QTextCharFormat format;
+        //Снять выделение
+        if (SelectedFragment != -1)
+        {
+            cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+            cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+            format.setFontWeight(QFont::Normal);
+            cursor.mergeCharFormat(format);
+        }
+        //
+        int CursorPosition = ui->TextCenter->textCursor().position();
+        qDebug() << "CursorPosition" << CursorPosition;
+        for (int i=0; i<Fragments.count(); i++)
+        {
+            if (Fragments[i]->PositionOfFirst < CursorPosition && Fragments[i]->PositionOfLast > CursorPosition)
+            {
+                SelectedFragment = i;
+                qDebug() << "SelectedFragment =" << SelectedFragment;
+                break;
+            }
+        }
+        //Выделить
+        cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+        cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+        format.setFontWeight(QFont::Bold);
+        //format.setFontItalic(true);
+        cursor.mergeCharFormat(format);
+    }
+}
+
+void MainWindow::on_DeleteClause_clicked()
 {
     //
 }

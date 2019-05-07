@@ -10,6 +10,7 @@
 #include "QStandardItem"
 #include "modellist.h"
 #include <QSortFilterProxyModel>
+#include "startdialog.h"//удалить
 
 namespace Ui {
 class ListKD;
@@ -40,6 +41,8 @@ private:
     modelList *modelForList;
     QSqlDatabase DatabaseForList;
     QSortFilterProxyModel *proxyModel;
+    //del this \/
+    StartDialog sDialog;
 };
 
 #endif // LISTKD_H

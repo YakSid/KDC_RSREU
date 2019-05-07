@@ -8,8 +8,9 @@ ListKD::ListKD(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ListKD)
 {
+    QString ACC = "DRIVER={Microsoft Access Driver (*.mdb)}; FIL={MS Access}; DBQ=C:\\users\\БД Диплом.mdb";
     DatabaseForList = QSqlDatabase::addDatabase("QODBC");
-    DatabaseForList.setDatabaseName(ACCESS);
+    DatabaseForList.setDatabaseName(ACC);
     if (!DatabaseForList.open())
     {
         QMessageBox::critical(this, "Master KDA - Error", DatabaseForList.lastError().text());
