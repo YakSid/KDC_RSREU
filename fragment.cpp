@@ -14,3 +14,8 @@ fragment::~fragment()
 {
 
 }
+
+void fragment::Resize()
+{
+    Size = PositionOfLast - PositionOfFirst;
+}

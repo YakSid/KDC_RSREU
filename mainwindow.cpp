@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 newItem->setText(Tree_currentColumn, TreeHead[i]);
                 TreeParentsList.append(newItem);
             }
-            //Заполнение центрального поля
+            //Запрос на заполнение центрального поля
             int QuestionNum = 0;
             in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
             in2_query.bindValue(":val1", SelectedKD);
@@ -95,23 +95,16 @@ MainWindow::MainWindow(QWidget *parent) :
             int posbegin=0, posend=0;
             while (in2_query.next())
             {
+                //Заполнение текста в центральном поле
                 QTextDocument *document = ui->TextCenter->document();
                 QTextCursor cursor(document);
-                //if (Fragments.count() < 90)
-                //{
-                    cursor.movePosition(QTextCursor::End);
-                    posbegin = cursor.position();
-                    cursor.insertText(in2_query.value(2).toString());
-                    cursor.insertBlock();
-                    posend = cursor.position();
-                    frag = new fragment(in2_query.value(2).toString(), posbegin, posend, in2_query.value(4).toString(), in2_query.value(5).toString());
-                    Fragments.append(frag);
-                //}
-                /*rnCount = frag->text.count("\r\n"); // \r\n 4 символа заменяются одним
-                if (rnCount != 1)
-                {
-                    frag->PositionOfLast = frag->PositionOfLast-rnCount*3;
-                }*/
+                cursor.movePosition(QTextCursor::End);
+                posbegin = cursor.position();
+                cursor.insertText(in2_query.value(2).toString());
+                cursor.insertBlock();
+                posend = cursor.position();
+                frag = new fragment(in2_query.value(2).toString(), posbegin, posend, in2_query.value(4).toString(), in2_query.value(5).toString());
+                Fragments.append(frag);
                 /*//Вычленение номера фрагмента
                 QString Clause = in2_query.value(2).toString();
                 int PosIndex=-1;
@@ -128,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     if (Clause[Clause.length()-1]==" ")
                         Clause.remove(Clause.length()-1, 1);
                 qDebug() << Clause;*/
+                //Заполнение данных фрагмента
                 QuestionNum = in2_query.value(6).toInt();
                 in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
                 in3_query.bindValue(":val1", QuestionNum);
@@ -165,9 +159,15 @@ void MainWindow::Tree_InsertItem(QTreeWidgetItem *parent, QString text)
     newItem->setText(Tree_currentColumn, text);
 }
 
-void MainWindow::RecountPositions()
+void MainWindow::RecountPositions(int idfrag, int delta)
 {
-    //
+    qDebug() << "delta:" << delta;
+    for (int i=idfrag; i<Fragments.count(); i++)
+    {
+        if (i != idfrag) Fragments[i]->PositionOfFirst += delta;
+        Fragments[i]->PositionOfLast += delta;
+        qDebug() << "Пункт" << i << "Pos:" << Fragments[i]->PositionOfFirst << Fragments[i]->PositionOfLast;
+    }
 }
 
 void MainWindow::on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column)
@@ -348,23 +348,40 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    TextCenterIsBlocked = false;
-    ui->TextRight->clear();
     ui->GoRight->setDisabled(true);
     ui->GoLeft->setDisabled(true);
     QTextDocument *document = ui->TextCenter->document();
     QTextCursor cursor(document);
     QTextCharFormat format;
-    //Снять выделение
+    format.setFontWeight(QFont::Normal);
+    QString tmp = ui->TextRight->toPlainText();
+    tmp.chop(1);
+    Fragments[SelectedFragment]->text = tmp;
     cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
     cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-    format.setFontWeight(QFont::Normal);
+    cursor.insertText(Fragments[SelectedFragment]->text);
+    cursor.insertBlock();
     cursor.mergeCharFormat(format);
+    cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+    cursor.mergeCharFormat(format);
+    //Заполнение новых данных
+    //Fragments[SelectedFragment]->text = ui->TextRight->toPlainText();
+    //раздел
+    //вопрос
+    //акт
+    //качество
+    //Вычисление нового размера
+    qDebug() << "Positions of SelectedFragment" << Fragments[SelectedFragment]->PositionOfFirst << Fragments[SelectedFragment]->PositionOfLast;
+    qDebug() << "delta counting:" << ui->TextRight->toPlainText().size() << "-" << Fragments[SelectedFragment]->Size;
+    RecountPositions(SelectedFragment, ui->TextRight->toPlainText().size() - Fragments[SelectedFragment]->Size);
+    Fragments[SelectedFragment]->Resize();
     //Удаление данных
+    ui->TextRight->clear();
     ui->Act->clear();
     ui->Razd->clear();
     ui->Quality->clear();
     ui->Question->clear();
+    TextCenterIsBlocked = false;
 }
 
 void MainWindow::on_NewClause_clicked()

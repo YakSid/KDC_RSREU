@@ -993,6 +993,9 @@ p, li { white-space: pre-wrap; }
       <height>601</height>
      </rect>
     </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

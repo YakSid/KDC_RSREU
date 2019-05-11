@@ -46,7 +46,7 @@ private:
     QString SelectedKD;
     //Переменные для работы с навигацией по разделам
     void Tree_InsertItem (QTreeWidgetItem *, QString);
-    void RecountPositions ();
+    void RecountPositions (int idfrag, int delta);
     QTreeWidgetItem *Tree_currentItem;
     int Tree_currentColumn;
     //

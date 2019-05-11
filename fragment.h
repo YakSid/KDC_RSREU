@@ -11,6 +11,7 @@ public:
     QString text;
     int PositionOfFirst, PositionOfLast, Size;
     QString Kachestvo, Akt, VoprosABR, Razdel;
+    void Resize();
 };
 
 #endif // FRAGMENT_H
