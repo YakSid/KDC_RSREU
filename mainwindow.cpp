@@ -161,112 +161,15 @@ void MainWindow::Tree_InsertItem(QTreeWidgetItem *parent, QString text)
 
 void MainWindow::RecountPositions(int idfrag, int delta)
 {
-    qDebug() << "delta:" << delta;
     for (int i=idfrag; i<Fragments.count(); i++)
     {
         if (i != idfrag) Fragments[i]->PositionOfFirst += delta;
         Fragments[i]->PositionOfLast += delta;
-        qDebug() << "Пункт" << i << "Pos:" << Fragments[i]->PositionOfFirst << Fragments[i]->PositionOfLast;
     }
 }
 
-void MainWindow::on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column)
+void MainWindow::SetUpVopros()
 {
-    //
-}
-
-void MainWindow::on_TextCenter_cursorPositionChanged()
-{
-    if (!TextCenterIsBlocked)
-    {
-        ui->GoRight->setEnabled(true);
-        //Начать работу с текстом
-        QTextDocument *document = ui->TextCenter->document();
-        QTextCursor cursor(document);
-        QTextCharFormat format;
-        //Снять выделение
-        if (SelectedFragment != -1)
-        {
-            cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-            cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-            format.setFontWeight(QFont::Normal);
-            cursor.mergeCharFormat(format);
-        }
-        //
-        int CursorPosition = ui->TextCenter->textCursor().position();
-        for (int i=0; i<Fragments.count(); i++)
-        {
-            if (Fragments[i]->PositionOfFirst < CursorPosition && Fragments[i]->PositionOfLast > CursorPosition)
-            {
-                SelectedFragment = i;
-                break;
-            }
-        }
-        //Выделить
-        cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-        cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-        format.setFontWeight(QFont::Bold);
-        cursor.mergeCharFormat(format);
-    }
-}
-
-void MainWindow::on_DeleteClause_clicked()
-{
-    //
-}
-
-void MainWindow::on_GoRight_clicked()
-{
-    QTextDocument *document = ui->TextRight->document();
-    QTextCursor cursor(document);
-    TextCenterIsBlocked = true;
-    ui->GoLeft->setEnabled(true);
-    ui->GoRight->setDisabled(true);
-    //Вставка текста в правое окно
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertText(Fragments[SelectedFragment]->text);
-    cursor.insertBlock();
-    OldSizeOfSelectedFragment = Fragments[SelectedFragment]->Size;
-    //Заполнение данных
-    QStringList ListAct = {"КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
-                                   "ОТС | Решение по вопросам Отраслевого соглашения", "ТРОТС | решение по вопросам Территориального соглашения"};
-    QStringList ListRazd = {"ПСП | Социальное партнерство", "ДОГ | Тредовой договор, занятость", "РВ | Рабочее время", "ВО | Время отдыха",
-                                    "ГДП | Гарантии профкома", "ЗП | Заработная плата", "ОТ | Охрана труда", "ТСП | Трудовые споры",
-                                    "СЦ | Социально-бытовое обслуживание", "ТОК | Труд отдельных категорий работников", "ПР | Произв. экон. вопросы"};
-    QStringList ListQuality = {"Ан | Аналоги положений", "Ут | Уточнение положений", "До | Реализация дозволений", "Вы | Повышение условий",
-                                       "Св | Свои, специфические проблемы", "Др | Другое", "Фр | Формулировка", "Ни | Понижение условий"};
-    QStringList AbbreviationAct = {"КЗОТ", "ОБР", "ОТС", "ТРОТС"};
-    QStringList AbbreviationRazd = {"ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР"};
-    QStringList AbbreviationQuality = {"Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни"};
-    ui->Act->addItems(ListAct);
-    ui->Razd->addItems(ListRazd);
-    ui->Quality->addItems(ListQuality);
-    for (int i=0; i<ListAct.size(); i++)
-    {
-        if (Fragments[SelectedFragment]->Akt == AbbreviationAct[i])
-        {
-            ui->Act->setCurrentIndex(i);
-            break;
-        }
-    }
-    for (int i=0; i<ListRazd.size(); i++)
-    {
-        if (Fragments[SelectedFragment]->Razdel == AbbreviationRazd[i])
-        {
-            ui->Razd->setCurrentIndex(i);
-            break;
-        }
-    }
-    for (int i=0; i<ListQuality.size(); i++)
-    {
-        if (Fragments[SelectedFragment]->Kachestvo == AbbreviationQuality[i])
-        {
-            ui->Quality->setCurrentIndex(i);
-            break;
-        }
-    }
-    QStringList ListVopros;
-    QStringList AbbreviationVopros;
     if (ui->Razd->currentIndex() == 0)
     {
         ListVopros.append({"Стороны и их полномочия", "Разрешение споров", "Изменение, заключение и контроль КД", "Ответственность сторон",
@@ -334,6 +237,95 @@ void MainWindow::on_GoRight_clicked()
         ListVopros.append({"Производственно-экономические", "Внебюджетная деятельность", "Обязательства сторон"});
         AbbreviationVopros.append({"ПРЭ", "ВБД", "ОБЯ"});
     }
+}
+
+void MainWindow::on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column)
+{
+    //
+}
+
+void MainWindow::on_TextCenter_cursorPositionChanged()
+{
+    if (!TextCenterIsBlocked)
+    {
+        ui->GoRight->setEnabled(true);
+        //Начать работу с текстом
+        QTextDocument *document = ui->TextCenter->document();
+        QTextCursor cursor(document);
+        QTextCharFormat format;
+        //Снять выделение
+        if (SelectedFragment != -1)
+        {
+            cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+            cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+            format.setFontWeight(QFont::Normal);
+            cursor.mergeCharFormat(format);
+        }
+        //
+        int CursorPosition = ui->TextCenter->textCursor().position();
+        for (int i=0; i<Fragments.count(); i++)
+        {
+            if (Fragments[i]->PositionOfFirst < CursorPosition && Fragments[i]->PositionOfLast > CursorPosition)
+            {
+                SelectedFragment = i;
+                break;
+            }
+        }
+        //Выделить
+        cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+        cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+        format.setFontWeight(QFont::Bold);
+        cursor.mergeCharFormat(format);
+    }
+}
+
+void MainWindow::on_DeleteClause_clicked()
+{
+    //
+}
+
+void MainWindow::on_GoRight_clicked()
+{
+    QTextDocument *document = ui->TextRight->document();
+    QTextCursor cursor(document);
+    TextCenterIsBlocked = true;
+    ui->GoLeft->setEnabled(true);
+    ui->GoRight->setDisabled(true);
+    //Вставка текста в правое окно
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(Fragments[SelectedFragment]->text);
+    cursor.insertBlock();
+    OldSizeOfSelectedFragment = Fragments[SelectedFragment]->Size;
+    //Заполнение данных
+    TextCenterIsBlocked = false;
+    ui->Act->addItems(ListAct);
+    ui->Razd->addItems(ListRazd);
+    ui->Quality->addItems(ListQuality);
+    for (int i=0; i<ListAct.size(); i++)
+    {
+        if (Fragments[SelectedFragment]->Akt == AbbreviationAct[i])
+        {
+            ui->Act->setCurrentIndex(i);
+            break;
+        }
+    }
+    for (int i=0; i<ListRazd.size(); i++)
+    {
+        if (Fragments[SelectedFragment]->Razdel == AbbreviationRazd[i])
+        {
+            ui->Razd->setCurrentIndex(i);
+            break;
+        }
+    }
+    for (int i=0; i<ListQuality.size(); i++)
+    {
+        if (Fragments[SelectedFragment]->Kachestvo == AbbreviationQuality[i])
+        {
+            ui->Quality->setCurrentIndex(i);
+            break;
+        }
+    }
+    SetUpVopros();
     ui->Question->addItems(ListVopros);
     for (int i=0; i<ListVopros.size(); i++)
     {
@@ -343,6 +335,7 @@ void MainWindow::on_GoRight_clicked()
             break;
         }
     }
+    TextCenterIsBlocked = true;
     //Если изменился фрагмент, то FragmentChanges сделать true
 }
 
@@ -371,20 +364,62 @@ void MainWindow::on_GoLeft_clicked()
     //акт
     //качество
     //Вычисление нового размера
-    qDebug() << "Positions of SelectedFragment" << Fragments[SelectedFragment]->PositionOfFirst << Fragments[SelectedFragment]->PositionOfLast;
-    qDebug() << "delta counting:" << ui->TextRight->toPlainText().size() << "-" << Fragments[SelectedFragment]->Size;
     RecountPositions(SelectedFragment, ui->TextRight->toPlainText().size() - Fragments[SelectedFragment]->Size);
     Fragments[SelectedFragment]->Resize();
     //Удаление данных
+    TextCenterIsBlocked = false;
     ui->TextRight->clear();
     ui->Act->clear();
     ui->Razd->clear();
     ui->Quality->clear();
     ui->Question->clear();
-    TextCenterIsBlocked = false;
+    ListVopros.clear();
+    AbbreviationVopros.clear();
 }
 
 void MainWindow::on_NewClause_clicked()
 {
     //
+}
+
+void MainWindow::on_Razd_currentIndexChanged(int index)
+{
+    if (TextCenterIsBlocked)
+    {
+        Fragments[SelectedFragment]->Razdel = AbbreviationRazd[index];
+        QuestionNotSelected = true;
+        ui->Question->clear();
+        ListVopros.clear();
+        AbbreviationVopros.clear();
+        SetUpVopros();
+        ui->Question->addItems(ListVopros);
+        QuestionNotSelected = false;
+    }
+}
+
+void MainWindow::on_Question_currentIndexChanged(int index)
+{
+    if (TextCenterIsBlocked)
+    {
+        if (!QuestionNotSelected)
+        {
+            Fragments[SelectedFragment]->VoprosABR = AbbreviationVopros[index];
+        }
+    }
+}
+
+void MainWindow::on_Act_currentIndexChanged(int index)
+{
+    if (TextCenterIsBlocked)
+    {
+        Fragments[SelectedFragment]->Akt = AbbreviationAct[index];
+    }
+}
+
+void MainWindow::on_Quality_currentIndexChanged(int index)
+{
+    if (TextCenterIsBlocked)
+    {
+        Fragments[SelectedFragment]->Kachestvo = AbbreviationQuality[index];
+    }
 }
