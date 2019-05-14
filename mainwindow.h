@@ -61,7 +61,6 @@ private:
     fragment *frag;
     QVector <fragment*> Fragments;
     bool TextCenterIsBlocked = true;
-    bool FragmentChanges = false;
     int SelectedFragment = -1;
     int OldSizeOfSelectedFragment = -1;
     QStringList ListAct = {"КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
@@ -78,6 +77,7 @@ private:
     QStringList AbbreviationVopros;
     void SetUpVopros();
     bool QuestionNotSelected = false;
+    QString ArgLine;//Строчка параметров
 };
 
 #endif // MAINWINDOW_H

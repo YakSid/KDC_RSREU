@@ -95,15 +95,45 @@ MainWindow::MainWindow(QWidget *parent) :
             int posbegin=0, posend=0;
             while (in2_query.next())
             {
+                frag = new fragment();
+                //Заполнение данных фрагмента и навигатора
+                QuestionNum = in2_query.value(6).toInt();
+                in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
+                in3_query.bindValue(":val1", QuestionNum);
+                if (!in3_query.exec())
+                {
+                    qDebug() << in3_query.lastError().text();
+                }
+                if (in3_query.next())
+                {
+                    for (int i=0; i<11; i++)
+                        if (in3_query.value(2) == AbbreviationTreeHead[i])
+                        {
+                            frag->Razdel = in3_query.value(2).toString();
+                            frag->VoprosABR = in3_query.value(1).toString();
+                            Tree_currentItem = TreeParentsList[i];
+                            break;
+                        }
+                    Tree_InsertItem(Tree_currentItem, in3_query.value(3).toString() + " (" + in3_query.value(1).toString() + ")");
+                }
+                frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(), in2_query.value(5).toString());
                 //Заполнение текста в центральном поле
                 QTextDocument *document = ui->TextCenter->document();
                 QTextCursor cursor(document);
                 cursor.movePosition(QTextCursor::End);
                 posbegin = cursor.position();
                 cursor.insertText(in2_query.value(2).toString());
+                if (frag->text.right(1) != '\n')
+                {
+                    cursor.insertBlock();
+                }
+                ArgLine.clear();
+                ArgLine += frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
+                cursor.insertText(ArgLine);
+                cursor.insertBlock();
                 cursor.insertBlock();
                 posend = cursor.position();
-                frag = new fragment(in2_query.value(2).toString(), posbegin, posend, in2_query.value(4).toString(), in2_query.value(5).toString());
+                frag->SetPositions(posbegin, posend);//Размер включает в себя: Текст, Размер СтрокиАргументов и 2-3 символа нового параграфа
                 Fragments.append(frag);
                 /*//Вычленение номера фрагмента
                 QString Clause = in2_query.value(2).toString();
@@ -121,26 +151,6 @@ MainWindow::MainWindow(QWidget *parent) :
                     if (Clause[Clause.length()-1]==" ")
                         Clause.remove(Clause.length()-1, 1);
                 qDebug() << Clause;*/
-                //Заполнение данных фрагмента
-                QuestionNum = in2_query.value(6).toInt();
-                in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
-                in3_query.bindValue(":val1", QuestionNum);
-                if (!in3_query.exec())
-                {
-                    qDebug() << in3_query.lastError().text();
-                }
-                if (in3_query.next())
-                {
-                    for (int i=0; i<11; i++)
-                        if (in3_query.value(2) == AbbreviationTreeHead[i])
-                        {
-                            Fragments.last()->Razdel = in3_query.value(2).toString();
-                            Fragments.last()->VoprosABR = in3_query.value(1).toString();
-                            Tree_currentItem = TreeParentsList[i];
-                            break;
-                        }
-                    Tree_InsertItem(Tree_currentItem, in3_query.value(3).toString() + " (" + in3_query.value(1).toString() + ")");
-                }
             }
             TextCenterIsBlocked = false;
         }
@@ -294,7 +304,6 @@ void MainWindow::on_GoRight_clicked()
     //Вставка текста в правое окно
     cursor.movePosition(QTextCursor::End);
     cursor.insertText(Fragments[SelectedFragment]->text);
-    cursor.insertBlock();
     OldSizeOfSelectedFragment = Fragments[SelectedFragment]->Size;
     //Заполнение данных
     TextCenterIsBlocked = false;
@@ -336,7 +345,6 @@ void MainWindow::on_GoRight_clicked()
         }
     }
     TextCenterIsBlocked = true;
-    //Если изменился фрагмент, то FragmentChanges сделать true
 }
 
 void MainWindow::on_GoLeft_clicked()
@@ -348,23 +356,21 @@ void MainWindow::on_GoLeft_clicked()
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
     QString tmp = ui->TextRight->toPlainText();
-    tmp.chop(1);
     Fragments[SelectedFragment]->text = tmp;
     cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
     cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-    cursor.insertText(Fragments[SelectedFragment]->text);
-    cursor.insertBlock();
+    ArgLine.clear();
+    if (Fragments[SelectedFragment]->text.right(1) != '\n')
+    {
+        ArgLine += "\n";
+    }
+    ArgLine += frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
+    cursor.insertText(Fragments[SelectedFragment]->text + ArgLine + "\n\n");
     cursor.mergeCharFormat(format);
     cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
-    //Заполнение новых данных
-    //Fragments[SelectedFragment]->text = ui->TextRight->toPlainText();
-    //раздел
-    //вопрос
-    //акт
-    //качество
     //Вычисление нового размера
-    RecountPositions(SelectedFragment, ui->TextRight->toPlainText().size() - Fragments[SelectedFragment]->Size);
+    RecountPositions(SelectedFragment, ui->TextRight->toPlainText().size() + ArgLine.size() + 2 - Fragments[SelectedFragment]->Size);
     Fragments[SelectedFragment]->Resize();
     //Удаление данных
     TextCenterIsBlocked = false;
