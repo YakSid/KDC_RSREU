@@ -15,12 +15,9 @@ public:
     explicit StartDialog(QWidget *parent = nullptr);
     ~StartDialog();
     int StartMode=0;
-    QString Path;
 
 private slots:
     void on_Start_clicked();
-
-    void on_lineEdit_textChanged(const QString &arg1);
 
 private:
     Ui::StartDialog *ui;

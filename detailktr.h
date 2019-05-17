@@ -2,6 +2,7 @@
 #define DETAILKTR_H
 
 #include <QDialog>
+#include "listkd.h"
 
 namespace Ui {
 class DetailKTR;

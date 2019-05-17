@@ -431,3 +431,9 @@ void MainWindow::on_Quality_currentIndexChanged(int index)
         Fragments[SelectedFragment]->Kachestvo = AbbreviationQuality[index];
     }
 }
+
+void MainWindow::on_Effekt_po_razd_clicked()
+{
+    kefDialog.setModal(true);
+    kefDialog.exec();
+}

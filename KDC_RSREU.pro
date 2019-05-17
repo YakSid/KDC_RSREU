@@ -31,7 +31,8 @@ SOURCES += \
     listkd.cpp \
     modellist.cpp \
     fragment.cpp \
-    detailktr.cpp
+    detailktr.cpp \
+    kef.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,13 +40,15 @@ HEADERS += \
     listkd.h \
     modellist.h \
     fragment.h \
-    detailktr.h
+    detailktr.h \
+    kef.h
 
 FORMS += \
         mainwindow.ui \
     startdialog.ui \
     listkd.ui \
-    detailktr.ui
+    detailktr.ui \
+    kef.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

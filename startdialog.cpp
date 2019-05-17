@@ -24,8 +24,3 @@ void StartDialog::on_Start_clicked()
     StartMode = 2;
     StartDialog::close();
 }*/
-
-void StartDialog::on_lineEdit_textChanged(const QString &arg1)
-{
-    Path = arg1;
-}

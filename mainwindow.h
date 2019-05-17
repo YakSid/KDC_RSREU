@@ -6,9 +6,9 @@
 #include <QDebug>
 #include <QTreeWidgetItem>
 #include <QtWidgets>
-#include "startdialog.h"
-#include "listkd.h"
+#include "detailktr.h"
 #include "fragment.h"
+#include "kef.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,10 +45,13 @@ private slots:
 
     void on_Quality_currentIndexChanged(int index);
 
+    void on_Effekt_po_razd_clicked();
+
 private:
     Ui::MainWindow *ui;
     StartDialog sDialog;
     ListKD lDialog;
+    kef kefDialog;
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     QString SelectedKD;

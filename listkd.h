@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QSqlDatabase>
-#include <QSqlRelationalTableModel>
 #include <QSqlError>
 #include <QMessageBox>
 #include <QDebug>
@@ -12,13 +11,10 @@
 #include <QSortFilterProxyModel>
 #include <QDir>
 #include "startdialog.h"
-#include "detailktr.h"
 
 namespace Ui {
 class ListKD;
 }
-
-class QSqlRelationalTableModel;
 
 class ListKD : public QDialog
 {
@@ -43,8 +39,6 @@ private:
     modelList *modelForList;
     QSqlDatabase DatabaseForList;
     QSortFilterProxyModel *proxyModel;
-    //del this \/
-    StartDialog sDialog;
 };
 
 #endif // LISTKD_H
