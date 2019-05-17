@@ -8,16 +8,18 @@
 #include <QSqlError>
 #include <QMessageBox>*/ //Уже подключены?
 
-#define ACCESS "DRIVER={Microsoft Access Driver (*.mdb)};" \
-            "FIL={MS Access};DBQ=C:\\users\\Yakov\\desktop\\БД Диплом.mdb"
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     //НУЖНО ЕСЛИ ПРОПУСКАЕТСЯ lDIALOG (Продолжается работа)
-    /*Database = QSqlDatabase::addDatabase("QODBC");
-    Database.setDatabaseName(ACCESS);
+    /*QString ACC = "DRIVER={Microsoft Access Driver (*.mdb)}; FIL={MS Access}; DBQ=";
+    QString tmpPath = QDir::currentPath() + "\\БД МК.mdb";
+    while (tmpPath.contains('/'))
+        tmpPath.replace(tmpPath.indexOf('/'),1,'\\');
+    ACC += tmpPath;
+    DatabaseForList = QSqlDatabase::addDatabase("QODBC");
+    DatabaseForList.setDatabaseName(ACC);
     if (!Database.open())
     {
         QMessageBox::critical(this, "Master KDA - Error", Database.lastError().text());

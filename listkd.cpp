@@ -1,14 +1,15 @@
 #include "listkd.h"
 #include "ui_listkd.h"
 
-#define ACCESS "DRIVER={Microsoft Access Driver (*.mdb)};" \
-            "FIL={MS Access};DBQ=C:\\users\\Yakov\\desktop\\БД Диплом.mdb"
-
 ListKD::ListKD(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ListKD)
 {
-    QString ACC = "DRIVER={Microsoft Access Driver (*.mdb)}; FIL={MS Access}; DBQ=C:\\users\\БД Диплом.mdb";
+    QString ACC = "DRIVER={Microsoft Access Driver (*.mdb)}; FIL={MS Access}; DBQ=";
+    QString tmpPath = QDir::currentPath() + "\\БД МК.mdb";
+    while (tmpPath.contains('/'))
+        tmpPath.replace(tmpPath.indexOf('/'),1,'\\');
+    ACC += tmpPath;
     DatabaseForList = QSqlDatabase::addDatabase("QODBC");
     DatabaseForList.setDatabaseName(ACC);
     if (!DatabaseForList.open())
@@ -18,7 +19,6 @@ ListKD::ListKD(QWidget *parent) :
     }
     modelForList = new modelList();
     modelForList->setTable("Договор");
-    //modelForList->setRelation(0, QSqlRelation("ТУчреждение", "КодУчреждения", "ИмяУчреждения"));
     modelForList->removeColumns(3,2);
     modelForList->removeColumns(6,6);
     modelForList->removeColumns(9,4);

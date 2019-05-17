@@ -10,7 +10,9 @@
 #include "QStandardItem"
 #include "modellist.h"
 #include <QSortFilterProxyModel>
-#include "startdialog.h"//удалить
+#include <QDir>
+#include "startdialog.h"
+#include "detailktr.h"
 
 namespace Ui {
 class ListKD;

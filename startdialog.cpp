@@ -1,6 +1,5 @@
 #include "startdialog.h"
 #include "ui_startdialog.h"
-#include <QDebug> // del this
 
 StartDialog::StartDialog(QWidget *parent) :
     QDialog(parent),
@@ -25,3 +24,8 @@ void StartDialog::on_Start_clicked()
     StartMode = 2;
     StartDialog::close();
 }*/
+
+void StartDialog::on_lineEdit_textChanged(const QString &arg1)
+{
+    Path = arg1;
+}
