@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         lDialog.setModal(true);
         lDialog.exec();
-        if (lDialog.SelectedKD=="")
+        if (!lDialog.WantGo)
         {
             exit(3);
         }
@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
             //Создание дерева
             ui->treeWidgetRazd->setColumnCount(1);
-            Tree_currentItem = NULL;
+            Tree_currentItem = nullptr;
             Tree_currentColumn = 0;
             //Заполнение заголовков дерева
             QString TreeHead[11] = {"1. Социальное партнерство (ПСП)","2. Трудовой договор, занятость (ДОГ)","3. Рабочее время (РВ)",
@@ -366,7 +366,7 @@ void MainWindow::on_GoLeft_clicked()
     {
         ArgLine += "\n";
     }
-    ArgLine += frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
+    ArgLine += Fragments[SelectedFragment]->Razdel + "\t" + Fragments[SelectedFragment]->VoprosABR + "\t" + Fragments[SelectedFragment]->Akt + "\t" + frag->Kachestvo;
     cursor.insertText(Fragments[SelectedFragment]->text + ArgLine + "\n\n");
     cursor.mergeCharFormat(format);
     cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);

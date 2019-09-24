@@ -66,6 +66,7 @@ void ListKD::on_DetailKTR_clicked()
 
 void ListKD::on_SelectKD_clicked()
 {
+    WantGo = true;
     ListKD::close();
 }
 

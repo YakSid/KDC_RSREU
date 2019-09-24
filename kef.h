@@ -15,9 +15,6 @@ public:
     explicit kef(QWidget *parent = nullptr);
     ~kef();
 
-private slots:
-    void on_pushButton_clicked();
-
 private:
     Ui::kef *ui;
 };

@@ -24,6 +24,7 @@ public:
     explicit ListKD(QWidget *parent = nullptr);
     ~ListKD();
     QString SelectedKD = "";
+    bool WantGo = false;
 
 private slots:
     void on_Ref_clicked();

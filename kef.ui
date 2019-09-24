@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
+    <width>801</width>
     <height>223</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
    <property name="title">
     <string>До внесения изменений</string>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1533,31 +1533,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>800</x>
-     <y>10</y>
-     <width>61</width>
-     <height>191</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>1</width>
-     <height>1</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>1666</width>
-     <height>1666</height>
-    </size>
-   </property>
-   <property name="text">
-    <string>Назад</string>
-   </property>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">

@@ -13,7 +13,3 @@ kef::~kef()
     delete ui;
 }
 
-void kef::on_pushButton_clicked()
-{
-    close();
-}
