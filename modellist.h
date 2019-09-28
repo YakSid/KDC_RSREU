@@ -9,6 +9,7 @@ class modelList : public QSqlRelationalTableModel
     Q_OBJECT
 public:
     modelList();
+
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 };

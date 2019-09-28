@@ -5,10 +5,7 @@ fragment::fragment()
     //
 }
 
-fragment::~fragment()
-{
-
-}
+fragment::~fragment() {}
 
 void fragment::SetPositions(int p1, int p2)
 {

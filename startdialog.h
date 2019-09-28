@@ -14,7 +14,7 @@ class StartDialog : public QDialog
 public:
     explicit StartDialog(QWidget *parent = nullptr);
     ~StartDialog();
-    int StartMode=0;
+    int StartMode = 0;
 
 private slots:
     void on_Start_clicked();

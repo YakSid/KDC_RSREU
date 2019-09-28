@@ -56,31 +56,48 @@ private:
     QSqlDatabase Database;
     QString SelectedKD;
     //Переменные для работы с навигацией по разделам
-    void Tree_InsertItem (QTreeWidgetItem *, QString);
-    void RecountPositions (int idfrag, int delta);
+    void Tree_InsertItem(QTreeWidgetItem *, QString);
+    void RecountPositions(int idfrag, int delta);
     QTreeWidgetItem *Tree_currentItem;
     int Tree_currentColumn;
     //
     fragment *frag;
-    QVector <fragment*> Fragments;
+    QVector<fragment *> Fragments;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
     int OldSizeOfSelectedFragment = -1;
-    QStringList ListAct = {"КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
-                                   "ОТС | Решение по вопросам Отраслевого соглашения", "ТРОТС | решение по вопросам Территориального соглашения"};
-    QStringList ListRazd = {"ПСП | Социальное партнерство", "ДОГ | Трудовой договор, занятость", "РВ | Рабочее время", "ВО | Время отдыха",
-                                    "ГДП | Гарантии профкома", "ЗП | Заработная плата", "ОТ | Охрана труда", "ТСП | Трудовые споры",
-                                    "СЦ | Социально-бытовое обслуживание", "ТОК | Труд отдельных категорий работников", "ПР | Произв. экон. вопросы"};
-    QStringList ListQuality = {"Ан | Аналоги положений", "Ут | Уточнение положений", "До | Реализация дозволений", "Вы | Повышение условий",
-                                       "Св | Свои, специфические проблемы", "Др | Другое", "Фр | Формулировка", "Ни | Понижение условий"};
-    QStringList AbbreviationAct = {"КЗОТ", "ОБР", "ОТС", "ТРОТС"};
-    QStringList AbbreviationRazd = {"ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР"};
-    QStringList AbbreviationQuality = {"Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни"};
+    QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов",
+                            "ОБР | Решение отраслевых вопросов (образования)",
+                            "ОТС | Решение по вопросам Отраслевого соглашения",
+                            "ТРОТС | решение по вопросам Территориального соглашения" };
+    QStringList ListRazd = { "ПСП | Социальное партнерство",
+                             "ДОГ | Трудовой договор, занятость",
+                             "РВ | Рабочее время",
+                             "ВО | Время отдыха",
+                             "ГДП | Гарантии профкома",
+                             "ЗП | Заработная плата",
+                             "ОТ | Охрана труда",
+                             "ТСП | Трудовые споры",
+                             "СЦ | Социально-бытовое обслуживание",
+                             "ТОК | Труд отдельных категорий работников",
+                             "ПР | Произв. экон. вопросы" };
+    QStringList ListQuality = { "Ан | Аналоги положений",
+                                "Ут | Уточнение положений",
+                                "До | Реализация дозволений",
+                                "Вы | Повышение условий",
+                                "Св | Свои, специфические проблемы",
+                                "Др | Другое",
+                                "Фр | Формулировка",
+                                "Ни | Понижение условий" };
+    QStringList AbbreviationAct = { "КЗОТ", "ОБР", "ОТС", "ТРОТС" };
+    QStringList AbbreviationRazd = { "ПСП", "ДОГ", "РВ", "ВО",  "ГДП", "ЗП",
+                                     "ОТ",  "ТСП", "СЦ", "ТОК", "ПР" };
+    QStringList AbbreviationQuality = { "Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни" };
     QStringList ListVopros;
     QStringList AbbreviationVopros;
     void SetUpVopros();
     bool QuestionNotSelected = false;
-    QString ArgLine;//Строчка параметров
+    QString ArgLine; //Строчка параметров
 };
 
 #endif // MAINWINDOW_H
