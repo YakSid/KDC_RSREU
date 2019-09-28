@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    knowledgebase.cpp \
         main.cpp \
         mainwindow.cpp \
     startdialog.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
     kef.cpp
 
 HEADERS += \
+    knowledgebase.h \
         mainwindow.h \
     startdialog.h \
     listkd.h \
@@ -44,6 +46,7 @@ HEADERS += \
     kef.h
 
 FORMS += \
+    knowledgebase.ui \
         mainwindow.ui \
     startdialog.ui \
     listkd.ui \
