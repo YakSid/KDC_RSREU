@@ -7,8 +7,8 @@
 #include <QTreeWidgetItem>
 #include <QtWidgets>
 #include "detailktr.h"
-#include "fragment.h"
 #include "kef.h"
+#include "knowledgebase.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +23,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void s_sentFragment(fragment *frag);
 
 private slots:
     void on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column);
@@ -47,6 +50,8 @@ private slots:
 
     void on_Effekt_po_razd_clicked();
 
+    void on_BazeKnowledge_clicked();
+
 private:
     Ui::MainWindow *ui;
     StartDialog sDialog;
@@ -66,8 +71,7 @@ private:
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
     int OldSizeOfSelectedFragment = -1;
-    QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов",
-                            "ОБР | Решение отраслевых вопросов (образования)",
+    QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
                             "ОТС | Решение по вопросам Отраслевого соглашения",
                             "ТРОТС | решение по вопросам Территориального соглашения" };
     QStringList ListRazd = { "ПСП | Социальное партнерство",
@@ -90,8 +94,7 @@ private:
                                 "Фр | Формулировка",
                                 "Ни | Понижение условий" };
     QStringList AbbreviationAct = { "КЗОТ", "ОБР", "ОТС", "ТРОТС" };
-    QStringList AbbreviationRazd = { "ПСП", "ДОГ", "РВ", "ВО",  "ГДП", "ЗП",
-                                     "ОТ",  "ТСП", "СЦ", "ТОК", "ПР" };
+    QStringList AbbreviationRazd = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
     QStringList AbbreviationQuality = { "Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни" };
     QStringList ListVopros;
     QStringList AbbreviationVopros;
