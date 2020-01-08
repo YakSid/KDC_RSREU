@@ -110,4 +110,6 @@ void knowledgebase::getFragment(fragment *frag)
             break;
         }
     }
+
+    ui->text->setText(frag->text);
 }
