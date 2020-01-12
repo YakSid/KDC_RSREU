@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         return;
     }*/
 
+    // TODO: Сделать кнопку "Назад / К выбору КД"
+
     sDialog.setModal(true);
     sDialog.exec();
     if (sDialog.StartMode == 1) {
@@ -36,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             ui->setupUi(this);
             //Здесь производится заполнение данных
             //Заполнение коэффициентов
+            CKolDog *currentKolDog = new CKolDog();
             QSqlQuery in1_query, in2_query, in3_query;
             in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
             in1_query.bindValue(":val1", SelectedKD);
@@ -43,6 +46,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 qDebug() << in1_query.lastError().text();
             }
             if (in1_query.next()) {
+                // Заполнение параметров класса договора 21
+                currentKolDog->setMainParameters(
+                        in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
+                        in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
+                        in1_query.value(6).toInt(), in1_query.value(7).toInt(), in1_query.value(13).toFloat(),
+                        in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
+                        in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
+                        in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
+                        in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(30).toFloat());
+
                 QString tmp;
                 ui->DogName->setText(in1_query.value(1).toString());
                 ui->startKTR->setText(in1_query.value(7).toString());
@@ -84,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             };
             QVector<QTreeWidgetItem *> TreeParentsList;
             for (int i = 0; i < 11; i++) {
-                QTreeWidgetItem *newItem = new QTreeWidgetItem(ui->treeWidgetRazd, NULL);
+                QTreeWidgetItem *newItem = new QTreeWidgetItem(ui->treeWidgetRazd, nullptr);
                 newItem->setText(Tree_currentColumn, TreeHead[i]);
                 TreeParentsList.append(newItem);
             }
@@ -97,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             }
             int posbegin = 0, posend = 0;
             while (in2_query.next()) {
-                frag = new fragment();
+                fragment *frag = new fragment();
                 //Заполнение данных фрагмента и навигатора
                 QuestionNum = in2_query.value(6).toInt();
                 in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");

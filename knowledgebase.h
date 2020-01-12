@@ -48,6 +48,19 @@ public:
 public slots:
     void getFragment(fragment *frag);
 
+private slots:
+    void on_pb_unlock_clicked();
+
+    void on_rb_fragments_toggled(bool checked);
+
+    void _select();
+
+    void on_pb_insert_into_kd_clicked();
+
+    void on_pb_next_clicked();
+
+    void on_pb_prev_clicked();
+
 private:
     Ui::knowledgebase *ui;
 };

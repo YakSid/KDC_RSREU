@@ -113,3 +113,52 @@ void knowledgebase::getFragment(fragment *frag)
 
     ui->text->setText(frag->text);
 }
+
+void knowledgebase::on_pb_unlock_clicked()
+{
+    if (ui->razdel->isEnabled()) {
+        ui->pb_unlock->setText("Разблокировать");
+        ui->razdel->setEnabled(false);
+        ui->akt->setEnabled(false);
+        ui->question->setEnabled(false);
+        ui->quality->setEnabled(false);
+    } else {
+        ui->pb_unlock->setText("Заблокировать");
+        ui->razdel->setEnabled(true);
+        ui->akt->setEnabled(true);
+        ui->question->setEnabled(true);
+        ui->quality->setEnabled(true);
+    }
+}
+
+void knowledgebase::on_rb_fragments_toggled(bool checked)
+{
+    if (checked) {
+        ui->lb_quality->setText("Возможность:");
+    } else {
+        ui->lb_quality->setText("Качество:");
+    }
+}
+
+void knowledgebase::_select()
+{
+    //! Делает выборку по заданным параметрам из базы данных, вызывается в каждом изменении аргументов
+    // TODO: сделать метод _select
+}
+
+void knowledgebase::on_pb_insert_into_kd_clicked()
+{
+    //! Вставить нынешний text в поле редактирования mainwindow (с соответствующим изменением размеров)
+    // TODO: сделать метод добавления нового пункта в кд
+    // TODO: сделать метод вставки из БЗ в окно редактирования
+}
+
+void knowledgebase::on_pb_next_clicked()
+{
+    //! Показать следующий фрагмент
+}
+
+void knowledgebase::on_pb_prev_clicked()
+{
+    //! Показать предыдущий фрагмент
+}

@@ -1,9 +1,6 @@
 #include "fragment.h"
 
-fragment::fragment()
-{
-    //
-}
+fragment::fragment() {}
 
 fragment::~fragment() {}
 

@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    ckoldog.cpp \
     knowledgebase.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
     kef.cpp
 
 HEADERS += \
+    ckoldog.h \
     knowledgebase.h \
         mainwindow.h \
     startdialog.h \

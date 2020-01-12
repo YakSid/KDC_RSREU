@@ -9,6 +9,7 @@
 #include "detailktr.h"
 #include "kef.h"
 #include "knowledgebase.h"
+#include "ckoldog.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,6 +54,10 @@ private slots:
     void on_BazeKnowledge_clicked();
 
 private:
+    //! ----------МЕТОДЫ----------
+    //
+
+private:
     Ui::MainWindow *ui;
     StartDialog sDialog;
     ListKD lDialog;
@@ -66,7 +71,6 @@ private:
     QTreeWidgetItem *Tree_currentItem;
     int Tree_currentColumn;
     //
-    fragment *frag;
     QVector<fragment *> Fragments;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
