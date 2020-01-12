@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             ui->setupUi(this);
             //Здесь производится заполнение данных
             //Заполнение коэффициентов
-            CKolDog *currentKolDog = new CKolDog();
+            currentKolDog = new CKolDog();
             QSqlQuery in1_query, in2_query, in3_query;
             in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
             in1_query.bindValue(":val1", SelectedKD);
@@ -149,7 +149,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 frag->SetPositions(posbegin,
                                    posend); //Размер включает в себя: Текст, Размер СтрокиАргументов
                                             //и 2-3 символа нового параграфа
-                Fragments.append(frag);
+                currentKolDog->fragments.append(frag);
                 /*//Вычленение номера фрагмента
                 QString Clause = in2_query.value(2).toString();
                 int PosIndex=-1;
@@ -186,10 +186,10 @@ void MainWindow::Tree_InsertItem(QTreeWidgetItem *parent, QString text)
 
 void MainWindow::RecountPositions(int idfrag, int delta)
 {
-    for (int i = idfrag; i < Fragments.count(); i++) {
+    for (int i = idfrag; i < currentKolDog->fragments.count(); i++) {
         if (i != idfrag)
-            Fragments[i]->PositionOfFirst += delta;
-        Fragments[i]->PositionOfLast += delta;
+            currentKolDog->fragments[i]->PositionOfFirst += delta;
+        currentKolDog->fragments[i]->PositionOfLast += delta;
     }
 }
 
@@ -274,22 +274,23 @@ void MainWindow::on_TextCenter_cursorPositionChanged()
         QTextCharFormat format;
         //Снять выделение
         if (SelectedFragment != -1) {
-            cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-            cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
             format.setFontWeight(QFont::Normal);
             cursor.mergeCharFormat(format);
         }
         //
         int CursorPosition = ui->TextCenter->textCursor().position();
-        for (int i = 0; i < Fragments.count(); i++) {
-            if (Fragments[i]->PositionOfFirst < CursorPosition && Fragments[i]->PositionOfLast > CursorPosition) {
+        for (int i = 0; i < currentKolDog->fragments.count(); i++) {
+            if (currentKolDog->fragments[i]->PositionOfFirst < CursorPosition
+                && currentKolDog->fragments[i]->PositionOfLast > CursorPosition) {
                 SelectedFragment = i;
                 break;
             }
         }
         //Выделить
-        cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-        cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
         format.setFontWeight(QFont::Bold);
         cursor.mergeCharFormat(format);
     }
@@ -309,27 +310,27 @@ void MainWindow::on_GoRight_clicked()
     ui->GoRight->setDisabled(true);
     //Вставка текста в правое окно
     cursor.movePosition(QTextCursor::End);
-    cursor.insertText(Fragments[SelectedFragment]->text);
-    OldSizeOfSelectedFragment = Fragments[SelectedFragment]->Size;
+    cursor.insertText(currentKolDog->fragments[SelectedFragment]->text);
+    OldSizeOfSelectedFragment = currentKolDog->fragments[SelectedFragment]->Size;
     //Заполнение данных
     TextCenterIsBlocked = false;
     ui->Act->addItems(ListAct);
     ui->Razd->addItems(ListRazd);
     ui->Quality->addItems(ListQuality);
     for (int i = 0; i < ListAct.size(); i++) {
-        if (Fragments[SelectedFragment]->Akt == AbbreviationAct[i]) {
+        if (currentKolDog->fragments[SelectedFragment]->Akt == AbbreviationAct[i]) {
             ui->Act->setCurrentIndex(i);
             break;
         }
     }
     for (int i = 0; i < ListRazd.size(); i++) {
-        if (Fragments[SelectedFragment]->Razdel == AbbreviationRazd[i]) {
+        if (currentKolDog->fragments[SelectedFragment]->Razdel == AbbreviationRazd[i]) {
             ui->Razd->setCurrentIndex(i);
             break;
         }
     }
     for (int i = 0; i < ListQuality.size(); i++) {
-        if (Fragments[SelectedFragment]->Kachestvo == AbbreviationQuality[i]) {
+        if (currentKolDog->fragments[SelectedFragment]->Kachestvo == AbbreviationQuality[i]) {
             ui->Quality->setCurrentIndex(i);
             break;
         }
@@ -337,7 +338,7 @@ void MainWindow::on_GoRight_clicked()
     SetUpVopros();
     ui->Question->addItems(ListVopros);
     for (int i = 0; i < ListVopros.size(); i++) {
-        if (Fragments[SelectedFragment]->VoprosABR == AbbreviationVopros[i]) {
+        if (currentKolDog->fragments[SelectedFragment]->VoprosABR == AbbreviationVopros[i]) {
             ui->Question->setCurrentIndex(i);
             break;
         }
@@ -354,23 +355,26 @@ void MainWindow::on_GoLeft_clicked()
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
     QString tmp = ui->TextRight->toPlainText();
-    Fragments[SelectedFragment]->text = tmp;
-    cursor.setPosition(Fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-    cursor.setPosition(Fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+    currentKolDog->fragments[SelectedFragment]->text = tmp;
+    cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+    cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
     ArgLine.clear();
-    if (Fragments[SelectedFragment]->text.right(1) != '\n') {
+    if (currentKolDog->fragments[SelectedFragment]->text.right(1) != '\n') {
         ArgLine += "\n";
     }
-    ArgLine += Fragments[SelectedFragment]->Razdel + "\t" + Fragments[SelectedFragment]->VoprosABR + "\t"
-            + Fragments[SelectedFragment]->Akt + "\t" + Fragments[SelectedFragment]->Kachestvo;
-    cursor.insertText(Fragments[SelectedFragment]->text + ArgLine + "\n\n");
+    ArgLine += currentKolDog->fragments[SelectedFragment]->Razdel + "\t"
+            + currentKolDog->fragments[SelectedFragment]->VoprosABR + "\t"
+            + currentKolDog->fragments[SelectedFragment]->Akt + "\t"
+            + currentKolDog->fragments[SelectedFragment]->Kachestvo;
+    cursor.insertText(currentKolDog->fragments[SelectedFragment]->text + ArgLine + "\n\n");
     cursor.mergeCharFormat(format);
     cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
     //Вычисление нового размера
     RecountPositions(SelectedFragment,
-                     ui->TextRight->toPlainText().size() + ArgLine.size() + 2 - Fragments[SelectedFragment]->Size);
-    Fragments[SelectedFragment]->Resize();
+                     ui->TextRight->toPlainText().size() + ArgLine.size() + 2
+                             - currentKolDog->fragments[SelectedFragment]->Size);
+    currentKolDog->fragments[SelectedFragment]->Resize();
     //Удаление данных
     TextCenterIsBlocked = false;
     ui->TextRight->clear();
@@ -390,7 +394,7 @@ void MainWindow::on_NewClause_clicked()
 void MainWindow::on_Razd_currentIndexChanged(int index)
 {
     if (TextCenterIsBlocked) {
-        Fragments[SelectedFragment]->Razdel = AbbreviationRazd[index];
+        currentKolDog->fragments[SelectedFragment]->Razdel = AbbreviationRazd[index];
         QuestionNotSelected = true;
         ui->Question->clear();
         ListVopros.clear();
@@ -405,7 +409,7 @@ void MainWindow::on_Question_currentIndexChanged(int index)
 {
     if (TextCenterIsBlocked) {
         if (!QuestionNotSelected) {
-            Fragments[SelectedFragment]->VoprosABR = AbbreviationVopros[index];
+            currentKolDog->fragments[SelectedFragment]->VoprosABR = AbbreviationVopros[index];
         }
     }
 }
@@ -413,21 +417,27 @@ void MainWindow::on_Question_currentIndexChanged(int index)
 void MainWindow::on_Act_currentIndexChanged(int index)
 {
     if (TextCenterIsBlocked) {
-        Fragments[SelectedFragment]->Akt = AbbreviationAct[index];
+        currentKolDog->fragments[SelectedFragment]->Akt = AbbreviationAct[index];
     }
 }
 
 void MainWindow::on_Quality_currentIndexChanged(int index)
 {
     if (TextCenterIsBlocked) {
-        Fragments[SelectedFragment]->Kachestvo = AbbreviationQuality[index];
+        currentKolDog->fragments[SelectedFragment]->Kachestvo = AbbreviationQuality[index];
     }
 }
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    kefDialog.setModal(true);
-    kefDialog.exec();
+    kef *kefDialog = new kef();
+    connect(this, &MainWindow::s_sentKefs, kefDialog, &kef::getKefs);
+    emit s_sentKefs(currentKolDog->getKtr(), currentKolDog->getKsc(), currentKolDog->getKgdp(),
+                    currentKolDog->getKpsp(), currentKolDog->getKef(), currentKolDog->getZnachimost(),
+                    currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
+                    currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp());
+    kefDialog->setModal(true);
+    kefDialog->exec();
 }
 
 void MainWindow::on_BazeKnowledge_clicked()
@@ -435,9 +445,13 @@ void MainWindow::on_BazeKnowledge_clicked()
     knowledgebase *kBase = new knowledgebase();
     connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
     if (TextCenterIsBlocked) {
-        emit s_sentFragment(Fragments[SelectedFragment]);
+        emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
     }
     kBase->setModal(true);
     kBase->exec();
-    // Работа базы знаний
+}
+
+void MainWindow::on_pb_clearField_clicked()
+{
+    // TODO: сделать очистку поля редактирования, проверить, работает ли изменение размера
 }

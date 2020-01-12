@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDate>
+#include <QVector>
 #include <fragment.h>
 
 class CKolDog
@@ -31,8 +32,31 @@ private:
     int ktsp;
     int kots;
     float sum;
-    //! Параметры фрагментов
-    //
+
+public:
+    //! Фрагменты
+    QVector<fragment *> fragments;
+    QString getId();
+    QString getName();
+    QDate getDate();
+    uint getValidity();
+    bool getComplWithReq();
+    float getZnachimost();
+    int getEffektivnost();
+    int getKtr();
+    float getKef();
+    float getKpsp();
+    int getKgdp();
+    int getKsc();
+    QDate getEndDate();
+    int getKdog();
+    int getKrv();
+    int getKvo();
+    int getKzp();
+    int getKot();
+    int getKtsp();
+    int getKots();
+    float getSum();
 
 public:
     CKolDog();

@@ -11,6 +11,15 @@
 #include "knowledgebase.h"
 #include "ckoldog.h"
 
+//! Задачи
+//! TODO: сворачивание не главных окон
+//! TODO: окно детализации КТР
+//! TODO: база знаний
+//! TODO: окно эффективности по разделам
+//! TODO: работа с файлом проекта (верхняя панель)
+//! TODO: везде сделать лэйауты не больше 1280x720, даже меньше можно
+//! TODO: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
+
 namespace Ui {
 class MainWindow;
 }
@@ -27,6 +36,8 @@ public:
 
 signals:
     void s_sentFragment(fragment *frag);
+    void s_sentKefs(int ktr, int ksc, int kgdp, float kpsp, float kef, float znahimost, int kdog, int krv, int kzp,
+                    int kvo, int kot, int kots, int ktsp);
 
 private slots:
     void on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column);
@@ -53,6 +64,8 @@ private slots:
 
     void on_BazeKnowledge_clicked();
 
+    void on_pb_clearField_clicked();
+
 private:
     //! ----------МЕТОДЫ----------
     //
@@ -61,7 +74,6 @@ private:
     Ui::MainWindow *ui;
     StartDialog sDialog;
     ListKD lDialog;
-    kef kefDialog;
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     QString SelectedKD;
@@ -71,7 +83,7 @@ private:
     QTreeWidgetItem *Tree_currentItem;
     int Tree_currentColumn;
     //
-    QVector<fragment *> Fragments;
+    CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
     int OldSizeOfSelectedFragment = -1;

@@ -40,6 +40,11 @@ private:
     modelList *modelForList;
     QSqlDatabase DatabaseForList;
     QSortFilterProxyModel *proxyModel;
+    enum EViewMode { eStandardView, eDetailView };
+    EViewMode viewMode { eStandardView };
+
+private:
+    void _prepareView(EViewMode mode);
 };
 
 #endif // LISTKD_H

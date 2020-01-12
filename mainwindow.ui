@@ -425,7 +425,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="ClearField">
+   <widget class="QPushButton" name="pb_clearField">
     <property name="geometry">
      <rect>
       <x>1000</x>
@@ -622,7 +622,7 @@ p, li { white-space: pre-wrap; }
        <x>108</x>
        <y>0</y>
        <width>359</width>
-       <height>82</height>
+       <height>86</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
@@ -1004,7 +1004,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
