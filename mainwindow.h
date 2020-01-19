@@ -19,6 +19,7 @@
 //! TODO: работа с файлом проекта (верхняя панель)
 //! TODO: везде сделать лэйауты не больше 1280x720, даже меньше можно
 //! TODO: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
+//! TODO: норм подключение к базе и выбор пользователя
 
 namespace Ui {
 class MainWindow;
@@ -40,9 +41,7 @@ signals:
                     int kvo, int kot, int kots, int ktsp);
 
 private slots:
-    void on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_TextCenter_cursorPositionChanged();
+    void on_te_textCenter_cursorPositionChanged();
 
     void on_DeleteClause_clicked();
 
@@ -66,8 +65,19 @@ private slots:
 
     void on_pb_clearField_clicked();
 
+    void on_TextRight_textChanged();
+
+    void on_tw_navigator_cellClicked(int row, int column);
+
+    void on_btn_showFullText_clicked();
+
 private:
     //! ----------МЕТОДЫ----------
+    //! Подготовка главного окна
+    void _prepareView();
+    void _fillCentralField();
+    void _recountPositions(int idfrag, int delta);
+    void _setUpQuestion();
     //
 
 private:
@@ -77,12 +87,6 @@ private:
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     QString SelectedKD;
-    //Переменные для работы с навигацией по разделам
-    void Tree_InsertItem(QTreeWidgetItem *, QString);
-    void RecountPositions(int idfrag, int delta);
-    QTreeWidgetItem *Tree_currentItem;
-    int Tree_currentColumn;
-    //
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
@@ -114,7 +118,6 @@ private:
     QStringList AbbreviationQuality = { "Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни" };
     QStringList ListVopros;
     QStringList AbbreviationVopros;
-    void SetUpVopros();
     bool QuestionNotSelected = false;
     QString ArgLine; //Строчка параметров
 };

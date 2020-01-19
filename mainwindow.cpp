@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 qDebug() << in1_query.lastError().text();
             }
             if (in1_query.next()) {
-                // Заполнение параметров класса договора 21
+                // Заполнение параметров класса договора
                 currentKolDog->setMainParameters(
                         in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
                         in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
@@ -76,31 +76,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 ui->KPSP->setText(ui->startKPSP->text());
                 ui->KEF->setText(ui->startKEF->text());
             }
-            //Создание дерева
-            ui->treeWidgetRazd->setColumnCount(1);
-            Tree_currentItem = nullptr;
-            Tree_currentColumn = 0;
-            //Заполнение заголовков дерева
-            QString TreeHead[11] = { "1. Социальное партнерство (ПСП)",
-                                     "2. Трудовой договор, занятость (ДОГ)",
-                                     "3. Рабочее время (РВ)",
-                                     "4. Время отдыха (ВО)",
-                                     "5. Гарантии деятельности профкома (ГДП)",
-                                     "6. Заработная плата (ЗП)",
-                                     "7. Охрана труда (ОТ)",
-                                     "8. Трудовые споры (ТСП)",
-                                     "9. Социально-бытовые вопросы (СЦ)",
-                                     "10. Труд отдельных категорий работников (ТОК)",
-                                     "11. Производственные вопросы (ПР)" };
-            QString AbbreviationTreeHead[11] = {
+
+            _prepareView();
+            QStringList AbbreviationTreeHead = {
                 "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР"
             };
-            QVector<QTreeWidgetItem *> TreeParentsList;
-            for (int i = 0; i < 11; i++) {
-                QTreeWidgetItem *newItem = new QTreeWidgetItem(ui->treeWidgetRazd, nullptr);
-                newItem->setText(Tree_currentColumn, TreeHead[i]);
-                TreeParentsList.append(newItem);
-            }
             //Запрос на заполнение центрального поля
             int QuestionNum = 0;
             in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
@@ -123,16 +103,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         if (in3_query.value(2) == AbbreviationTreeHead[i]) {
                             frag->Razdel = in3_query.value(2).toString();
                             frag->VoprosABR = in3_query.value(1).toString();
-                            Tree_currentItem = TreeParentsList[i];
                             break;
                         }
-                    Tree_InsertItem(Tree_currentItem,
-                                    in3_query.value(3).toString() + " (" + in3_query.value(1).toString() + ")");
                 }
                 frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(),
                                    in2_query.value(5).toString());
                 //Заполнение текста в центральном поле
-                QTextDocument *document = ui->TextCenter->document();
+                // TODO: вынести в функцию _fillCentralField
+                QTextDocument *document = ui->te_textCenter->document();
                 QTextCursor cursor(document);
                 cursor.movePosition(QTextCursor::End);
                 posbegin = cursor.position();
@@ -149,23 +127,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 frag->SetPositions(posbegin,
                                    posend); //Размер включает в себя: Текст, Размер СтрокиАргументов
                                             //и 2-3 символа нового параграфа
+                // TODO: Решить проблему увеличения длинны фрагментов
                 currentKolDog->fragments.append(frag);
-                /*//Вычленение номера фрагмента
-                QString Clause = in2_query.value(2).toString();
-                int PosIndex=-1;
-                for (int i=0; i<Clause.size(); i++)
-                {
-                    if (Clause[i].isLetter())
-                    {
-                        PosIndex = i;
-                        break;
-                    }
-                }
-                Clause.remove(PosIndex, Clause.length()-PosIndex);
-                if (Clause.length()!=0)
-                    if (Clause[Clause.length()-1]==" ")
-                        Clause.remove(Clause.length()-1, 1);
-                qDebug() << Clause;*/
             }
             TextCenterIsBlocked = false;
         }
@@ -178,13 +141,38 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::Tree_InsertItem(QTreeWidgetItem *parent, QString text)
+void MainWindow::_prepareView()
 {
-    QTreeWidgetItem *newItem = new QTreeWidgetItem(parent, 0);
-    newItem->setText(Tree_currentColumn, text);
+    ui->tw_navigator->setColumnWidth(0, 211);
+    ui->tw_navigator->setProperty("prevSelection", -1);
 }
 
-void MainWindow::RecountPositions(int idfrag, int delta)
+void MainWindow::_fillCentralField()
+{
+    QString argLine;
+    for (auto fragment : currentKolDog->fragments) {
+        QTextDocument *document = ui->te_textCenter->document();
+        QTextCursor cursor(document);
+        cursor.movePosition(QTextCursor::End);
+        qint32 posbegin = cursor.position();
+        cursor.insertText(fragment->text);
+
+        if (fragment->text.right(1) != '\n') {
+            cursor.insertBlock();
+        }
+        argLine.clear();
+        argLine += fragment->Razdel + "\t" + fragment->VoprosABR + "\t" + fragment->Akt + "\t" + fragment->Kachestvo;
+        cursor.insertText(argLine);
+        cursor.insertBlock();
+        cursor.insertBlock();
+        posend = cursor.position();
+        fragment->SetPositions(posbegin,
+                               posend); //Размер включает в себя: Текст, Размер СтрокиАргументов
+                                        //и 2-3 символа нового параграфа
+    }
+}
+
+void MainWindow::_recountPositions(int idfrag, int delta)
 {
     for (int i = idfrag; i < currentKolDog->fragments.count(); i++) {
         if (i != idfrag)
@@ -193,7 +181,7 @@ void MainWindow::RecountPositions(int idfrag, int delta)
     }
 }
 
-void MainWindow::SetUpVopros()
+void MainWindow::_setUpQuestion()
 {
     if (ui->Razd->currentIndex() == 0) {
         ListVopros.append({ "Стороны и их полномочия", "Разрешение споров", "Изменение, заключение и контроль КД",
@@ -259,17 +247,12 @@ void MainWindow::SetUpVopros()
     }
 }
 
-void MainWindow::on_treeWidgetRazd_itemClicked(QTreeWidgetItem *item, int column)
-{
-    //
-}
-
-void MainWindow::on_TextCenter_cursorPositionChanged()
+void MainWindow::on_te_textCenter_cursorPositionChanged()
 {
     if (!TextCenterIsBlocked) {
         ui->GoRight->setEnabled(true);
         //Начать работу с текстом
-        QTextDocument *document = ui->TextCenter->document();
+        QTextDocument *document = ui->te_textCenter->document();
         QTextCursor cursor(document);
         QTextCharFormat format;
         //Снять выделение
@@ -280,7 +263,7 @@ void MainWindow::on_TextCenter_cursorPositionChanged()
             cursor.mergeCharFormat(format);
         }
         //
-        int CursorPosition = ui->TextCenter->textCursor().position();
+        int CursorPosition = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
             if (currentKolDog->fragments[i]->PositionOfFirst < CursorPosition
                 && currentKolDog->fragments[i]->PositionOfLast > CursorPosition) {
@@ -335,7 +318,7 @@ void MainWindow::on_GoRight_clicked()
             break;
         }
     }
-    SetUpVopros();
+    _setUpQuestion();
     ui->Question->addItems(ListVopros);
     for (int i = 0; i < ListVopros.size(); i++) {
         if (currentKolDog->fragments[SelectedFragment]->VoprosABR == AbbreviationVopros[i]) {
@@ -350,7 +333,7 @@ void MainWindow::on_GoLeft_clicked()
 {
     ui->GoRight->setDisabled(true);
     ui->GoLeft->setDisabled(true);
-    QTextDocument *document = ui->TextCenter->document();
+    QTextDocument *document = ui->te_textCenter->document();
     QTextCursor cursor(document);
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
@@ -371,9 +354,9 @@ void MainWindow::on_GoLeft_clicked()
     cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
     //Вычисление нового размера
-    RecountPositions(SelectedFragment,
-                     ui->TextRight->toPlainText().size() + ArgLine.size() + 2
-                             - currentKolDog->fragments[SelectedFragment]->Size);
+    _recountPositions(SelectedFragment,
+                      ui->TextRight->toPlainText().size() + ArgLine.size() + 2
+                              - currentKolDog->fragments[SelectedFragment]->Size);
     currentKolDog->fragments[SelectedFragment]->Resize();
     //Удаление данных
     TextCenterIsBlocked = false;
@@ -399,7 +382,7 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
         ui->Question->clear();
         ListVopros.clear();
         AbbreviationVopros.clear();
-        SetUpVopros();
+        _setUpQuestion();
         ui->Question->addItems(ListVopros);
         QuestionNotSelected = false;
     }
@@ -454,4 +437,30 @@ void MainWindow::on_BazeKnowledge_clicked()
 void MainWindow::on_pb_clearField_clicked()
 {
     // TODO: сделать очистку поля редактирования, проверить, работает ли изменение размера
+}
+
+void MainWindow::on_TextRight_textChanged()
+{
+    currentKolDog->fragments[SelectedFragment]->changed = true;
+}
+
+void MainWindow::on_tw_navigator_cellClicked(int row, int column)
+{
+    Q_UNUSED(column);
+    if (ui->tw_navigator->property("prevSelection").toInt() != -1) {
+        ui->tw_navigator->item(ui->tw_navigator->property("prevSelection").toInt(), 0)->setBackgroundColor(Qt::white);
+    }
+    ui->tw_navigator->item(row, 0)->setBackgroundColor(Qt::yellow);
+    ui->tw_navigator->setProperty("prevSelection", row);
+    // TODO: показать только подходящие фрагменты
+    ui->btn_showFullText->setEnabled(true);
+}
+
+void MainWindow::on_btn_showFullText_clicked()
+{
+    if (ui->tw_navigator->property("prevSelection").toInt() != -1) {
+        ui->tw_navigator->item(ui->tw_navigator->property("prevSelection").toInt(), 0)->setBackgroundColor(Qt::white);
+    }
+    // TODO: показать полный текст договора
+    ui->btn_showFullText->setEnabled(false);
 }

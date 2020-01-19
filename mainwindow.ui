@@ -354,17 +354,20 @@ p, li { white-space: pre-wrap; }
      <string>подпункт:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ShowFullText">
+   <widget class="QPushButton" name="btn_showFullText">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>740</y>
+      <y>470</y>
       <width>211</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Отобразить полный текст договора</string>
+     <string>Полный текст договора</string>
     </property>
    </widget>
    <widget class="QPushButton" name="GoRight">
@@ -952,39 +955,7 @@ p, li { white-space: pre-wrap; }
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QTreeWidget" name="treeWidgetRazd">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>130</y>
-      <width>211</width>
-      <height>601</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-     </font>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::ActionsContextMenu</enum>
-    </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAsNeeded</enum>
-    </property>
-    <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::AdjustToContents</enum>
-    </property>
-    <property name="headerHidden">
-     <bool>true</bool>
-    </property>
-    <column>
-     <property name="text">
-      <string notr="true">1</string>
-     </property>
-    </column>
-   </widget>
-   <widget class="QTextEdit" name="TextCenter">
+   <widget class="QTextEdit" name="te_textCenter">
     <property name="geometry">
      <rect>
       <x>230</x>
@@ -996,6 +967,115 @@ p, li { white-space: pre-wrap; }
     <property name="readOnly">
      <bool>true</bool>
     </property>
+   </widget>
+   <widget class="QTableWidget" name="tw_navigator">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>211</width>
+      <height>332</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::SelectedClicked</set>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::NoSelection</enum>
+    </property>
+    <property name="showGrid">
+     <bool>true</bool>
+    </property>
+    <property name="cornerButtonEnabled">
+     <bool>true</bool>
+    </property>
+    <property name="rowCount">
+     <number>11</number>
+    </property>
+    <property name="columnCount">
+     <number>1</number>
+    </property>
+    <attribute name="horizontalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="verticalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <row/>
+    <column/>
+    <item row="0" column="0">
+     <property name="text">
+      <string>1. Социальное партнерство</string>
+     </property>
+    </item>
+    <item row="1" column="0">
+     <property name="text">
+      <string>2. Трудовой договор, занятость</string>
+     </property>
+    </item>
+    <item row="2" column="0">
+     <property name="text">
+      <string>3. Рабочее время</string>
+     </property>
+    </item>
+    <item row="3" column="0">
+     <property name="text">
+      <string>4. Время отдыха</string>
+     </property>
+    </item>
+    <item row="4" column="0">
+     <property name="text">
+      <string>5. Гарантии деятельности профкома</string>
+     </property>
+    </item>
+    <item row="5" column="0">
+     <property name="text">
+      <string>6. Заработная плата</string>
+     </property>
+    </item>
+    <item row="6" column="0">
+     <property name="text">
+      <string>7. Охрана труда</string>
+     </property>
+    </item>
+    <item row="7" column="0">
+     <property name="text">
+      <string>8. Трудовые споры</string>
+     </property>
+    </item>
+    <item row="8" column="0">
+     <property name="text">
+      <string>9. Социально-бытовые вопросы</string>
+     </property>
+    </item>
+    <item row="9" column="0">
+     <property name="text">
+      <string>10. Труд отдельных категорий работников</string>
+     </property>
+    </item>
+    <item row="10" column="0">
+     <property name="text">
+      <string>11. Производственные вопросы</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

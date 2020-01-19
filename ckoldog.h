@@ -36,6 +36,9 @@ private:
 public:
     //! Фрагменты
     QVector<fragment *> fragments;
+
+public:
+    CKolDog();
     QString getId();
     QString getName();
     QDate getDate();
@@ -57,10 +60,6 @@ public:
     int getKtsp();
     int getKots();
     float getSum();
-
-public:
-    CKolDog();
-
     void setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq, float znachimost,
                            int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog,
                            int krv, int kvo, int kzp, int kot, int ktsp, int kots, float sum);
