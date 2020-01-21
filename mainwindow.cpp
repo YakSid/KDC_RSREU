@@ -8,6 +8,9 @@
 #include <QSqlError>
 #include <QMessageBox>*/ //Уже подключены?
 
+const char PREVIOUS_SELECTION[] = "previousSelection";
+const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     //НУЖНО ЕСЛИ ПРОПУСКАЕТСЯ lDIALOG (Продолжается работа)
@@ -55,13 +58,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
                         in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
                         in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(30).toFloat());
-
-                QString tmp;
                 ui->DogName->setText(in1_query.value(1).toString());
                 ui->startKTR->setText(in1_query.value(7).toString());
                 ui->startKSC->setText(in1_query.value(16).toString());
                 ui->startKGDP->setText(in1_query.value(15).toString());
-                tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
+                auto tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
                 tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
                 ui->startKPSP->setText(tmp);
                 double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
@@ -69,18 +70,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 tmp = QString::number(doubleKEF, 'f', 1);
                 tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
                 ui->startKEF->setText(tmp);
-
                 ui->KTR->setText(ui->startKTR->text());
                 ui->KSC->setText(ui->startKSC->text());
                 ui->KGDP->setText(ui->startKGDP->text());
                 ui->KPSP->setText(ui->startKPSP->text());
                 ui->KEF->setText(ui->startKEF->text());
             }
-
             _prepareView();
-            QStringList AbbreviationTreeHead = {
-                "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР"
-            };
             //Запрос на заполнение центрального поля
             int QuestionNum = 0;
             in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
@@ -88,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             if (!in2_query.exec()) {
                 qDebug() << in2_query.lastError().text();
             }
-            int posbegin = 0, posend = 0;
+            // int posbegin = 0, posend = 0;
             while (in2_query.next()) {
                 fragment *frag = new fragment();
                 //Заполнение данных фрагмента и навигатора
@@ -108,28 +104,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 }
                 frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(),
                                    in2_query.value(5).toString());
-                //Заполнение текста в центральном поле
-                // TODO: вынести в функцию _fillCentralField
-                QTextDocument *document = ui->te_textCenter->document();
-                QTextCursor cursor(document);
-                cursor.movePosition(QTextCursor::End);
-                posbegin = cursor.position();
-                cursor.insertText(in2_query.value(2).toString());
-                if (frag->text.right(1) != '\n') {
-                    cursor.insertBlock();
-                }
-                ArgLine.clear();
-                ArgLine += frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
-                cursor.insertText(ArgLine);
-                cursor.insertBlock();
-                cursor.insertBlock();
-                posend = cursor.position();
-                frag->SetPositions(posbegin,
-                                   posend); //Размер включает в себя: Текст, Размер СтрокиАргументов
-                                            //и 2-3 символа нового параграфа
-                // TODO: Решить проблему увеличения длинны фрагментов
                 currentKolDog->fragments.append(frag);
+                // TODO: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
             }
+            _fillCentralField(eAllSections);
             TextCenterIsBlocked = false;
         }
     } else
@@ -144,32 +122,53 @@ MainWindow::~MainWindow()
 void MainWindow::_prepareView()
 {
     ui->tw_navigator->setColumnWidth(0, 211);
-    ui->tw_navigator->setProperty("prevSelection", -1);
+    ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
 }
 
-void MainWindow::_fillCentralField()
+void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
+{
+    // FIXME: выделение слетает иногда странно и курсор ставится на небывалую позицию
+    ui->te_textCenter->clear();
+    QTextDocument *document = ui->te_textCenter->document();
+    QTextCursor cursor(document);
+
+    if (selectedSection == eAllSections) {
+        for (auto fragment : currentKolDog->fragments) {
+            // FIXME: оптимизировать - долго грузит
+            _addFragmentToCentralField(fragment, cursor);
+        }
+    } else {
+        for (auto fragment : currentKolDog->fragments) {
+            if (fragment->Razdel == AbbreviationTreeHead[selectedSection]) {
+                _addFragmentToCentralField(fragment, cursor);
+                fragment->isVisible = true;
+            } else {
+                fragment->SetPositions(0, 0);
+                fragment->isVisible = false;
+            }
+        }
+    }
+}
+
+void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
 {
     QString argLine;
-    for (auto fragment : currentKolDog->fragments) {
-        QTextDocument *document = ui->te_textCenter->document();
-        QTextCursor cursor(document);
-        cursor.movePosition(QTextCursor::End);
-        qint32 posbegin = cursor.position();
-        cursor.insertText(fragment->text);
-
-        if (fragment->text.right(1) != '\n') {
-            cursor.insertBlock();
-        }
-        argLine.clear();
-        argLine += fragment->Razdel + "\t" + fragment->VoprosABR + "\t" + fragment->Akt + "\t" + fragment->Kachestvo;
-        cursor.insertText(argLine);
+    qint32 posBegin, posEnd;
+    cursor.movePosition(QTextCursor::End);
+    posBegin = cursor.position();
+    cursor.insertText(frag->text);
+    if (frag->text.right(1) != '\n') {
         cursor.insertBlock();
-        cursor.insertBlock();
-        posend = cursor.position();
-        fragment->SetPositions(posbegin,
-                               posend); //Размер включает в себя: Текст, Размер СтрокиАргументов
-                                        //и 2-3 символа нового параграфа
     }
+    argLine.clear();
+    argLine += frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
+    cursor.insertText(argLine);
+    cursor.insertBlock();
+    cursor.insertBlock();
+    posEnd = cursor.position();
+    frag->SetPositions(posBegin,
+                       posEnd); //Размер включает в себя: Текст, Размер СтрокиАргументов
+                                //и 2-3 символа нового параграфа
 }
 
 void MainWindow::_recountPositions(int idfrag, int delta)
@@ -447,20 +446,22 @@ void MainWindow::on_TextRight_textChanged()
 void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
     Q_UNUSED(column);
-    if (ui->tw_navigator->property("prevSelection").toInt() != -1) {
-        ui->tw_navigator->item(ui->tw_navigator->property("prevSelection").toInt(), 0)->setBackgroundColor(Qt::white);
+    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() != -1) {
+        ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)
+                ->setBackgroundColor(Qt::white);
     }
     ui->tw_navigator->item(row, 0)->setBackgroundColor(Qt::yellow);
-    ui->tw_navigator->setProperty("prevSelection", row);
-    // TODO: показать только подходящие фрагменты
+    ui->tw_navigator->setProperty(PREVIOUS_SELECTION, row);
+    _fillCentralField(EDisplayedSection(row));
     ui->btn_showFullText->setEnabled(true);
 }
 
 void MainWindow::on_btn_showFullText_clicked()
 {
-    if (ui->tw_navigator->property("prevSelection").toInt() != -1) {
-        ui->tw_navigator->item(ui->tw_navigator->property("prevSelection").toInt(), 0)->setBackgroundColor(Qt::white);
+    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() != -1) {
+        ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)
+                ->setBackgroundColor(Qt::white);
     }
-    // TODO: показать полный текст договора
+    _fillCentralField(eAllSections);
     ui->btn_showFullText->setEnabled(false);
 }

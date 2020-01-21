@@ -14,9 +14,10 @@ public:
 
 public:
     QString text;
-    int PositionOfFirst, PositionOfLast, Size;
+    qint32 PositionOfFirst, PositionOfLast, Size;
     QString Kachestvo, Akt, VoprosABR, Razdel;
     bool changed { false };
+    bool isVisible { false };
 };
 
 #endif // FRAGMENT_H

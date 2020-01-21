@@ -21,6 +21,22 @@
 //! TODO: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
 //! TODO: норм подключение к базе и выбор пользователя
 
+//! Тип отображаемого раздела в центральном окне
+enum EDisplayedSection {
+    ePSPSection,
+    eDOGSection,
+    eRVSection,
+    eVOSection,
+    eGDPSection,
+    eZPSection,
+    eOTSection,
+    eTSPSection,
+    eSCSection,
+    eTOCSection,
+    ePRSection,
+    eAllSections
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -75,7 +91,8 @@ private:
     //! ----------МЕТОДЫ----------
     //! Подготовка главного окна
     void _prepareView();
-    void _fillCentralField();
+    void _fillCentralField(EDisplayedSection selectedSection);
+    void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
     void _recountPositions(int idfrag, int delta);
     void _setUpQuestion();
     //

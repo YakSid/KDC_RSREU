@@ -35,7 +35,7 @@ private:
 
 public:
     //! Фрагменты
-    QVector<fragment *> fragments;
+    QList<fragment *> fragments;
 
 public:
     CKolDog();
