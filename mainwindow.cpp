@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(),
                                    in2_query.value(5).toString());
                 currentKolDog->fragments.append(frag);
-                // TODO: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
+                // FIXME: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
             }
             _fillCentralField(eAllSections);
             TextCenterIsBlocked = false;
@@ -127,14 +127,13 @@ void MainWindow::_prepareView()
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
 {
-    // FIXME: выделение слетает иногда странно и курсор ставится на небывалую позицию
+    TextCenterIsBlocked = true;
     ui->te_textCenter->clear();
-    QTextDocument *document = ui->te_textCenter->document();
-    QTextCursor cursor(document);
+    m_document = ui->te_textCenter->document();
+    QTextCursor cursor(m_document);
 
     if (selectedSection == eAllSections) {
         for (auto fragment : currentKolDog->fragments) {
-            // FIXME: оптимизировать - долго грузит
             _addFragmentToCentralField(fragment, cursor);
         }
     } else {
@@ -148,6 +147,7 @@ void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
             }
         }
     }
+    TextCenterIsBlocked = false;
 }
 
 void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
@@ -251,8 +251,8 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
     if (!TextCenterIsBlocked) {
         ui->GoRight->setEnabled(true);
         //Начать работу с текстом
-        QTextDocument *document = ui->te_textCenter->document();
-        QTextCursor cursor(document);
+        m_document = ui->te_textCenter->document();
+        QTextCursor cursor(m_document);
         QTextCharFormat format;
         //Снять выделение
         if (SelectedFragment != -1) {
@@ -285,8 +285,8 @@ void MainWindow::on_DeleteClause_clicked()
 
 void MainWindow::on_GoRight_clicked()
 {
-    QTextDocument *document = ui->TextRight->document();
-    QTextCursor cursor(document);
+    m_document = ui->TextRight->document();
+    QTextCursor cursor(m_document);
     TextCenterIsBlocked = true;
     ui->GoLeft->setEnabled(true);
     ui->GoRight->setDisabled(true);
@@ -332,8 +332,8 @@ void MainWindow::on_GoLeft_clicked()
 {
     ui->GoRight->setDisabled(true);
     ui->GoLeft->setDisabled(true);
-    QTextDocument *document = ui->te_textCenter->document();
-    QTextCursor cursor(document);
+    m_document = ui->te_textCenter->document();
+    QTextCursor cursor(m_document);
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
     QString tmp = ui->TextRight->toPlainText();

@@ -99,6 +99,7 @@ private:
 
 private:
     Ui::MainWindow *ui;
+    QTextDocument *m_document;
     StartDialog sDialog;
     ListKD lDialog;
     QSqlRelationalTableModel *model;
