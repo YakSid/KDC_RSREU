@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(),
                                    in2_query.value(5).toString());
                 currentKolDog->fragments.append(frag);
-                // FIXME: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
+                // WARNING: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
             }
             _fillCentralField(eAllSections);
             TextCenterIsBlocked = false;
@@ -116,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+    delete kBase;
     delete ui;
 }
 
@@ -424,7 +425,7 @@ void MainWindow::on_Effekt_po_razd_clicked()
 
 void MainWindow::on_BazeKnowledge_clicked()
 {
-    knowledgebase *kBase = new knowledgebase();
+    kBase = new knowledgebase();
     connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
     if (TextCenterIsBlocked) {
         emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);

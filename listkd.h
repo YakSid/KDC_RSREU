@@ -12,6 +12,8 @@
 #include <QDir>
 #include "startdialog.h"
 
+enum EViewMode { eStandardView, eDetailView };
+
 namespace Ui {
 class ListKD;
 }
@@ -40,7 +42,6 @@ private:
     modelList *modelForList;
     QSqlDatabase DatabaseForList;
     QSortFilterProxyModel *proxyModel;
-    enum EViewMode { eStandardView, eDetailView };
     EViewMode viewMode { eStandardView };
 
 private:
