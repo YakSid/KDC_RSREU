@@ -191,7 +191,7 @@ void knowledgebase::_select()
 {
     fragmentsForShow.clear();
     // TODO: Выбор фрагментов из бд для показа
-    QSqlQuery querySelect;
+    /*QSqlQuery querySelect;
     querySelect.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
     querySelect.bindValue(":val1", SelectedKD);
     if (!querySelect.exec()) {
@@ -201,7 +201,7 @@ void knowledgebase::_select()
         // Заполнение параметров класса договора
         qDebug() << querySelect.value(0).toString();
         fragmentsForShow.append("text_that_found");
-    }
+    }*/
 }
 
 void knowledgebase::on_pb_insert_into_kd_clicked()

@@ -8,6 +8,8 @@
 #include <QSqlError>
 #include <QMessageBox>*/ //Уже подключены?
 
+// BUG: При смене раздела неправильно меняется вопрос, только вручную норм
+
 const char PREVIOUS_SELECTION[] = "previousSelection";
 const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
 

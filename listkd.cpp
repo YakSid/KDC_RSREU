@@ -17,6 +17,7 @@ ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 
     ui->setupUi(this);
     ui->SelectKD->setEnabled(false);
+    ui->cmb_search->setCurrentIndex(1);
 
     _prepareView(eStandardView);
 }
@@ -102,4 +103,49 @@ void ListKD::_prepareView(EViewMode mode)
     }
     ui->tableView->resizeColumnsToContents();
     ui->tableView->horizontalHeader()->resizeSection(1, 369);
+}
+
+void ListKD::_search(ESearchState state, QString text)
+{
+    if (state != eSearchUnknown) {
+        for (int i = 0; i < proxyModel->rowCount(); i++) {
+            const auto &index = proxyModel->index(i, state);
+            QString indexText = ui->tableView->model()->data(index).toString().toLower();
+            if (!indexText.contains(text.toLower())) {
+                ui->tableView->setRowHidden(index.row(), true);
+            }
+        }
+    }
+}
+
+void ListKD::_showHiddenKeys()
+{
+    QModelIndex index;
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
+        index = proxyModel->index(i, 0);
+        ui->tableView->setRowHidden(index.row(), false);
+    }
+}
+
+void ListKD::on_ln_search_textChanged(const QString &arg1)
+{
+    if (prevSearchRequest.length() > arg1.length()) {
+        if (searchState == eSearchUnknown) {
+            QMessageBox msg;
+            msg.setText("Выбрана не поддерживаемая опция поиска");
+            msg.setWindowTitle("Поиск невозможен");
+            msg.exec();
+        }
+    } else {
+        _showHiddenKeys();
+    }
+    _search(searchState, arg1);
+}
+void ListKD::on_cmb_search_currentIndexChanged(int index)
+{
+    searchState = static_cast<ESearchState>(index);
+    if (!ui->ln_search->text().isEmpty()) {
+        _showHiddenKeys();
+        _search(searchState, ui->ln_search->text());
+    }
 }

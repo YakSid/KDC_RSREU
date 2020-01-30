@@ -14,13 +14,31 @@ class StartDialog : public QDialog
 public:
     explicit StartDialog(QWidget *parent = nullptr);
     ~StartDialog();
-    int StartMode = 0;
+
+    int StartMode { 0 };
+    QString authorName;
 
 private slots:
     void on_Start_clicked();
 
+    void on_pb_accept_clicked();
+
+    void on_pb_addAuthor_clicked();
+
+    void on_pb_deleteAuthor_clicked();
+
+    void on_pb_changeAuthor_clicked();
+
+private:
+    void _addAuthor(QString name);
+    QStringList _getAllAuthors();
+    void _showMessage(QString text);
+    void _updateLogfile(QStringList authors);
+    void _clearLogfile();
+
 private:
     Ui::StartDialog *ui;
+    bool firstStart { true };
 };
 
 #endif // STARTDIALOG_H

@@ -13,6 +13,20 @@
 #include "startdialog.h"
 
 enum EViewMode { eStandardView, eDetailView };
+//! Значение опции выбора
+enum ESearchState : qint8 {
+    eSearchUnknown = -1,
+    eSearchKodKD,
+    eSearchKeyUchrejdenie,
+    eSearchDate,
+    eSearchKtr,
+    eSearchKsc,
+    eSearchKtsc,
+    eSearchKgdp,
+    eSearchKpsp,
+    eSearchKzn,
+    eSearchEffectivnost
+};
 
 namespace Ui {
 class ListKD;
@@ -37,15 +51,26 @@ private slots:
 
     void on_tableView_clicked(const QModelIndex &index);
 
+    void on_cmb_search_currentIndexChanged(int index);
+
+    void on_ln_search_textChanged(const QString &arg1);
+
+private:
+    void _prepareView(EViewMode mode);
+    //! Поиск
+    void _search(ESearchState state, QString text);
+    //! Отобразить скрытые ключи
+    void _showHiddenKeys();
+
 private:
     Ui::ListKD *ui;
     modelList *modelForList;
     QSqlDatabase DatabaseForList;
     QSortFilterProxyModel *proxyModel;
     EViewMode viewMode { eStandardView };
-
-private:
-    void _prepareView(EViewMode mode);
+    //! Опция выбора
+    ESearchState searchState { eSearchKodKD };
+    QString prevSearchRequest;
 };
 
 #endif // LISTKD_H
