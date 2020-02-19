@@ -3,17 +3,6 @@
 
 ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 {
-    QString ACC = "DRIVER={Microsoft Access Driver (*.mdb)}; FIL={MS Access}; DBQ=";
-    QString tmpPath = QDir::currentPath() + "\\БД МК.mdb";
-    while (tmpPath.contains('/'))
-        tmpPath.replace(tmpPath.indexOf('/'), 1, '\\');
-    ACC += tmpPath;
-    DatabaseForList = QSqlDatabase::addDatabase("QODBC");
-    DatabaseForList.setDatabaseName(ACC);
-    if (!DatabaseForList.open()) {
-        QMessageBox::critical(this, "Master KDA - Error", DatabaseForList.lastError().text());
-        exit(4);
-    }
 
     ui->setupUi(this);
     ui->SelectKD->setEnabled(false);

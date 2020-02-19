@@ -11,6 +11,8 @@ public:
     void SetArguments(QString txt, QString kach, QString akt);
     void SetPositions(int p1, int p2);
     void Resize();
+    //! Вычслить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса
+    qint32 getVoprosNumber();
 
 public:
     QString text;

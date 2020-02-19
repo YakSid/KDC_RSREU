@@ -2,8 +2,6 @@
 #define LISTKD_H
 
 #include <QDialog>
-#include <QSqlDatabase>
-#include <QSqlError>
 #include <QMessageBox>
 #include <QDebug>
 #include "QStandardItem"
@@ -65,7 +63,6 @@ private:
 private:
     Ui::ListKD *ui;
     modelList *modelForList;
-    QSqlDatabase DatabaseForList;
     QSortFilterProxyModel *proxyModel;
     EViewMode viewMode { eStandardView };
     //! Опция выбора

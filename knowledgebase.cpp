@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QMessageBox>
 
 knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::knowledgebase)
 {
@@ -13,6 +14,7 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
 
 knowledgebase::~knowledgebase()
 {
+    qDebug() << "destructor knowledgebase";
     delete ui;
 }
 
@@ -143,7 +145,10 @@ void knowledgebase::getFragment(fragment *frag)
         }
     }
 
+    currentVoprosNumber = frag->getVoprosNumber();
+
     ui->te_text->setText(frag->text);
+    originalText = frag->text;
     _select();
 }
 
@@ -191,17 +196,19 @@ void knowledgebase::_select()
 {
     fragmentsForShow.clear();
     // TODO: Выбор фрагментов из бд для показа
-    /*QSqlQuery querySelect;
-    querySelect.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
-    querySelect.bindValue(":val1", SelectedKD);
+    QString questionKod = QString::number(currentVoprosNumber);
+    QSqlQuery querySelect;
+    querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента FROM ТФрагмент WHERE Тфрагмент.КодВопрос = :val1");
+    querySelect.bindValue(":val1", questionKod);
     if (!querySelect.exec()) {
         qDebug() << querySelect.lastError().text();
     }
-    if (querySelect.next()) {
-        // Заполнение параметров класса договора
-        qDebug() << querySelect.value(0).toString();
-        fragmentsForShow.append("text_that_found");
-    }*/
+    while (querySelect.next()) {
+        QString text = querySelect.value(0).toString();
+        fragmentsForShow.append(text);
+    }
+    ui->lw_fragments->insertItems(0, fragmentsForShow);
+    currentFragmentNumber = -1;
 }
 
 void knowledgebase::on_pb_insert_into_kd_clicked()
@@ -214,9 +221,32 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
 void knowledgebase::on_pb_next_clicked()
 {
     //! Показать следующий фрагмент
+    if (fragmentsForShow.isEmpty())
+        return;
+    if (currentFragmentNumber == fragmentsForShow.size() - 1) {
+        currentFragmentNumber = -1;
+        ui->te_text->setText(originalText);
+    } else {
+        currentFragmentNumber++;
+        ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
+    }
+    qDebug() << currentFragmentNumber << "/" << fragmentsForShow.size() - 1;
 }
 
 void knowledgebase::on_pb_prev_clicked()
 {
     //! Показать предыдущий фрагмент
+    if (fragmentsForShow.isEmpty())
+        return;
+    if (currentFragmentNumber == 0) {
+        currentFragmentNumber = -1;
+        ui->te_text->setText(originalText);
+    } else if (currentFragmentNumber == -1) {
+        currentFragmentNumber = fragmentsForShow.size() - 1;
+        ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
+    } else {
+        currentFragmentNumber--;
+        ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
+    }
+    qDebug() << currentFragmentNumber << "/" << fragmentsForShow.size() - 1;
 }
