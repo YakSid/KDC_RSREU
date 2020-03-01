@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QAxObject>
 #include "cdatabasemanager.h"
 
 /*
@@ -459,4 +460,35 @@ void MainWindow::on_btn_showFullText_clicked()
     }
     _fillCentralField(eAllSections);
     ui->btn_showFullText->setEnabled(false);
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    // TODO: сделать автоматическое сохранение файла по указанному пути
+    // QString pathName = QFileDialog::getSaveFileName();
+
+    // Инициализация переменных для настройки документа
+    QAxObject *word = new QAxObject("Word.Application");
+    QAxObject *documents = word->querySubObject("Documents");
+    QAxObject *document = documents->querySubObject("Add()");
+    QAxObject *activeDocument = word->querySubObject("ActiveDocument()");
+    QAxObject *rangeHead = activeDocument->querySubObject("Range()");
+    QAxObject *range = activeDocument->querySubObject("Range()");
+    QAxObject *paragraphs = document->querySubObject("Paragraphs");
+    QAxObject *paragraph = paragraphs->querySubObject("Item(int)", 1);
+
+    //Подготовка макета страниц
+    word->setProperty("Visible", true);
+    //Разметка открытого документа
+    paragraph->setProperty("SpaceAfter", 0);
+    QAxObject *Font = rangeHead->querySubObject("Font");
+    Font->setProperty("Size", 14);
+    Font->setProperty("Name", "Times New Roman");
+    // Вставка данных
+    QString output = "";
+    for (auto frag : currentKolDog->fragments) {
+        output += frag->text + '\n';
+    }
+    range->dynamicCall("SetRange(int, int)", 0, 1);
+    range->setProperty("Text", output);
 }

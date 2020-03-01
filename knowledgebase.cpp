@@ -207,7 +207,6 @@ void knowledgebase::_select()
         QString text = querySelect.value(0).toString();
         fragmentsForShow.append(text);
     }
-    ui->lw_fragments->insertItems(0, fragmentsForShow);
     currentFragmentNumber = -1;
 }
 
@@ -249,4 +248,10 @@ void knowledgebase::on_pb_prev_clicked()
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
     }
     qDebug() << currentFragmentNumber << "/" << fragmentsForShow.size() - 1;
+}
+
+void knowledgebase::on_pb_showList_clicked()
+{
+    // TODO: Показать окно со списком всех фрагментов
+    // ui->lw_fragments->insertItems(0, fragmentsForShow);
 }

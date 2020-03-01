@@ -66,6 +66,8 @@ private slots:
 
     void on_pb_prev_clicked();
 
+    void on_pb_showList_clicked();
+
 private:
     void _setUpVopros();
     void _changeViewMode(EFragmentsViewMode newViewMode);
