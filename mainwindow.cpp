@@ -18,8 +18,6 @@ const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    // TODO: Продумать подключение бд если пропускается ldialog
-
     // TODO: Сделать кнопку "Назад / К выбору КД"
 
     /* NOTE: Скрыто начало для тестирование
@@ -274,13 +272,28 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
     }
 }
 
-void MainWindow::on_DeleteClause_clicked()
+void MainWindow::on_pb_newFrag_clicked()
 {
     //
 }
 
+void MainWindow::on_pb_deleteFrag_clicked()
+{
+    if (SelectedFragment == -1)
+        return;
+
+    currentKolDog->fragments.removeAt(SelectedFragment);
+    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
+        _fillCentralField(eAllSections);
+    } else {
+        _fillCentralField(EDisplayedSection(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt()));
+    }
+    SelectedFragment = -1;
+}
+
 void MainWindow::on_GoRight_clicked()
 {
+    ui->TextRight->clear();
     m_document = ui->TextRight->document();
     QTextCursor cursor(m_document);
     TextCenterIsBlocked = true;
@@ -362,11 +375,6 @@ void MainWindow::on_GoLeft_clicked()
     ui->Question->clear();
     ListVopros.clear();
     AbbreviationVopros.clear();
-}
-
-void MainWindow::on_NewClause_clicked()
-{
-    //
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)
@@ -458,6 +466,7 @@ void MainWindow::on_btn_showFullText_clicked()
         ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)
                 ->setBackgroundColor(Qt::white);
     }
+    ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     _fillCentralField(eAllSections);
     ui->btn_showFullText->setEnabled(false);
 }

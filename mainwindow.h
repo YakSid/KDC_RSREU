@@ -59,13 +59,13 @@ signals:
 private slots:
     void on_te_textCenter_cursorPositionChanged();
 
-    void on_DeleteClause_clicked();
+    void on_pb_newFrag_clicked();
+
+    void on_pb_deleteFrag_clicked();
 
     void on_GoRight_clicked();
 
     void on_GoLeft_clicked();
-
-    void on_NewClause_clicked();
 
     void on_Razd_currentIndexChanged(int index);
 

@@ -195,7 +195,6 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 void knowledgebase::_select()
 {
     fragmentsForShow.clear();
-    // TODO: Выбор фрагментов из бд для показа
     QString questionKod = QString::number(currentVoprosNumber);
     QSqlQuery querySelect;
     querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента FROM ТФрагмент WHERE Тфрагмент.КодВопрос = :val1");
