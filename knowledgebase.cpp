@@ -148,6 +148,7 @@ void knowledgebase::getFragment(fragment *frag)
     currentVoprosNumber = frag->getVoprosNumber();
 
     ui->te_text->setText(frag->text);
+    ui->gb_text->setTitle("Начальный фрагмент");
     originalText = frag->text;
     _select();
 }
@@ -224,11 +225,13 @@ void knowledgebase::on_pb_next_clicked()
     if (currentFragmentNumber == fragmentsForShow.size() - 1) {
         currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
+        ui->gb_text->setTitle("Начальный фрагмент");
     } else {
         currentFragmentNumber++;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
+                              + QString::number(fragmentsForShow.size()));
     }
-    qDebug() << currentFragmentNumber << "/" << fragmentsForShow.size() - 1;
 }
 
 void knowledgebase::on_pb_prev_clicked()
@@ -239,14 +242,18 @@ void knowledgebase::on_pb_prev_clicked()
     if (currentFragmentNumber == 0) {
         currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
+        ui->gb_text->setTitle("Начальный фрагмент");
     } else if (currentFragmentNumber == -1) {
         currentFragmentNumber = fragmentsForShow.size() - 1;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
+                              + QString::number(fragmentsForShow.size()));
     } else {
         currentFragmentNumber--;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
+                              + QString::number(fragmentsForShow.size()));
     }
-    qDebug() << currentFragmentNumber << "/" << fragmentsForShow.size() - 1;
 }
 
 void knowledgebase::on_pb_showList_clicked()
