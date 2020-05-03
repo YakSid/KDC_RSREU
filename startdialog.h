@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-//! TODO: подкорректировать ui start dialog, уменьшить
+//! TODO: [min] подкорректировать ui start dialog, уменьшить
 namespace Ui {
 class StartDialog;
 }

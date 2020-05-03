@@ -14,7 +14,7 @@ CDatabaseManager::CDatabaseManager()
 
 CDatabaseManager::~CDatabaseManager()
 {
-    // TODO: сделать деструктор для базы данных
+    // TODO: [min] сделать деструктор для базы данных
 }
 
 QSqlDatabase *CDatabaseManager::getDatabase()

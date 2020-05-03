@@ -12,6 +12,7 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     _changeViewMode(eTypicalKD);
 }
 
+// TODO: [11] [min] загрузку фрагментов немного изменить по блокноту
 knowledgebase::~knowledgebase()
 {
     qDebug() << "destructor knowledgebase";
@@ -213,8 +214,8 @@ void knowledgebase::_select()
 void knowledgebase::on_pb_insert_into_kd_clicked()
 {
     //! Вставить нынешний text в поле редактирования mainwindow (с соответствующим изменением размеров)
-    // TODO: сделать метод добавления нового пункта в кд
-    // TODO: сделать метод вставки из БЗ в окно редактирования
+    // TODO: [9] сделать метод добавления нового пункта в кд
+    // TODO: [9] сделать метод вставки из БЗ в окно редактирования
 }
 
 void knowledgebase::on_pb_next_clicked()
@@ -258,6 +259,6 @@ void knowledgebase::on_pb_prev_clicked()
 
 void knowledgebase::on_pb_showList_clicked()
 {
-    // TODO: Показать окно со списком всех фрагментов
+    // TODO: [10] Показать окно со списком всех фрагментов
     // ui->lw_fragments->insertItems(0, fragmentsForShow);
 }

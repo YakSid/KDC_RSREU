@@ -1,5 +1,6 @@
 #include "listkd.h"
 #include "ui_listkd.h"
+#include "cdatabasemanager.h"
 
 ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 {
@@ -7,6 +8,7 @@ ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
     ui->setupUi(this);
     ui->SelectKD->setEnabled(false);
     ui->cmb_search->setCurrentIndex(1);
+    CDatabaseManager *m_db = new CDatabaseManager();
 
     _prepareView(eStandardView);
 }
@@ -48,6 +50,7 @@ void ListKD::_prepareView(EViewMode mode)
     modelForList = new modelList();
     modelForList->setTable("Договор");
 
+    // TODO: [2] [min] Сортировка по дате заключения, а не создания
     if (mode == eStandardView) {
         modelForList->removeColumns(3, 2);
         modelForList->removeColumns(6, 6);
@@ -71,7 +74,7 @@ void ListKD::_prepareView(EViewMode mode)
     proxyModel->setSourceModel(modelForList);
     ui->tableView->setModel(proxyModel);
     ui->tableView->sortByColumn(1, Qt::AscendingOrder);
-    // TODO: сделать правильную сортировку столбца даты
+    // TODO: [2] сделать правильную сортировку столбца даты
     modelForList->insertColumns(1, 2);
     modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
     modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));

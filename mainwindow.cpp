@@ -18,9 +18,9 @@ const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    // TODO: Сделать кнопку "Назад / К выбору КД"
+    // TODO: [1] Сделать кнопку "Назад / К выбору КД"
 
-    /* NOTE: Скрыто начало для тестирование
+    /**/ // NOTE: Скрыто начало для тестирование
     sDialog.setModal(true);
     sDialog.exec();
     if (sDialog.StartMode == 1) {
@@ -29,83 +29,84 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!lDialog.WantGo) {
             exit(3);
         } else {
-            SelectedKD = lDialog.SelectedKD;*/
-    SelectedKD = "6201";
-    ui->setupUi(this);
-    //Здесь производится заполнение данных
-    //Заполнение коэффициентов
-    CDatabaseManager *m_db = new CDatabaseManager();
-    currentKolDog = new CKolDog();
-    QSqlQuery in1_query, in2_query, in3_query;
-    in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
-    in1_query.bindValue(":val1", SelectedKD);
-    if (!in1_query.exec()) {
-        qDebug() << in1_query.lastError().text();
-    }
-    if (in1_query.next()) {
-        // Заполнение параметров класса договора
-        currentKolDog->setMainParameters(
-                in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
-                in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
-                in1_query.value(6).toInt(), in1_query.value(7).toInt(), in1_query.value(13).toFloat(),
-                in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
-                in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
-                in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
-                in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(30).toFloat());
-        ui->DogName->setText(in1_query.value(1).toString());
-        ui->startKTR->setText(in1_query.value(7).toString());
-        ui->startKSC->setText(in1_query.value(16).toString());
-        ui->startKGDP->setText(in1_query.value(15).toString());
-        auto tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
-        tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
-        ui->startKPSP->setText(tmp);
-        double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
-                + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
-        tmp = QString::number(doubleKEF, 'f', 1);
-        tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
-        ui->startKEF->setText(tmp);
-        ui->KTR->setText(ui->startKTR->text());
-        ui->KSC->setText(ui->startKSC->text());
-        ui->KGDP->setText(ui->startKGDP->text());
-        ui->KPSP->setText(ui->startKPSP->text());
-        ui->KEF->setText(ui->startKEF->text());
-    }
-    _prepareView();
-    //Запрос на заполнение центрального поля
-    int QuestionNum = 0;
-    in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
-    in2_query.bindValue(":val1", SelectedKD);
-    if (!in2_query.exec()) {
-        qDebug() << in2_query.lastError().text();
-    }
-    // int posbegin = 0, posend = 0;
-    while (in2_query.next()) {
-        fragment *frag = new fragment();
-        //Заполнение данных фрагмента и навигатора
-        QuestionNum = in2_query.value(6).toInt();
-        in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
-        in3_query.bindValue(":val1", QuestionNum);
-        if (!in3_query.exec()) {
-            qDebug() << in3_query.lastError().text();
-        }
-        if (in3_query.next()) {
-            for (int i = 0; i < 11; i++)
-                if (in3_query.value(2) == AbbreviationTreeHead[i]) {
-                    frag->Razdel = in3_query.value(2).toString();
-                    frag->VoprosABR = in3_query.value(1).toString();
-                    break;
+            SelectedKD = lDialog.SelectedKD; /**/
+            // SelectedKD = "6201";
+            ui->setupUi(this);
+            //Здесь производится заполнение данных
+            //Заполнение коэффициентов
+            CDatabaseManager *m_db = new CDatabaseManager();
+            currentKolDog = new CKolDog();
+            QSqlQuery in1_query, in2_query, in3_query;
+            in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
+            in1_query.bindValue(":val1", SelectedKD);
+            if (!in1_query.exec()) {
+                qDebug() << in1_query.lastError().text();
+            }
+            if (in1_query.next()) {
+                // Заполнение параметров класса договора
+                currentKolDog->setMainParameters(
+                        in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
+                        in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
+                        in1_query.value(6).toInt(), in1_query.value(7).toInt(), in1_query.value(13).toFloat(),
+                        in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
+                        in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
+                        in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
+                        in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(30).toFloat());
+                ui->DogName->setText(in1_query.value(1).toString());
+                ui->startKTR->setText(in1_query.value(7).toString());
+                ui->startKSC->setText(in1_query.value(16).toString());
+                ui->startKGDP->setText(in1_query.value(15).toString());
+                auto tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
+                tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
+                ui->startKPSP->setText(tmp);
+                double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
+                        + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
+                tmp = QString::number(doubleKEF, 'f', 1);
+                tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
+                ui->startKEF->setText(tmp);
+                ui->KTR->setText(ui->startKTR->text());
+                ui->KSC->setText(ui->startKSC->text());
+                ui->KGDP->setText(ui->startKGDP->text());
+                ui->KPSP->setText(ui->startKPSP->text());
+                ui->KEF->setText(ui->startKEF->text());
+            }
+            _prepareView();
+            //Запрос на заполнение центрального поля
+            int QuestionNum = 0;
+            in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
+            in2_query.bindValue(":val1", SelectedKD);
+            if (!in2_query.exec()) {
+                qDebug() << in2_query.lastError().text();
+            }
+            // int posbegin = 0, posend = 0;
+            while (in2_query.next()) {
+                fragment *frag = new fragment();
+                //Заполнение данных фрагмента и навигатора
+                QuestionNum = in2_query.value(6).toInt();
+                in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
+                in3_query.bindValue(":val1", QuestionNum);
+                if (!in3_query.exec()) {
+                    qDebug() << in3_query.lastError().text();
                 }
+                if (in3_query.next()) {
+                    for (int i = 0; i < 11; i++)
+                        if (in3_query.value(2) == AbbreviationTreeHead[i]) {
+                            frag->Razdel = in3_query.value(2).toString();
+                            frag->VoprosABR = in3_query.value(1).toString();
+                            break;
+                        }
+                }
+                frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(),
+                                   in2_query.value(5).toString());
+                currentKolDog->fragments.append(frag);
+                // WARNING: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
+            }
+            _fillCentralField(eAllSections);
+            TextCenterIsBlocked = false;
+            /**/ // NOTE: Скрыта концовка для тестирования
         }
-        frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(), in2_query.value(5).toString());
-        currentKolDog->fragments.append(frag);
-        // WARNING: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
-    }
-    _fillCentralField(eAllSections);
-    TextCenterIsBlocked = false;
-    /* NOTE: Скрыта концовка для тестирования
-}
-} else
-exit(2);*/
+    } else
+        exit(2); /**/
 }
 
 MainWindow::~MainWindow()
@@ -293,6 +294,11 @@ void MainWindow::on_pb_deleteFrag_clicked()
 
 void MainWindow::on_GoRight_clicked()
 {
+    // TODO: ВАЖНО! сделать работу режимов редактирования
+    // BUG: добавление вправо работает на прошлый выделенный, а возвращать обратно можно из другого раздела (блок
+    // разделов сделать)
+    ui->pb_deleteFrag->setEnabled(false);
+
     ui->TextRight->clear();
     m_document = ui->TextRight->document();
     QTextCursor cursor(m_document);
@@ -339,6 +345,8 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
+    ui->pb_deleteFrag->setEnabled(true);
+
     ui->GoRight->setDisabled(true);
     ui->GoLeft->setDisabled(true);
     m_document = ui->te_textCenter->document();
@@ -439,7 +447,7 @@ void MainWindow::on_BazeKnowledge_clicked()
 
 void MainWindow::on_pb_clearField_clicked()
 {
-    // TODO: сделать очистку поля редактирования, проверить, работает ли изменение размера
+    // TODO: [min] сделать очистку поля редактирования, проверить, работает ли изменение размера
 }
 
 void MainWindow::on_TextRight_textChanged()
@@ -473,7 +481,7 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionSave_triggered()
 {
-    // TODO: сделать автоматическое сохранение файла по указанному пути
+    // TODO: [1] сделать автоматическое сохранение файла по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
 
     // Инициализация переменных для настройки документа
