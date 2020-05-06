@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             ui->setupUi(this);
             //Здесь производится заполнение данных
             //Заполнение коэффициентов
-            CDatabaseManager *m_db = new CDatabaseManager();
+            m_db = new CDatabaseManager();
             currentKolDog = new CKolDog();
             QSqlQuery in1_query, in2_query, in3_query;
             in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
@@ -112,6 +112,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete m_db;
 }
 
 void MainWindow::_prepareView()

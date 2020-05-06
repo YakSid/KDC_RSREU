@@ -14,7 +14,9 @@ CDatabaseManager::CDatabaseManager()
 
 CDatabaseManager::~CDatabaseManager()
 {
-    // TODO: [min] сделать деструктор для базы данных
+    if (m_db.isOpen()) {
+        m_db.close();
+    }
 }
 
 QSqlDatabase *CDatabaseManager::getDatabase()

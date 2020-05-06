@@ -9,6 +9,7 @@
 knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::knowledgebase)
 {
     ui->setupUi(this);
+    this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     _changeViewMode(eTypicalKD);
 }
 

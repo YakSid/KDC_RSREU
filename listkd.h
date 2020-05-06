@@ -9,6 +9,7 @@
 #include <QSortFilterProxyModel>
 #include <QDir>
 #include "startdialog.h"
+#include "cdatabasemanager.h"
 
 enum EViewMode { eStandardView, eDetailView };
 //! Значение опции выбора
@@ -62,6 +63,7 @@ private:
 
 private:
     Ui::ListKD *ui;
+    CDatabaseManager *m_db;
     modelList *modelForList;
     QSortFilterProxyModel *proxyModel;
     EViewMode viewMode { eStandardView };

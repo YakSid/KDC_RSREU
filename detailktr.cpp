@@ -4,6 +4,7 @@
 DetailKTR::DetailKTR(QWidget *parent) : QDialog(parent), ui(new Ui::DetailKTR)
 {
     ui->setupUi(this);
+    this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
 }
 
 DetailKTR::~DetailKTR()

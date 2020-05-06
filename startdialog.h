@@ -3,7 +3,6 @@
 
 #include <QDialog>
 
-//! TODO: [min] подкорректировать ui start dialog, уменьшить
 namespace Ui {
 class StartDialog;
 }
@@ -29,6 +28,8 @@ private slots:
     void on_pb_deleteAuthor_clicked();
 
     void on_pb_changeAuthor_clicked();
+
+    void on_stackedWidget_currentChanged(int arg1);
 
 private:
     void _addAuthor(QString name);

@@ -8,7 +8,9 @@
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
     ui->setupUi(this);
+    this->setWindowFlag(Qt::WindowMinimizeButtonHint);
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
+    this->resize(this->width(), 225);
 
     QFile logfile("LoginInfo.txt");
     if (!logfile.exists()) {
@@ -147,4 +149,13 @@ void StartDialog::_clearLogfile()
 void StartDialog::on_pb_changeAuthor_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
+}
+
+void StartDialog::on_stackedWidget_currentChanged(int arg1)
+{
+    if (arg1 == 1) {
+        this->resize(this->width(), 239);
+    } else {
+        this->resize(this->width(), 225);
+    }
 }

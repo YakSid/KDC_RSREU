@@ -1,14 +1,14 @@
 #include "listkd.h"
 #include "ui_listkd.h"
-#include "cdatabasemanager.h"
 
 ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 {
 
     ui->setupUi(this);
+    this->setWindowFlag(Qt::WindowMinimizeButtonHint);
     ui->SelectKD->setEnabled(false);
     ui->cmb_search->setCurrentIndex(1);
-    CDatabaseManager *m_db = new CDatabaseManager();
+    m_db = new CDatabaseManager();
 
     _prepareView(eStandardView);
 }
@@ -16,6 +16,7 @@ ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 ListKD::~ListKD()
 {
     delete ui;
+    delete m_db;
 }
 
 void ListKD::on_Ref_clicked() {}
