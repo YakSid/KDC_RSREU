@@ -23,7 +23,6 @@
 //! TODO: [12] [min] Эффект. по разд. убрать Ктр, Ксц, Кгдп, Кпсп и добавить Кмол.
 //! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
 //! TODO: Кэф на 3 формах имеет разные значения, сверить
-//! TODO: [min] В названии указать вуз, а не файл?
 
 //! TODO: Дополнительно в конце: Сделать режимы работы
 //! TODO: Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
@@ -43,6 +42,14 @@ enum EDisplayedSection {
     ePRSection,
     eAllSections
 };
+enum EWorkMode {
+    //! Ничего не выбрано
+    eBasicMode,
+    //! Фрагмент договора выбран
+    eItemSelectedMode,
+    //! Фрагмент договора выбран и перемещён вправо
+    eRightFrameMode
+};
 
 namespace Ui {
 class MainWindow;
@@ -57,6 +64,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void setWorkMode(EWorkMode newMode);
 
 signals:
     void s_sentFragment(fragment *frag);
@@ -115,6 +124,7 @@ private:
     ListKD lDialog;
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
+    EWorkMode m_currentWorkMode;
     QString SelectedKD;
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;

@@ -32,11 +32,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             SelectedKD = lDialog.SelectedKD; /**/
             // SelectedKD = "6201";
             ui->setupUi(this);
+            m_currentWorkMode = eBasicMode;
             //Здесь производится заполнение данных
             //Заполнение коэффициентов
             m_db = new CDatabaseManager();
             currentKolDog = new CKolDog();
-            QSqlQuery in1_query, in2_query, in3_query;
+            QSqlQuery in1_query, in2_query, in3_query, in4_query;
             in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
             in1_query.bindValue(":val1", SelectedKD);
             if (!in1_query.exec()) {
@@ -52,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
                         in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
                         in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(30).toFloat());
-                ui->DogName->setText(in1_query.value(1).toString());
+                // ui->DogName->setText(in1_query.value(1).toString()); //Это если нужно вписать имя файла, а не учржд.
                 ui->startKTR->setText(in1_query.value(7).toString());
                 ui->startKSC->setText(in1_query.value(16).toString());
                 ui->startKGDP->setText(in1_query.value(15).toString());
@@ -70,6 +71,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 ui->KPSP->setText(ui->startKPSP->text());
                 ui->KEF->setText(ui->startKEF->text());
             }
+            //Нахождение полного имени учрежд. и запись в шапку
+            in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
+            in4_query.bindValue(":val1", currentKolDog->getId());
+            if (!in4_query.exec()) {
+                qDebug() << in4_query.lastError().text();
+            }
+            if (in4_query.next()) {
+                ui->DogName->setText(in4_query.value(0).toString());
+            }
+            //
             _prepareView();
             //Запрос на заполнение центрального поля
             int QuestionNum = 0;
@@ -78,7 +89,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             if (!in2_query.exec()) {
                 qDebug() << in2_query.lastError().text();
             }
-            // int posbegin = 0, posend = 0;
             while (in2_query.next()) {
                 fragment *frag = new fragment();
                 //Заполнение данных фрагмента и навигатора
@@ -113,6 +123,42 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete m_db;
+    delete currentKolDog;
+}
+
+void MainWindow::setWorkMode(EWorkMode newMode)
+{
+    // TODO: СЕЙЧАС указать как меняется ui при каждом моде
+    switch (newMode) {
+    case eBasicMode:
+        ui->TextRight->setEnabled(false);
+        ui->pb_clearField->setEnabled(false);
+        ui->pb_deleteFrag->setEnabled(false);
+        ui->pb_newFrag->setEnabled(true);
+        ui->GoRight->setEnabled(false);
+        ui->GoLeft->setEnabled(false);
+        ui->groupBox->setEnabled(false);
+        break;
+    case eItemSelectedMode:
+        ui->TextRight->setEnabled(false);
+        ui->pb_clearField->setEnabled(false);
+        ui->pb_deleteFrag->setEnabled(true);
+        ui->pb_newFrag->setEnabled(true);
+        ui->GoRight->setEnabled(true);
+        ui->GoLeft->setEnabled(false);
+        ui->groupBox->setEnabled(false);
+        break;
+    case eRightFrameMode:
+        ui->TextRight->setEnabled(true);
+        ui->pb_clearField->setEnabled(true);
+        ui->pb_deleteFrag->setEnabled(false);
+        ui->pb_newFrag->setEnabled(false);
+        ui->GoRight->setEnabled(false);
+        ui->GoLeft->setEnabled(true);
+        ui->groupBox->setEnabled(true);
+        break;
+    }
+    m_currentWorkMode = newMode;
 }
 
 void MainWindow::_prepareView()
@@ -245,7 +291,7 @@ void MainWindow::_setUpQuestion()
 void MainWindow::on_te_textCenter_cursorPositionChanged()
 {
     if (!TextCenterIsBlocked) {
-        ui->GoRight->setEnabled(true);
+        setWorkMode(eItemSelectedMode);
         //Начать работу с текстом
         m_document = ui->te_textCenter->document();
         QTextCursor cursor(m_document);
@@ -298,14 +344,12 @@ void MainWindow::on_GoRight_clicked()
     // TODO: ВАЖНО! сделать работу режимов редактирования
     // BUG: добавление вправо работает на прошлый выделенный, а возвращать обратно можно из другого раздела (блок
     // разделов сделать)
-    ui->pb_deleteFrag->setEnabled(false);
+    setWorkMode(eRightFrameMode);
 
     ui->TextRight->clear();
     m_document = ui->TextRight->document();
     QTextCursor cursor(m_document);
     TextCenterIsBlocked = true;
-    ui->GoLeft->setEnabled(true);
-    ui->GoRight->setDisabled(true);
     //Вставка текста в правое окно
     cursor.movePosition(QTextCursor::End);
     cursor.insertText(currentKolDog->fragments[SelectedFragment]->text);
@@ -346,10 +390,8 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    ui->pb_deleteFrag->setEnabled(true);
+    setWorkMode(eBasicMode);
 
-    ui->GoRight->setDisabled(true);
-    ui->GoLeft->setDisabled(true);
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
     QTextCharFormat format;
