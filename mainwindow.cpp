@@ -11,8 +11,6 @@
 #include <QSqlError>
 #include <QMessageBox>*/ //Уже подключены?
 
-// BUG: При смене раздела неправильно меняется вопрос, только вручную норм
-
 const char PREVIOUS_SELECTION[] = "previousSelection";
 const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
 
@@ -32,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             SelectedKD = lDialog.SelectedKD; /**/
             // SelectedKD = "6201";
             ui->setupUi(this);
-            m_currentWorkMode = eBasicMode;
             //Здесь производится заполнение данных
             //Заполнение коэффициентов
             m_db = new CDatabaseManager();
@@ -128,7 +125,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::setWorkMode(EWorkMode newMode)
 {
-    // TODO: СЕЙЧАС указать как меняется ui при каждом моде
     switch (newMode) {
     case eBasicMode:
         ui->TextRight->setEnabled(false);
@@ -138,6 +134,9 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->GoRight->setEnabled(false);
         ui->GoLeft->setEnabled(false);
         ui->groupBox->setEnabled(false);
+        ui->tw_navigator->setEnabled(true);
+        ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
+        SelectedFragment = -1;
         break;
     case eItemSelectedMode:
         ui->TextRight->setEnabled(false);
@@ -147,6 +146,8 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->GoRight->setEnabled(true);
         ui->GoLeft->setEnabled(false);
         ui->groupBox->setEnabled(false);
+        ui->tw_navigator->setEnabled(true);
+        ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
         break;
     case eRightFrameMode:
         ui->TextRight->setEnabled(true);
@@ -156,6 +157,8 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->GoRight->setEnabled(false);
         ui->GoLeft->setEnabled(true);
         ui->groupBox->setEnabled(true);
+        ui->tw_navigator->setEnabled(false);
+        ui->btn_showFullText->setEnabled(false);
         break;
     }
     m_currentWorkMode = newMode;
@@ -190,6 +193,7 @@ void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
         }
     }
     TextCenterIsBlocked = false;
+    setWorkMode(eBasicMode);
 }
 
 void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
@@ -288,6 +292,18 @@ void MainWindow::_setUpQuestion()
     }
 }
 
+void MainWindow::_deleteSelectedFrag()
+{
+    currentKolDog->fragments.removeAt(SelectedFragment);
+    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
+        _fillCentralField(eAllSections);
+    } else {
+        _fillCentralField(EDisplayedSection(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt()));
+    }
+    // TODO: Сделать перемотку договора на место удалённого
+    SelectedFragment = -1;
+}
+
 void MainWindow::on_te_textCenter_cursorPositionChanged()
 {
     if (!TextCenterIsBlocked) {
@@ -322,28 +338,36 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
 
 void MainWindow::on_pb_newFrag_clicked()
 {
-    //
+    // TODO: [9][min] сделать ввод на 1 позицию если пункт не выбран
+    if (m_currentWorkMode == eBasicMode) {
+        QMessageBox msg;
+        msg.setWindowTitle("Master KDA - Добавление нового пункта");
+        msg.setText("Для добавления нового пункта нужно выбрать пункт, после котого будет размещён новый.");
+        msg.exec();
+    }
+
+    // TODO: СЕЙЧАС Обработать ситуацию, что пункт пропадает если ввести новым пустой
+    setWorkMode(eRightFrameMode);
+    m_document = ui->TextRight->document();
+    QTextCursor cursor(m_document);
+    ui->Act->addItems(ListAct);
+    ui->Razd->addItems(ListRazd);
+    ui->Quality->addItems(ListQuality);
+    _setUpQuestion();
+    ui->Question->addItems(ListVopros);
+    TextCenterIsBlocked = true;
+    m_addNewFrag = true;
 }
 
 void MainWindow::on_pb_deleteFrag_clicked()
 {
     if (SelectedFragment == -1)
         return;
-
-    currentKolDog->fragments.removeAt(SelectedFragment);
-    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
-        _fillCentralField(eAllSections);
-    } else {
-        _fillCentralField(EDisplayedSection(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt()));
-    }
-    SelectedFragment = -1;
+    _deleteSelectedFrag();
 }
 
 void MainWindow::on_GoRight_clicked()
 {
-    // TODO: ВАЖНО! сделать работу режимов редактирования
-    // BUG: добавление вправо работает на прошлый выделенный, а возвращать обратно можно из другого раздела (блок
-    // разделов сделать)
     setWorkMode(eRightFrameMode);
 
     ui->TextRight->clear();
@@ -353,7 +377,6 @@ void MainWindow::on_GoRight_clicked()
     //Вставка текста в правое окно
     cursor.movePosition(QTextCursor::End);
     cursor.insertText(currentKolDog->fragments[SelectedFragment]->text);
-    OldSizeOfSelectedFragment = currentKolDog->fragments[SelectedFragment]->Size;
     //Заполнение данных
     TextCenterIsBlocked = false;
     ui->Act->addItems(ListAct);
@@ -390,55 +413,98 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    setWorkMode(eBasicMode);
-
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
     QString tmp = ui->TextRight->toPlainText();
-    currentKolDog->fragments[SelectedFragment]->text = tmp;
-    cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-    cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-    ArgLine.clear();
-    if (currentKolDog->fragments[SelectedFragment]->text.right(1) != '\n') {
-        ArgLine += "\n";
+
+    if (tmp.isEmpty()) {
+        if (SelectedFragment != -1)
+            _deleteSelectedFrag();
+    } else {
+        if (m_addNewFrag) {
+            //Создание нового фрагмента
+            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::MoveAnchor);
+            fragment *frag = new fragment();
+            frag->Razdel = AbbreviationRazd[ui->Razd->currentIndex()];
+            frag->VoprosABR = AbbreviationVopros[ui->Question->currentIndex()];
+            frag->SetArguments(tmp, AbbreviationQuality[ui->Quality->currentIndex()],
+                               AbbreviationAct[ui->Act->currentIndex()]);
+            ArgLine = "\n" + frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
+            frag->Size = ArgLine.size() + frag->text.size() + 2;
+            cursor.insertText(frag->text + ArgLine + "\n\n");
+            frag->PositionOfFirst = currentKolDog->fragments[SelectedFragment]->PositionOfLast;
+            frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
+            //Убираем выделение старого и нового фрагмента
+            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+            cursor.setPosition(frag->PositionOfLast, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(format);
+            cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(format);
+            //
+            currentKolDog->addFragAfter(SelectedFragment, frag);
+            SelectedFragment++;
+            _recountPositions(SelectedFragment, frag->Size);
+            //! NOTE: Костыль предыдущей функции
+            frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
+
+            m_addNewFrag = false;
+        } else {
+            //Изменение старого фрагмента
+            currentKolDog->fragments[SelectedFragment]->text = tmp;
+            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
+            ArgLine.clear();
+            if (currentKolDog->fragments[SelectedFragment]->text.right(1) != '\n') {
+                ArgLine += "\n";
+            }
+            ArgLine += currentKolDog->fragments[SelectedFragment]->Razdel + "\t"
+                    + currentKolDog->fragments[SelectedFragment]->VoprosABR + "\t"
+                    + currentKolDog->fragments[SelectedFragment]->Akt + "\t"
+                    + currentKolDog->fragments[SelectedFragment]->Kachestvo;
+            cursor.insertText(currentKolDog->fragments[SelectedFragment]->text + ArgLine + "\n\n");
+            //Убираем выделение изменённого фрагмента
+            cursor.mergeCharFormat(format);
+            cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(format);
+            //Вычисление нового размера
+            _recountPositions(SelectedFragment,
+                              ui->TextRight->toPlainText().size() + ArgLine.size() + 2
+                                      - currentKolDog->fragments[SelectedFragment]->Size);
+            currentKolDog->fragments[SelectedFragment]->Resize();
+        }
+        //Удаление данных
+        ui->TextRight->clear();
     }
-    ArgLine += currentKolDog->fragments[SelectedFragment]->Razdel + "\t"
-            + currentKolDog->fragments[SelectedFragment]->VoprosABR + "\t"
-            + currentKolDog->fragments[SelectedFragment]->Akt + "\t"
-            + currentKolDog->fragments[SelectedFragment]->Kachestvo;
-    cursor.insertText(currentKolDog->fragments[SelectedFragment]->text + ArgLine + "\n\n");
-    cursor.mergeCharFormat(format);
-    cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-    cursor.mergeCharFormat(format);
-    //Вычисление нового размера
-    _recountPositions(SelectedFragment,
-                      ui->TextRight->toPlainText().size() + ArgLine.size() + 2
-                              - currentKolDog->fragments[SelectedFragment]->Size);
-    currentKolDog->fragments[SelectedFragment]->Resize();
     //Удаление данных
     TextCenterIsBlocked = false;
-    ui->TextRight->clear();
     ui->Act->clear();
     ui->Razd->clear();
     ui->Quality->clear();
     ui->Question->clear();
     ListVopros.clear();
     AbbreviationVopros.clear();
+
+    setWorkMode(eBasicMode);
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)
 {
+    // BUG: При смене раздела неправильно меняется вопрос, только вручную норм
+    //Вообще переделать этот момент: должны же данные меняться по нажатию <<, а не с каждым изменением
+    //И в GoLeft при m_addNewFrag == true проверить правильность смены значений после этих правок
     if (TextCenterIsBlocked) {
-        currentKolDog->fragments[SelectedFragment]->Razdel = AbbreviationRazd[index];
-        QuestionNotSelected = true;
-        ui->Question->clear();
-        ListVopros.clear();
-        AbbreviationVopros.clear();
-        _setUpQuestion();
-        ui->Question->addItems(ListVopros);
-        QuestionNotSelected = false;
+        if (!m_addNewFrag) {
+            currentKolDog->fragments[SelectedFragment]->Razdel = AbbreviationRazd[index];
+            QuestionNotSelected = true;
+            ui->Question->clear();
+            ListVopros.clear();
+            AbbreviationVopros.clear();
+            _setUpQuestion();
+            ui->Question->addItems(ListVopros);
+            QuestionNotSelected = false;
+        }
     }
 }
 
@@ -490,7 +556,7 @@ void MainWindow::on_BazeKnowledge_clicked()
 
 void MainWindow::on_pb_clearField_clicked()
 {
-    // TODO: [min] сделать очистку поля редактирования, проверить, работает ли изменение размера
+    ui->TextRight->clear();
 }
 
 void MainWindow::on_TextRight_textChanged()
@@ -498,6 +564,7 @@ void MainWindow::on_TextRight_textChanged()
     currentKolDog->fragments[SelectedFragment]->changed = true;
 }
 
+// BUG: в disabled режиме у навигатора цвет выбранных раньше отличается от остальных
 void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
     Q_UNUSED(column);
@@ -509,6 +576,7 @@ void MainWindow::on_tw_navigator_cellClicked(int row, int column)
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, row);
     _fillCentralField(EDisplayedSection(row));
     ui->btn_showFullText->setEnabled(true);
+    m_navigatorButtonEnabled = true;
 }
 
 void MainWindow::on_btn_showFullText_clicked()
@@ -520,6 +588,7 @@ void MainWindow::on_btn_showFullText_clicked()
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     _fillCentralField(eAllSections);
     ui->btn_showFullText->setEnabled(false);
+    m_navigatorButtonEnabled = false;
 }
 
 void MainWindow::on_actionSave_triggered()

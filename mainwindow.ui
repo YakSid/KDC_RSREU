@@ -49,7 +49,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="lb_navigator">
           <property name="font">
            <font>
             <pointsize>10</pointsize>
@@ -1108,6 +1108,35 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>DogName</tabstop>
+  <tabstop>btn_showFullText</tabstop>
+  <tabstop>BazeKnowledge</tabstop>
+  <tabstop>pb_newFrag</tabstop>
+  <tabstop>pb_clearField</tabstop>
+  <tabstop>pb_deleteFrag</tabstop>
+  <tabstop>GoRight</tabstop>
+  <tabstop>TextRight</tabstop>
+  <tabstop>GoLeft</tabstop>
+  <tabstop>QualityWeightSpinBox</tabstop>
+  <tabstop>Razd</tabstop>
+  <tabstop>Act</tabstop>
+  <tabstop>Quality</tabstop>
+  <tabstop>Question</tabstop>
+  <tabstop>tw_navigator</tabstop>
+  <tabstop>startKTR</tabstop>
+  <tabstop>startKSC</tabstop>
+  <tabstop>startKGDP</tabstop>
+  <tabstop>startKPSP</tabstop>
+  <tabstop>startKEF</tabstop>
+  <tabstop>KTR</tabstop>
+  <tabstop>KSC</tabstop>
+  <tabstop>KGDP</tabstop>
+  <tabstop>KPSP</tabstop>
+  <tabstop>KEF</tabstop>
+  <tabstop>Effekt_po_razd</tabstop>
+  <tabstop>te_textCenter</tabstop>
+ </tabstops>
  <resources>
   <include location="res.qrc"/>
  </resources>

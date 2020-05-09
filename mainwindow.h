@@ -23,6 +23,7 @@
 //! TODO: [12] [min] Эффект. по разд. убрать Ктр, Ксц, Кгдп, Кпсп и добавить Кмол.
 //! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
 //! TODO: Кэф на 3 формах имеет разные значения, сверить
+//! TODO: Добавить проверку и поиск БД!
 
 //! TODO: Дополнительно в конце: Сделать режимы работы
 //! TODO: Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
@@ -74,46 +75,31 @@ signals:
 
 private slots:
     void on_te_textCenter_cursorPositionChanged();
-
     void on_pb_newFrag_clicked();
-
     void on_pb_deleteFrag_clicked();
-
     void on_GoRight_clicked();
-
     void on_GoLeft_clicked();
-
     void on_Razd_currentIndexChanged(int index);
-
     void on_Question_currentIndexChanged(int index);
-
     void on_Act_currentIndexChanged(int index);
-
     void on_Quality_currentIndexChanged(int index);
-
     void on_Effekt_po_razd_clicked();
-
     void on_BazeKnowledge_clicked();
-
     void on_pb_clearField_clicked();
-
     void on_TextRight_textChanged();
-
     void on_tw_navigator_cellClicked(int row, int column);
-
     void on_btn_showFullText_clicked();
-
     void on_actionSave_triggered();
 
 private:
-    //! ----------МЕТОДЫ----------
     //! Подготовка главного окна
     void _prepareView();
     void _fillCentralField(EDisplayedSection selectedSection);
     void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
     void _recountPositions(int idfrag, int delta);
     void _setUpQuestion();
-    //
+
+    void _deleteSelectedFrag();
 
 private:
     Ui::MainWindow *ui;
@@ -125,11 +111,12 @@ private:
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     EWorkMode m_currentWorkMode;
+    bool m_navigatorButtonEnabled = false;
+    bool m_addNewFrag = false;
     QString SelectedKD;
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
-    int OldSizeOfSelectedFragment = -1;
     QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
                             "ОТС | Решение по вопросам Отраслевого соглашения",
                             "ТРОТС | решение по вопросам Территориального соглашения" };
@@ -158,7 +145,8 @@ private:
     QStringList ListVopros;
     QStringList AbbreviationVopros;
     bool QuestionNotSelected = false;
-    QString ArgLine; //Строчка параметров
+    //!Строчка параметров фрагмента
+    QString ArgLine;
 };
 
 #endif // MAINWINDOW_H

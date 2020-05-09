@@ -134,3 +134,8 @@ void CKolDog::setMainParameters(QString id, QString name, QDate date, uint valid
     this->kots = kots;
     this->sum = sum;
 }
+
+void CKolDog::addFragAfter(qint32 pos, fragment *frag)
+{
+    fragments.insert(pos + 1, frag);
+}
