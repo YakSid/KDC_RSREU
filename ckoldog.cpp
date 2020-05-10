@@ -1,4 +1,5 @@
 #include "ckoldog.h"
+#include <QDebug>
 
 QString CKolDog::getId()
 {

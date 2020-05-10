@@ -25,7 +25,6 @@
 //! TODO: Кэф на 3 формах имеет разные значения, сверить
 //! TODO: Добавить проверку и поиск БД!
 
-//! TODO: Дополнительно в конце: Сделать режимы работы
 //! TODO: Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
 
 //! Тип отображаемого раздела в центральном окне
@@ -98,6 +97,9 @@ private:
     void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
     void _recountPositions(int idfrag, int delta);
     void _setUpQuestion();
+
+    //! Убрать выделение выбора из центрального окна
+    void _removeSelectionFont();
 
     void _deleteSelectedFrag();
 
