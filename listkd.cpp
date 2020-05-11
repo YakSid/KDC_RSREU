@@ -75,7 +75,7 @@ void ListKD::_prepareView(EViewMode mode)
     proxyModel->setSourceModel(modelForList);
     ui->tableView->setModel(proxyModel);
     ui->tableView->sortByColumn(1, Qt::AscendingOrder);
-    // TODO: [2] сделать правильную сортировку столбца даты
+    // TODO: [2] сделать правильную сортировку столбца даты (по году)
     modelForList->insertColumns(1, 2);
     modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
     modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));

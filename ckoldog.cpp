@@ -101,6 +101,11 @@ int CKolDog::getKots()
     return kots;
 }
 
+int CKolDog::getKmol()
+{
+    return kmol;
+}
+
 float CKolDog::getSum()
 {
     return sum;
@@ -111,7 +116,7 @@ CKolDog::CKolDog() {}
 void CKolDog::setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq,
                                 float znachimost, int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc,
                                 QDate endDate, int kdog, int krv, int kvo, int kzp, int kot, int ktsp, int kots,
-                                float sum)
+                                int kmol, float sum)
 {
     this->id = id;
     this->name = name;
@@ -133,10 +138,16 @@ void CKolDog::setMainParameters(QString id, QString name, QDate date, uint valid
     this->kot = kot;
     this->ktsp = ktsp;
     this->kots = kots;
+    this->kmol = kmol;
     this->sum = sum;
 }
 
 void CKolDog::addFragAfter(qint32 pos, fragment *frag)
 {
     fragments.insert(pos + 1, frag);
+}
+
+void CKolDog::addFragOnFirstPos(fragment *frag)
+{
+    fragments.insert(0, frag);
 }

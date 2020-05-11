@@ -17,10 +17,9 @@
 //! TODO: [8] [mdl] окно эффективности по разделам, прописать формулы
 //! TODO: [1] Продолжение работы (загрузка или продолжение) и стартовое окно для этого
 //! TODO: [1] работа с панелью меню
-//! TODO: [4] [min] layout mainwindow настроить нормально
+//! TODO: [4] [min] layout mainwindow настроить нормально (сузить)
 //! TODO: [5] [6] [13] [Ош]
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
-//! TODO: [12] [min] Эффект. по разд. убрать Ктр, Ксц, Кгдп, Кпсп и добавить Кмол.
 //! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
 //! TODO: Кэф на 3 формах имеет разные значения, сверить
 //! TODO: Добавить проверку и поиск БД!
@@ -69,8 +68,8 @@ public:
 
 signals:
     void s_sentFragment(fragment *frag);
-    void s_sentKefs(int ktr, int ksc, int kgdp, float kpsp, float kef, float znahimost, int kdog, int krv, int kzp,
-                    int kvo, int kot, int kots, int ktsp);
+    void s_sentKefs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
+                    int kmol);
 
 private slots:
     void on_te_textCenter_cursorPositionChanged();
@@ -85,7 +84,6 @@ private slots:
     void on_Effekt_po_razd_clicked();
     void on_BazeKnowledge_clicked();
     void on_pb_clearField_clicked();
-    void on_TextRight_textChanged();
     void on_tw_navigator_cellClicked(int row, int column);
     void on_btn_showFullText_clicked();
     void on_actionSave_triggered();
@@ -100,8 +98,10 @@ private:
 
     //! Убрать выделение выбора из центрального окна
     void _removeSelectionFont();
-
+    //! Удалить выбранный фрагмент отовсюду
     void _deleteSelectedFrag();
+    void _showMessage(QString text, QString title = "Master KDA");
+    bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
 
 private:
     Ui::MainWindow *ui;
@@ -115,6 +115,7 @@ private:
     EWorkMode m_currentWorkMode;
     bool m_navigatorButtonEnabled = false;
     bool m_addNewFrag = false;
+    bool m_addFirst = false;
     QString SelectedKD;
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;

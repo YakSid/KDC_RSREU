@@ -16,8 +16,8 @@ public:
     ~kef();
 
 public slots:
-    void getKefs(int ktr, int ksc, int kgdp, float kpsp, float kef, float znahimost, int kdog, int krv, int kzp,
-                 int kvo, int kot, int kots, int ktsp);
+    void getKefs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
+                 int kmol);
 
 private:
     Ui::kef *ui;

@@ -4,13 +4,6 @@
 #include <QAxObject>
 #include "cdatabasemanager.h"
 
-/*
- * Master KDA
- */
-/*#include <QSqlRelationalTableModel>
-#include <QSqlError>
-#include <QMessageBox>*/ //Уже подключены?
-
 const char PREVIOUS_SELECTION[] = "previousSelection";
 const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
 
@@ -49,7 +42,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
                         in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
                         in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
-                        in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(30).toFloat());
+                        in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
+                        in1_query.value(30).toFloat());
                 // ui->DogName->setText(in1_query.value(1).toString()); //Это если нужно вписать имя файла, а не учржд.
                 ui->startKTR->setText(in1_query.value(7).toString());
                 ui->startKSC->setText(in1_query.value(16).toString());
@@ -225,9 +219,6 @@ void MainWindow::_recountPositions(int idfrag, int delta)
         if (i != idfrag)
             currentKolDog->fragments[i]->PositionOfFirst += delta;
         currentKolDog->fragments[i]->PositionOfLast += delta;
-        /*qDebug() << "Новые координаты пункта <" + QString::number(i) + "> "
-                        + QString::number(currentKolDog->fragments[i]->PositionOfFirst)
-                 << QString::number(currentKolDog->fragments[i]->PositionOfLast);*/
     }
 }
 
@@ -319,6 +310,26 @@ void MainWindow::_deleteSelectedFrag()
     SelectedFragment = -1;
 }
 
+void MainWindow::_showMessage(QString text, QString title)
+{
+    QMessageBox msg;
+    msg.setText(text);
+    msg.setWindowTitle(title);
+    msg.exec();
+}
+
+bool MainWindow::_showQuestion(QString text, QString title, QString textYes, QString textNo)
+{
+    bool result = false;
+    QMessageBox msgBox(QMessageBox::Question, title, text, QMessageBox::Yes | QMessageBox::No, this);
+    msgBox.setButtonText(QMessageBox::Yes, textYes);
+    msgBox.setButtonText(QMessageBox::No, textNo);
+    qint32 resMsg = msgBox.exec();
+    if (resMsg == QMessageBox::Yes)
+        result = true;
+    return result;
+}
+
 void MainWindow::on_te_textCenter_cursorPositionChanged()
 {
     if (!TextCenterIsBlocked) {
@@ -335,11 +346,13 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
             cursor.mergeCharFormat(format);
         }
         //Поиск id выделенного фрагмента
+        qDebug() << "ПОЗИЦИИ ФРАГМЕНТОВ";
         int CursorPosition = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
-            if (currentKolDog->fragments[i]->PositionOfFirst == CursorPosition) {
-                qDebug() << "Сейчас не обрабатываемая ситуация";
-            }
+
+            qDebug() << QString::number(currentKolDog->fragments[i]->PositionOfFirst) + "  "
+                            + QString::number(currentKolDog->fragments[i]->PositionOfLast);
+
             if (currentKolDog->fragments[i]->PositionOfFirst <= CursorPosition
                 && currentKolDog->fragments[i]->PositionOfLast > CursorPosition) {
                 SelectedFragment = i;
@@ -347,7 +360,7 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
             }
         }
         if (SelectedFragment == -1) {
-            qDebug() << "Сейчас всё наебнётся";
+            qDebug() << "Сейчас всё навернётся";
         }
         //Выделить
         cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
@@ -360,12 +373,12 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
 void MainWindow::on_pb_newFrag_clicked()
 {
     if (m_currentWorkMode == eBasicMode) {
-        QMessageBox msg;
-        msg.setWindowTitle("Master KDA - Добавление нового пункта");
-        msg.setText("Для добавления нового пункта нужно выбрать пункт, после котого будет размещён новый.");
-        msg.exec();
-    } else {
-        // TODO: [9][min] сделать ввод на 1 позицию если пункт не выбран
+        m_addFirst =
+                _showQuestion("Если вы хотите добавить пункт на первую позицию - нажмите \"Добавить первым\".\n"
+                              "Если нет, то нажмите \"Отмена\", выберите пункт, после которого добавится новый пункт.",
+                              "Master KDA - Добавление нового пункта", "Добавить первым", "Отмена");
+    }
+    if (m_currentWorkMode != eBasicMode || m_addFirst) {
         setWorkMode(eRightFrameMode);
         m_document = ui->TextRight->document();
         QTextCursor cursor(m_document);
@@ -433,7 +446,6 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    qDebug() << "Было пунктов: " + QString::number(currentKolDog->fragments.count());
     TextCenterIsBlocked = true;
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
@@ -442,9 +454,26 @@ void MainWindow::on_GoLeft_clicked()
     QString tmp = ui->TextRight->toPlainText();
 
     if (m_addNewFrag) {
+        //Подготовка позиции для размещения фрагмента на первое место или любое другое
+        //! Первая позиция предыдущего фрагмента
+        qint32 posPrevFragFirst;
+        //! Последняя позиция предыдущего фрагмента
+        qint32 posPrevFragLast;
+        //! ID предыдущего фрагмента, после которого добавляем
+        qint32 idPrevFrag;
+        if (m_addFirst) {
+            posPrevFragFirst = 0;
+            posPrevFragLast = 0;
+            idPrevFrag = 0;
+        } else {
+            posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->PositionOfFirst;
+            posPrevFragLast = currentKolDog->fragments[SelectedFragment]->PositionOfLast;
+            idPrevFrag = SelectedFragment;
+        }
         //Создание нового фрагмента
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::MoveAnchor);
+        cursor.setPosition(posPrevFragLast, QTextCursor::MoveAnchor);
         fragment *frag = new fragment();
+        frag->changed = true;
         frag->Razdel = AbbreviationRazd[ui->Razd->currentIndex()];
         frag->VoprosABR = AbbreviationVopros[ui->Question->currentIndex()];
         frag->SetArguments(tmp, AbbreviationQuality[ui->Quality->currentIndex()],
@@ -452,21 +481,30 @@ void MainWindow::on_GoLeft_clicked()
         ArgLine = "\n" + frag->Razdel + "\t" + frag->VoprosABR + "\t" + frag->Akt + "\t" + frag->Kachestvo;
         frag->Size = ArgLine.size() + frag->text.size() + 2;
         cursor.insertText(frag->text + ArgLine + "\n\n");
-        frag->PositionOfFirst = currentKolDog->fragments[SelectedFragment]->PositionOfLast;
+        frag->PositionOfFirst = posPrevFragLast;
         frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
         //Убираем выделение старого и нового фрагмента
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
+        cursor.setPosition(posPrevFragFirst, QTextCursor::MoveAnchor);
         cursor.setPosition(frag->PositionOfLast, QTextCursor::KeepAnchor);
         cursor.mergeCharFormat(format);
         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
         cursor.mergeCharFormat(format);
         //
-        currentKolDog->addFragAfter(SelectedFragment, frag);
-        SelectedFragment++;
-        _recountPositions(SelectedFragment, frag->Size);
+        if (m_addFirst) {
+            currentKolDog->addFragAfter(idPrevFrag, frag);
+        } else {
+            currentKolDog->addFragOnFirstPos(frag);
+        }
+        _recountPositions(idPrevFrag++, frag->Size);
         //! NOTE: Костыль предыдущей функции
-        frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
-
+        if (m_addFirst) {
+            // FIXME: [9][min] СЕЙЧАС. Почему-то сливается с 1 фрагментом. (И пересчёт для следующих не тот)
+        } else {
+            frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
+        }
+        //Спуск флагов
+        if (m_addFirst)
+            m_addFirst = false;
         m_addNewFrag = false;
     } else {
         //Изменение старого фрагмента
@@ -483,9 +521,12 @@ void MainWindow::on_GoLeft_clicked()
                 + currentKolDog->fragments[SelectedFragment]->Kachestvo;
         cursor.insertText(currentKolDog->fragments[SelectedFragment]->text + ArgLine + "\n\n");
         //Вычисление нового размера
-        _recountPositions(SelectedFragment,
-                          ui->TextRight->toPlainText().size() + ArgLine.size() + 2
-                                  - currentKolDog->fragments[SelectedFragment]->Size);
+        qint32 delta = ui->TextRight->toPlainText().size() + ArgLine.size() + 2
+                - currentKolDog->fragments[SelectedFragment]->Size;
+        if (delta != 0) {
+            currentKolDog->fragments[SelectedFragment]->changed = true;
+            _recountPositions(SelectedFragment, delta);
+        }
         currentKolDog->fragments[SelectedFragment]->Resize();
         //Убираем выделение изменённого фрагмента
         cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
@@ -506,7 +547,6 @@ void MainWindow::on_GoLeft_clicked()
     AbbreviationVopros.clear();
 
     setWorkMode(eBasicMode);
-    qDebug() << "Cтало пунктов: " + QString::number(currentKolDog->fragments.count());
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)
@@ -555,10 +595,9 @@ void MainWindow::on_Effekt_po_razd_clicked()
 {
     kef *kefDialog = new kef();
     connect(this, &MainWindow::s_sentKefs, kefDialog, &kef::getKefs);
-    emit s_sentKefs(currentKolDog->getKtr(), currentKolDog->getKsc(), currentKolDog->getKgdp(),
-                    currentKolDog->getKpsp(), currentKolDog->getKef(), currentKolDog->getZnachimost(),
-                    currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                    currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp());
+    emit s_sentKefs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+                    currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(), currentKolDog->getKot(),
+                    currentKolDog->getKots(), currentKolDog->getKtsp(), currentKolDog->getKmol());
     kefDialog->setModal(true);
     kefDialog->exec();
 }
@@ -579,12 +618,7 @@ void MainWindow::on_pb_clearField_clicked()
     ui->TextRight->clear();
 }
 
-void MainWindow::on_TextRight_textChanged()
-{
-    currentKolDog->fragments[SelectedFragment]->changed = true;
-}
-
-// BUG: в disabled режиме у навигатора цвет выбранных раньше отличается от остальных
+// TODO: в disabled режиме у навигатора цвет выбранных раньше отличается от остальных
 void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
     Q_UNUSED(column);

@@ -30,12 +30,15 @@ public:
     int getKot();
     int getKtsp();
     int getKots();
+    int getKmol();
     float getSum();
     void setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq, float znachimost,
                            int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog,
-                           int krv, int kvo, int kzp, int kot, int ktsp, int kots, float sum);
+                           int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum);
     //! Вставить фрагмент после pos фрагмента
     void addFragAfter(qint32 pos, fragment *frag);
+    //! Вставить фрагмент на первую позицию
+    void addFragOnFirstPos(fragment *frag);
 
 public:
     //! Фрагменты
@@ -64,6 +67,7 @@ private:
     int kot;
     int ktsp;
     int kots;
+    int kmol;
     float sum;
 };
 
