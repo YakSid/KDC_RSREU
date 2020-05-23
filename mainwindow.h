@@ -93,7 +93,8 @@ private:
     void _prepareView();
     void _fillCentralField(EDisplayedSection selectedSection);
     void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
-    void _recountPositions(int idfrag, int delta);
+    //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)
+    void _recountPositions(int idfrag, int delta, bool withFirstOfCurrent = false);
     void _setUpQuestion();
 
     //! Убрать выделение выбора из центрального окна

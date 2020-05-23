@@ -213,11 +213,14 @@ void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
             posEnd); // NOTE: Размер включает в себя: Текст, Размер СтрокиАргументов и 2-3 символа нового параграфа
 }
 
-void MainWindow::_recountPositions(int idfrag, int delta)
+void MainWindow::_recountPositions(int idfrag, int delta, bool withFirstOfCurrent)
 {
     for (int i = idfrag; i < currentKolDog->fragments.count(); i++) {
-        if (i != idfrag)
+        if (i != idfrag || withFirstOfCurrent) {
             currentKolDog->fragments[i]->PositionOfFirst += delta;
+            if (withFirstOfCurrent)
+                withFirstOfCurrent = false;
+        }
         currentKolDog->fragments[i]->PositionOfLast += delta;
     }
 }
@@ -346,13 +349,8 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
             cursor.mergeCharFormat(format);
         }
         //Поиск id выделенного фрагмента
-        qDebug() << "ПОЗИЦИИ ФРАГМЕНТОВ";
         int CursorPosition = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
-
-            qDebug() << QString::number(currentKolDog->fragments[i]->PositionOfFirst) + "  "
-                            + QString::number(currentKolDog->fragments[i]->PositionOfLast);
-
             if (currentKolDog->fragments[i]->PositionOfFirst <= CursorPosition
                 && currentKolDog->fragments[i]->PositionOfLast > CursorPosition) {
                 SelectedFragment = i;
@@ -362,6 +360,9 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         if (SelectedFragment == -1) {
             qDebug() << "Сейчас всё навернётся";
         }
+        qDebug() << "ID " + QString::number(SelectedFragment)
+                        + " Начало: " + QString::number(currentKolDog->fragments[SelectedFragment]->PositionOfFirst)
+                        + " Конец: " + QString::number(currentKolDog->fragments[SelectedFragment]->PositionOfLast);
         //Выделить
         cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
         cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
@@ -464,7 +465,7 @@ void MainWindow::on_GoLeft_clicked()
         if (m_addFirst) {
             posPrevFragFirst = 0;
             posPrevFragLast = 0;
-            idPrevFrag = 0;
+            idPrevFrag = -1;
         } else {
             posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->PositionOfFirst;
             posPrevFragLast = currentKolDog->fragments[SelectedFragment]->PositionOfLast;
@@ -491,17 +492,12 @@ void MainWindow::on_GoLeft_clicked()
         cursor.mergeCharFormat(format);
         //
         if (m_addFirst) {
-            currentKolDog->addFragAfter(idPrevFrag, frag);
-        } else {
             currentKolDog->addFragOnFirstPos(frag);
-        }
-        _recountPositions(idPrevFrag++, frag->Size);
-        //! NOTE: Костыль предыдущей функции
-        if (m_addFirst) {
-            // FIXME: [9][min] СЕЙЧАС. Почему-то сливается с 1 фрагментом. (И пересчёт для следующих не тот)
         } else {
-            frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
+            currentKolDog->addFragAfter(idPrevFrag, frag);
         }
+        qint32 idFragAfterInserted = idPrevFrag + 2;
+        _recountPositions(idFragAfterInserted, frag->Size, true);
         //Спуск флагов
         if (m_addFirst)
             m_addFirst = false;
