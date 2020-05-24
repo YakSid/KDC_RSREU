@@ -149,6 +149,11 @@ void CKolDog::setMainParameters(QString id, QString name, QDate date, uint valid
     this->sum = sum;
 }
 
+QVariantList CKolDog::getFiveCurrentKeffs()
+{
+    return QVariantList({ ktr, ksc, kgdp, kpsp, kef });
+}
+
 void CKolDog::addFragAfter(qint32 pos, fragment *frag)
 {
     fragments.insert(pos + 1, frag);
@@ -157,4 +162,9 @@ void CKolDog::addFragAfter(qint32 pos, fragment *frag)
 void CKolDog::addFragOnFirstPos(fragment *frag)
 {
     fragments.insert(0, frag);
+}
+
+void CKolDog::calculateCurrentKeffs()
+{
+    // TODO: высчитывание текущих коэффициентов
 }

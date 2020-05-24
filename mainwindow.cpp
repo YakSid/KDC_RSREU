@@ -7,6 +7,9 @@
 const char PREVIOUS_SELECTION[] = "previousSelection";
 const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
 
+//! Вопросы:
+//! Эффективность и Кэф это одно и то же? Почему в БД два разных поля?
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     lDialog = new ListKD();
@@ -100,33 +103,30 @@ void MainWindow::_prepareMainWindow(QString docId)
         qDebug() << in1_query.lastError().text();
     }
     if (in1_query.next()) {
+        // Расчёт параметров и заполнение полей mw
+        ui->startKTR->setText(in1_query.value(7).toString());
+        ui->startKSC->setText(in1_query.value(16).toString());
+        ui->startKGDP->setText(in1_query.value(15).toString());
+        ui->startKPSP->setText(_doubleToFloatString(in1_query.value(14).toDouble()));
+
+        double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
+                + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
+        QString strKEF = _doubleToFloatString(doubleKEF);
+
+        ui->startKEF->setText(strKEF);
         // Заполнение параметров класса договора
         currentKolDog->setMainParameters(
                 in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
                 in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
-                in1_query.value(6).toInt(), in1_query.value(7).toInt(), in1_query.value(13).toFloat(),
+                in1_query.value(6).toInt(), in1_query.value(7).toInt(), _strDoubleToFloat(strKEF),
                 in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
                 in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
                 in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
                 in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
                 in1_query.value(30).toFloat());
-        // ui->DogName->setText(in1_query.value(1).toString()); //Это если нужно вписать имя файла, а не учржд.
-        ui->startKTR->setText(in1_query.value(7).toString());
-        ui->startKSC->setText(in1_query.value(16).toString());
-        ui->startKGDP->setText(in1_query.value(15).toString());
-        auto tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
-        tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
-        ui->startKPSP->setText(tmp);
-        double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
-                + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
-        tmp = QString::number(doubleKEF, 'f', 1);
-        tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
-        ui->startKEF->setText(tmp);
-        ui->KTR->setText(ui->startKTR->text());
-        ui->KSC->setText(ui->startKSC->text());
-        ui->KGDP->setText(ui->startKGDP->text());
-        ui->KPSP->setText(ui->startKPSP->text());
-        ui->KEF->setText(ui->startKEF->text());
+        //Заполнение текущих коэффициентов
+        currentKolDog->calculateCurrentKeffs();
+        _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
     }
     //Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
@@ -297,6 +297,19 @@ void MainWindow::_setUpQuestion()
     }
 }
 
+QString MainWindow::_doubleToFloatString(double value)
+{
+    auto result = QString::number(value, 'f', 1);
+    result = result.replace(result.indexOf('.'), 1, ',');
+    return result;
+}
+
+float MainWindow::_strDoubleToFloat(QString value)
+{
+    value = value.replace(value.indexOf(','), 1, '.');
+    return value.toFloat();
+}
+
 void MainWindow::_removeSelectionFont()
 {
     QTextCursor cursor(m_document);
@@ -337,6 +350,35 @@ bool MainWindow::_showQuestion(QString text, QString title, QString textYes, QSt
     if (resMsg == QMessageBox::Yes)
         result = true;
     return result;
+}
+
+void MainWindow::_fillCurrentKeffs(QVariantList keffs)
+{
+    ui->KTR->setText(QString::number(keffs[0].toInt()));
+    ui->KSC->setText(QString::number(keffs[1].toInt()));
+    ui->KGDP->setText(QString::number(keffs[2].toInt()));
+    ui->KPSP->setText(_doubleToFloatString(keffs[3].toDouble()));
+    ui->KEF->setText(_doubleToFloatString(keffs[4].toDouble()));
+    // Сравнение и раскрашивание
+    // NOTE: потом-потом оптимизировать
+    QPalette greenPal, redPal, blackPal;
+    greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
+    redPal.setColor(QPalette::WindowText, Qt::darkRed);
+    blackPal.setColor(QPalette::WindowText, Qt::black);
+    QVariantList startKeffs({ ui->startKTR->text().toFloat(), ui->startKSC->text().toFloat(),
+                              ui->startKGDP->text().toFloat(), _strDoubleToFloat(ui->startKPSP->text()),
+                              _strDoubleToFloat(ui->startKEF->text()) });
+    QList<QLabel *> labels({ ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef });
+    for (int i = 0; i < startKeffs.size(); i++) {
+        qDebug() << keffs[i].toFloat() << startKeffs[i].toFloat();
+        if (keffs[i].toFloat() > startKeffs[i].toFloat()) {
+            labels[i]->setPalette(greenPal);
+        } else if (keffs[i].toFloat() < startKeffs[i].toFloat()) {
+            labels[i]->setPalette(redPal);
+        } else {
+            labels[i]->setPalette(blackPal);
+        }
+    }
 }
 
 void MainWindow::on_te_textCenter_cursorPositionChanged()
@@ -553,7 +595,8 @@ void MainWindow::on_GoLeft_clicked()
 
 void MainWindow::on_Razd_currentIndexChanged(int index)
 {
-    // BUG: При смене раздела неправильно меняется вопрос, только вручную норм
+    // BUG: [5] При смене раздела неправильно меняется вопрос, только вручную норм (и изменение параметров пункта
+    // неправильное)
     //Вообще переделать этот момент: должны же данные меняться по нажатию <<, а не с каждым изменением
     //Проверить при условиях: добавление фрагмента на первую позицию
     if (TextCenterIsBlocked) {
@@ -680,7 +723,6 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionStartAnotherKD_triggered()
 {
-    // BUG: Сделать возможность несколько раз выбирать новый КД (разобраться со связками конструктовров и дстрктрв)
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;

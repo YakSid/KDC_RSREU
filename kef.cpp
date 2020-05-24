@@ -12,7 +12,7 @@ kef::~kef()
     delete ui;
 }
 
-// TODO: [later] Подсвечивать кэфы при изменении зелёным и красным в mw (и тут)
+// TODO: [later] [min] Подсвечивать кэфы при изменении зелёным и красным тут тоже
 void kef::getKefs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
                   int kmol)
 {

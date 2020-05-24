@@ -17,10 +17,10 @@
 //! TODO: [1] Продолжение работы (загрузка или продолжение) и стартовое окно для этого
 //! TODO: [later] [1] работа с панелью меню
 //! TODO: [4] [min] layout mainwindow настроить нормально (сузить)
-//! TODO: [5] [6] [13] [Ош]
+//! TODO: [6] [13] [Ош]
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
 //! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
-//! TODO: ИЛИСЕЙЧАС Кэф на 3 формах имеет разные значения, сверить
+//! TODO: ИЛИСЕЙЧАС Кэф на 3 формах имеет разные значения, сверить (теперь лишь на листКД отличается)
 //! TODO: [later] Добавить проверку и поиск БД!
 
 //! TODO: [later] Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
@@ -97,12 +97,20 @@ private:
     void _recountPositions(int idfrag, int delta, bool withFirstOfCurrent = false);
     void _setUpQuestion();
 
+    //! Заменить точку на запятую и округлить до 1 знака после запятой
+    QString _doubleToFloatString(double value);
+    //! Заменить запятую на точку и проверить знаки после запятой
+    float _strDoubleToFloat(QString value);
+
     //! Убрать выделение выбора из центрального окна
     void _removeSelectionFont();
     //! Удалить выбранный фрагмент отовсюду
     void _deleteSelectedFrag();
+    //! Вывод сообщений на экран
     void _showMessage(QString text, QString title = "Master KDA");
     bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
+    //! Заполнить поля текущих коэффициентов
+    void _fillCurrentKeffs(QVariantList keffs);
 
 private:
     Ui::MainWindow *ui;

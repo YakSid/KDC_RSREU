@@ -4,6 +4,7 @@
 #include <QString>
 #include <QDate>
 #include <QVector>
+#include <QVariant>
 #include <fragment.h>
 
 class CKolDog
@@ -36,10 +37,14 @@ public:
     void setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq, float znachimost,
                            int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog,
                            int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum);
+    //! Получить выводимую пятёрку коэффициентов списком (Ктр, Ксц, Кгдп, Кпсп, Кэф)
+    QVariantList getFiveCurrentKeffs();
     //! Вставить фрагмент после pos фрагмента
     void addFragAfter(qint32 pos, fragment *frag);
     //! Вставить фрагмент на первую позицию
     void addFragOnFirstPos(fragment *frag);
+    //! Высчитать текущие коэффициенты
+    void calculateCurrentKeffs();
 
 public:
     //! Фрагменты
