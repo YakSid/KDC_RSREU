@@ -10,6 +10,7 @@ class CKolDog
 {
 public:
     CKolDog();
+    ~CKolDog();
     QString getId();
     QString getName();
     QDate getDate();

@@ -215,7 +215,7 @@ void knowledgebase::_select()
 void knowledgebase::on_pb_insert_into_kd_clicked()
 {
     //! Вставить нынешний text в поле редактирования mainwindow (с соответствующим изменением размеров)
-    // TODO: [9] сделать метод вставки из БЗ в окно редактирования
+    // TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
 }
 
 void knowledgebase::on_pb_next_clicked()

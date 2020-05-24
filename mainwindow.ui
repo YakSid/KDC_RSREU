@@ -1086,6 +1086,8 @@ p, li { white-space: pre-wrap; }
      <string>Файл</string>
     </property>
     <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionStartAnotherKD"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -1104,6 +1106,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionSave">
    <property name="text">
     <string>Сформировать в документ .docx</string>
+   </property>
+  </action>
+  <action name="actionStartAnotherKD">
+   <property name="text">
+    <string>Начать работу с другим КД</string>
    </property>
   </action>
  </widget>

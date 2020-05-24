@@ -113,6 +113,13 @@ float CKolDog::getSum()
 
 CKolDog::CKolDog() {}
 
+CKolDog::~CKolDog()
+{
+    for (auto frag : fragments)
+        delete frag;
+    fragments.clear();
+}
+
 void CKolDog::setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq,
                                 float znachimost, int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc,
                                 QDate endDate, int kdog, int krv, int kvo, int kzp, int kot, int ktsp, int kots,

@@ -9,110 +9,37 @@ const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    // TODO: [1] Сделать кнопку "Назад / К выбору КД"
+    lDialog = new ListKD();
 
-    /**/ // NOTE: Скрыто начало для тестирование
-    sDialog.setModal(true);
-    sDialog.exec();
-    if (sDialog.StartMode == 1) {
-        lDialog.setModal(true);
-        lDialog.exec();
-        if (!lDialog.WantGo) {
-            exit(3);
-        } else {
-            SelectedKD = lDialog.SelectedKD; /**/
-            // SelectedKD = "6201";
-            ui->setupUi(this);
-            //Здесь производится заполнение данных
-            //Заполнение коэффициентов
-            m_db = new CDatabaseManager();
-            currentKolDog = new CKolDog();
-            QSqlQuery in1_query, in2_query, in3_query, in4_query;
-            in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
-            in1_query.bindValue(":val1", SelectedKD);
-            if (!in1_query.exec()) {
-                qDebug() << in1_query.lastError().text();
+    bool debugMode = false;
+    if (!debugMode) {
+        sDialog.setModal(true);
+        sDialog.exec();
+        if (sDialog.StartMode == 1) {
+            lDialog->setModal(true);
+            lDialog->exec();
+            if (!lDialog->WantGo) {
+                exit(3);
+            } else {
+                ui->setupUi(this);
+                m_db = new CDatabaseManager();
+                //Подготовка договора и mw
+                _prepareMainWindow(lDialog->SelectedKD);
             }
-            if (in1_query.next()) {
-                // Заполнение параметров класса договора
-                currentKolDog->setMainParameters(
-                        in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
-                        in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
-                        in1_query.value(6).toInt(), in1_query.value(7).toInt(), in1_query.value(13).toFloat(),
-                        in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
-                        in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
-                        in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
-                        in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
-                        in1_query.value(30).toFloat());
-                // ui->DogName->setText(in1_query.value(1).toString()); //Это если нужно вписать имя файла, а не учржд.
-                ui->startKTR->setText(in1_query.value(7).toString());
-                ui->startKSC->setText(in1_query.value(16).toString());
-                ui->startKGDP->setText(in1_query.value(15).toString());
-                auto tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
-                tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
-                ui->startKPSP->setText(tmp);
-                double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
-                        + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
-                tmp = QString::number(doubleKEF, 'f', 1);
-                tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
-                ui->startKEF->setText(tmp);
-                ui->KTR->setText(ui->startKTR->text());
-                ui->KSC->setText(ui->startKSC->text());
-                ui->KGDP->setText(ui->startKGDP->text());
-                ui->KPSP->setText(ui->startKPSP->text());
-                ui->KEF->setText(ui->startKEF->text());
-            }
-            //Нахождение полного имени учрежд. и запись в шапку
-            in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
-            in4_query.bindValue(":val1", currentKolDog->getId());
-            if (!in4_query.exec()) {
-                qDebug() << in4_query.lastError().text();
-            }
-            if (in4_query.next()) {
-                ui->DogName->setText(in4_query.value(0).toString());
-            }
-            //
-            _prepareView();
-            //Запрос на заполнение центрального поля
-            int QuestionNum = 0;
-            in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
-            in2_query.bindValue(":val1", SelectedKD);
-            if (!in2_query.exec()) {
-                qDebug() << in2_query.lastError().text();
-            }
-            while (in2_query.next()) {
-                fragment *frag = new fragment();
-                //Заполнение данных фрагмента и навигатора
-                QuestionNum = in2_query.value(6).toInt();
-                in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
-                in3_query.bindValue(":val1", QuestionNum);
-                if (!in3_query.exec()) {
-                    qDebug() << in3_query.lastError().text();
-                }
-                if (in3_query.next()) {
-                    for (int i = 0; i < 11; i++)
-                        if (in3_query.value(2) == AbbreviationTreeHead[i]) {
-                            frag->Razdel = in3_query.value(2).toString();
-                            frag->VoprosABR = in3_query.value(1).toString();
-                            break;
-                        }
-                }
-                frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(),
-                                   in2_query.value(5).toString());
-                currentKolDog->fragments.append(frag);
-                // WARNING: Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
-            }
-            _fillCentralField(eAllSections);
-            TextCenterIsBlocked = false;
-            /**/ // NOTE: Скрыта концовка для тестирования
-        }
-    } else
-        exit(2); /**/
+        } else
+            exit(2);
+    } else {
+        // DebugMode
+        ui->setupUi(this);
+        m_db = new CDatabaseManager();
+        _prepareMainWindow("6201");
+    }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete lDialog;
     delete m_db;
     delete currentKolDog;
 }
@@ -160,10 +87,89 @@ void MainWindow::setWorkMode(EWorkMode newMode)
     m_currentWorkMode = newMode;
 }
 
-void MainWindow::_prepareView()
+void MainWindow::_prepareMainWindow(QString docId)
 {
+    SelectedKD = docId;
+    //Здесь производится заполнение данных
+    //Заполнение коэффициентов
+    currentKolDog = new CKolDog();
+    QSqlQuery in1_query, in2_query, in3_query, in4_query;
+    in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
+    in1_query.bindValue(":val1", SelectedKD);
+    if (!in1_query.exec()) {
+        qDebug() << in1_query.lastError().text();
+    }
+    if (in1_query.next()) {
+        // Заполнение параметров класса договора
+        currentKolDog->setMainParameters(
+                in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
+                in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
+                in1_query.value(6).toInt(), in1_query.value(7).toInt(), in1_query.value(13).toFloat(),
+                in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
+                in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
+                in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
+                in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
+                in1_query.value(30).toFloat());
+        // ui->DogName->setText(in1_query.value(1).toString()); //Это если нужно вписать имя файла, а не учржд.
+        ui->startKTR->setText(in1_query.value(7).toString());
+        ui->startKSC->setText(in1_query.value(16).toString());
+        ui->startKGDP->setText(in1_query.value(15).toString());
+        auto tmp = QString::number(in1_query.value(14).toDouble(), 'f', 1);
+        tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
+        ui->startKPSP->setText(tmp);
+        double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
+                + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
+        tmp = QString::number(doubleKEF, 'f', 1);
+        tmp = tmp.replace(tmp.indexOf('.'), 1, ',');
+        ui->startKEF->setText(tmp);
+        ui->KTR->setText(ui->startKTR->text());
+        ui->KSC->setText(ui->startKSC->text());
+        ui->KGDP->setText(ui->startKGDP->text());
+        ui->KPSP->setText(ui->startKPSP->text());
+        ui->KEF->setText(ui->startKEF->text());
+    }
+    //Нахождение полного имени учрежд. и запись в шапку
+    in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
+    in4_query.bindValue(":val1", currentKolDog->getId());
+    if (!in4_query.exec()) {
+        qDebug() << in4_query.lastError().text();
+    }
+    if (in4_query.next()) {
+        ui->DogName->setText(in4_query.value(0).toString());
+    }
+    //
     ui->tw_navigator->setColumnWidth(0, 211);
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
+    //Запрос на заполнение центрального поля
+    int QuestionNum = 0;
+    in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
+    in2_query.bindValue(":val1", SelectedKD);
+    if (!in2_query.exec()) {
+        qDebug() << in2_query.lastError().text();
+    }
+    while (in2_query.next()) {
+        fragment *frag = new fragment();
+        //Заполнение данных фрагмента и навигатора
+        QuestionNum = in2_query.value(6).toInt();
+        in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
+        in3_query.bindValue(":val1", QuestionNum);
+        if (!in3_query.exec()) {
+            qDebug() << in3_query.lastError().text();
+        }
+        if (in3_query.next()) {
+            for (int i = 0; i < 11; i++)
+                if (in3_query.value(2) == AbbreviationTreeHead[i]) {
+                    frag->Razdel = in3_query.value(2).toString();
+                    frag->VoprosABR = in3_query.value(1).toString();
+                    break;
+                }
+        }
+        frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(), in2_query.value(5).toString());
+        currentKolDog->fragments.append(frag);
+        // WARNING: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
+    }
+    _fillCentralField(eAllSections);
+    TextCenterIsBlocked = false;
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -303,7 +309,7 @@ void MainWindow::_removeSelectionFont()
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: [later] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -549,7 +555,7 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 {
     // BUG: При смене раздела неправильно меняется вопрос, только вручную норм
     //Вообще переделать этот момент: должны же данные меняться по нажатию <<, а не с каждым изменением
-    //И в GoLeft при m_addNewFrag == true проверить правильность смены значений после этих правок
+    //Проверить при условиях: добавление фрагмента на первую позицию
     if (TextCenterIsBlocked) {
         if (!m_addNewFrag) {
             currentKolDog->fragments[SelectedFragment]->Razdel = AbbreviationRazd[index];
@@ -614,7 +620,7 @@ void MainWindow::on_pb_clearField_clicked()
     ui->TextRight->clear();
 }
 
-// TODO: в disabled режиме у навигатора цвет выбранных раньше отличается от остальных
+// TODO: [later] в disabled режиме у навигатора цвет выбранных раньше отличается от остальных
 void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
     Q_UNUSED(column);
@@ -643,7 +649,7 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionSave_triggered()
 {
-    // TODO: [1] сделать автоматическое сохранение файла по указанному пути
+    // TODO: [later] [1] сделать автоматическое сохранение файла по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
 
     // Инициализация переменных для настройки документа
@@ -670,4 +676,23 @@ void MainWindow::on_actionSave_triggered()
     }
     range->dynamicCall("SetRange(int, int)", 0, 1);
     range->setProperty("Text", output);
+}
+
+void MainWindow::on_actionStartAnotherKD_triggered()
+{
+    // BUG: Сделать возможность несколько раз выбирать новый КД (разобраться со связками конструктовров и дстрктрв)
+    //Очистка предыдущих настроек
+    delete currentKolDog;
+    delete m_db;
+    delete lDialog;
+    lDialog = new ListKD();
+    //Новый старт
+    lDialog->setModal(true);
+    lDialog->exec();
+    if (!lDialog->WantGo) {
+        exit(3);
+    } else {
+        //Подготовка договора и mw
+        _prepareMainWindow(lDialog->SelectedKD);
+    }
 }

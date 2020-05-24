@@ -12,19 +12,18 @@
 #include "ckoldog.h"
 
 //! Задачи
-//! TODO: [3] окно детализации КТР
-//! TODO: [10] [mdl] сделать удобнее базу знаний
+//! TODO: [later] [3] окно детализации КТР
 //! TODO: [8] [mdl] окно эффективности по разделам, прописать формулы
 //! TODO: [1] Продолжение работы (загрузка или продолжение) и стартовое окно для этого
-//! TODO: [1] работа с панелью меню
+//! TODO: [later] [1] работа с панелью меню
 //! TODO: [4] [min] layout mainwindow настроить нормально (сузить)
 //! TODO: [5] [6] [13] [Ош]
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
 //! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
-//! TODO: Кэф на 3 формах имеет разные значения, сверить
-//! TODO: Добавить проверку и поиск БД!
+//! TODO: ИЛИСЕЙЧАС Кэф на 3 формах имеет разные значения, сверить
+//! TODO: [later] Добавить проверку и поиск БД!
 
-//! TODO: Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
+//! TODO: [later] Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
 
 //! Тип отображаемого раздела в центральном окне
 enum EDisplayedSection {
@@ -87,10 +86,11 @@ private slots:
     void on_tw_navigator_cellClicked(int row, int column);
     void on_btn_showFullText_clicked();
     void on_actionSave_triggered();
+    void on_actionStartAnotherKD_triggered();
 
 private:
-    //! Подготовка главного окна
-    void _prepareView();
+    //! Подготовка документа и главного окна
+    void _prepareMainWindow(QString docId);
     void _fillCentralField(EDisplayedSection selectedSection);
     void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
     //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)
@@ -110,7 +110,7 @@ private:
     QTextDocument *m_document;
     knowledgebase *kBase;
     StartDialog sDialog;
-    ListKD lDialog;
+    ListKD *lDialog;
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     EWorkMode m_currentWorkMode;
