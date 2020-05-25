@@ -44,6 +44,9 @@ public:
     explicit knowledgebase(QWidget *parent = nullptr);
     ~knowledgebase();
 
+signals:
+    void startTransportFrag(fragment *frag);
+
 public slots:
     void getFragment(fragment *frag);
 

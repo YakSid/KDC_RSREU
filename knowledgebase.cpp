@@ -214,8 +214,18 @@ void knowledgebase::_select()
 
 void knowledgebase::on_pb_insert_into_kd_clicked()
 {
-    //! Вставить нынешний text в поле редактирования mainwindow (с соответствующим изменением размеров)
-    // TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
+    if (ui->te_text->toPlainText().isEmpty())
+        return;
+
+    auto frag = new fragment();
+    frag = new fragment();
+    frag->SetArguments(ui->te_text->toPlainText(), ui->cmb_quality->currentText(), ""); // TODO: СЕЙЧАС Акт?
+    frag->VoprosABR = ui->cmb_question->currentText(); // TODO: нужно в аббревиатуру сделать
+    frag->Razdel = ui->cmb_razdel->currentText();
+    frag->changed = true;
+
+    emit startTransportFrag(frag);
+    close();
 }
 
 void knowledgebase::on_pb_next_clicked()

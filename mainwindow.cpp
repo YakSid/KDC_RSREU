@@ -9,10 +9,14 @@ const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "
 
 //! Вопросы:
 //! Эффективность и Кэф это одно и то же? Почему в БД два разных поля?
+//! Можно ли не выбрав фрагмент зайти в базу знаний? (Можно ради добавления нового пункта?)
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     lDialog = new ListKD();
+    kBase = new knowledgebase();
+    connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
+    connect(kBase, &knowledgebase::startTransportFrag, this, &MainWindow::insertFragFromKB);
 
     bool debugMode = false;
     if (!debugMode) {
@@ -42,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete kBase;
     delete lDialog;
     delete m_db;
     delete currentKolDog;
@@ -90,6 +95,14 @@ void MainWindow::setWorkMode(EWorkMode newMode)
     m_currentWorkMode = newMode;
 }
 
+void MainWindow::insertFragFromKB(fragment *frag)
+{
+    // TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
+    //! 1. вернуть выбранный фрагмент на место (GoLeft)
+    //! 2. Заполнить поля из frag
+    //! NOTE: проверить изменение размера
+}
+
 void MainWindow::_prepareMainWindow(QString docId)
 {
     SelectedKD = docId;
@@ -108,11 +121,9 @@ void MainWindow::_prepareMainWindow(QString docId)
         ui->startKSC->setText(in1_query.value(16).toString());
         ui->startKGDP->setText(in1_query.value(15).toString());
         ui->startKPSP->setText(_doubleToFloatString(in1_query.value(14).toDouble()));
-
         double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
                 + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
         QString strKEF = _doubleToFloatString(doubleKEF);
-
         ui->startKEF->setText(strKEF);
         // Заполнение параметров класса договора
         currentKolDog->setMainParameters(
@@ -370,7 +381,6 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
                               _strDoubleToFloat(ui->startKEF->text()) });
     QList<QLabel *> labels({ ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef });
     for (int i = 0; i < startKeffs.size(); i++) {
-        qDebug() << keffs[i].toFloat() << startKeffs[i].toFloat();
         if (keffs[i].toFloat() > startKeffs[i].toFloat()) {
             labels[i]->setPalette(greenPal);
         } else if (keffs[i].toFloat() < startKeffs[i].toFloat()) {
@@ -649,8 +659,6 @@ void MainWindow::on_Effekt_po_razd_clicked()
 
 void MainWindow::on_BazeKnowledge_clicked()
 {
-    kBase = new knowledgebase();
-    connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
     if (TextCenterIsBlocked) {
         emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
     }

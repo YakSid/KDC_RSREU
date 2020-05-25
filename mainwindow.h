@@ -70,6 +70,9 @@ signals:
     void s_sentKefs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
                     int kmol);
 
+public slots:
+    void insertFragFromKB(fragment *frag);
+
 private slots:
     void on_te_textCenter_cursorPositionChanged();
     void on_pb_newFrag_clicked();
