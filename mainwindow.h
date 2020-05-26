@@ -105,8 +105,11 @@ private:
     //! Заменить запятую на точку и проверить знаки после запятой
     float _strDoubleToFloat(QString value);
 
+    //! Выделить область в центральном поле
+    void _setSelectionInCentral(qint32 posStart, qint32 posEnd);
     //! Убрать выделение выбора из центрального окна
-    void _removeSelectionFont();
+    void _clearSelectionInCentral(qint32 posStart, qint32 posEnd);
+    void _clearSelectionInCentral();
     //! Удалить выбранный фрагмент отовсюду
     void _deleteSelectedFrag();
     //! Вывод сообщений на экран

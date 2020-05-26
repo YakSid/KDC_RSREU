@@ -56,6 +56,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
 {
     switch (newMode) {
     case eBasicMode:
+        ui->BazeKnowledge->setEnabled(false);
         ui->TextRight->setEnabled(false);
         ui->pb_clearField->setEnabled(false);
         ui->pb_deleteFrag->setEnabled(false);
@@ -69,6 +70,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         break;
     case eItemSelectedMode:
         if (m_currentWorkMode != eItemSelectedMode) {
+            ui->BazeKnowledge->setEnabled(true);
             ui->TextRight->setEnabled(false);
             ui->pb_clearField->setEnabled(false);
             ui->pb_deleteFrag->setEnabled(true);
@@ -81,6 +83,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         }
         break;
     case eRightFrameMode:
+        ui->BazeKnowledge->setEnabled(true);
         ui->TextRight->setEnabled(true);
         ui->pb_clearField->setEnabled(true);
         ui->pb_deleteFrag->setEnabled(false);
@@ -95,12 +98,37 @@ void MainWindow::setWorkMode(EWorkMode newMode)
     m_currentWorkMode = newMode;
 }
 
+// TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
 void MainWindow::insertFragFromKB(fragment *frag)
 {
-    // TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
-    //! 1. вернуть выбранный фрагмент на место (GoLeft)
+    qint32 prevSelectedFragId = SelectedFragment;
+    switch (m_currentWorkMode) {
+    case eBasicMode:
+        return;
+    case eItemSelectedMode:
+        _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->PositionOfFirst,
+                                 currentKolDog->fragments[SelectedFragment]->PositionOfLast);
+        break;
+    case eRightFrameMode:
+        on_GoLeft_clicked();
+        break;
+    }
+    setWorkMode(eRightFrameMode);
     //! 2. Заполнить поля из frag
-    //! NOTE: проверить изменение размера
+    //
+
+    //Подготовка к вставке нового пункта
+    m_document = ui->TextRight->document();
+    QTextCursor cursor(m_document);
+    ui->Act->addItems(ListAct);
+    ui->Razd->addItems(ListRazd);
+    ui->Quality->addItems(ListQuality);
+    _setUpQuestion();
+    ui->Question->addItems(ListVopros);
+    TextCenterIsBlocked = true;
+    m_addNewFrag = true;
+
+    SelectedFragment = prevSelectedFragId;
 }
 
 void MainWindow::_prepareMainWindow(QString docId)
@@ -321,7 +349,33 @@ float MainWindow::_strDoubleToFloat(QString value)
     return value.toFloat();
 }
 
-void MainWindow::_removeSelectionFont()
+void MainWindow::_setSelectionInCentral(qint32 posStart, qint32 posEnd)
+{
+    //! BUG: WARNING: СЕЙЧАС ЖЕ: поломал выделение (из-за разделения на функции выделяются не так. Предусмотреть смену шрифта для изменённых)
+    m_document = ui->te_textCenter->document();
+    QTextCursor cursor(m_document);
+    QTextCharFormat format;
+    //Выделить
+    cursor.setPosition(posStart, QTextCursor::MoveAnchor);
+    cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
+    format.setFontWeight(QFont::Bold);
+    cursor.mergeCharFormat(format);
+}
+
+void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
+{
+    m_document = ui->te_textCenter->document();
+    QTextCursor cursor(m_document);
+    QTextCharFormat format;
+    //Убираем выделение
+    cursor.setPosition(posStart, QTextCursor::MoveAnchor);
+    cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
+    cursor.mergeCharFormat(format);
+    cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+    cursor.mergeCharFormat(format);
+}
+
+void MainWindow::_clearSelectionInCentral()
 {
     QTextCursor cursor(m_document);
     QTextCharFormat format;
@@ -395,22 +449,17 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
 {
     if (!TextCenterIsBlocked) {
         setWorkMode(eItemSelectedMode);
-        //Начать работу с текстом
-        m_document = ui->te_textCenter->document();
-        QTextCursor cursor(m_document);
-        QTextCharFormat format;
-        //Снять выделение
+
+        qint32 posOfFragsLastLetter = 0;
         if (SelectedFragment != -1) {
-            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-            cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-            format.setFontWeight(QFont::Normal);
-            cursor.mergeCharFormat(format);
+            _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->PositionOfFirst,
+                                     currentKolDog->fragments[SelectedFragment]->PositionOfLast);
+            //Поиск id выделенного фрагмента
+            posOfFragsLastLetter = currentKolDog->fragments[SelectedFragment]->PositionOfLast;
         }
-        //Поиск id выделенного фрагмента
-        int CursorPosition = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
-            if (currentKolDog->fragments[i]->PositionOfFirst <= CursorPosition
-                && currentKolDog->fragments[i]->PositionOfLast > CursorPosition) {
+            if (currentKolDog->fragments[i]->PositionOfFirst <= posOfFragsLastLetter
+                && currentKolDog->fragments[i]->PositionOfLast > posOfFragsLastLetter) {
                 SelectedFragment = i;
                 break;
             }
@@ -421,11 +470,8 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         qDebug() << "ID " + QString::number(SelectedFragment)
                         + " Начало: " + QString::number(currentKolDog->fragments[SelectedFragment]->PositionOfFirst)
                         + " Конец: " + QString::number(currentKolDog->fragments[SelectedFragment]->PositionOfLast);
-        //Выделить
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-        format.setFontWeight(QFont::Bold);
-        cursor.mergeCharFormat(format);
+        _setSelectionInCentral(currentKolDog->fragments[SelectedFragment]->PositionOfFirst,
+                               currentKolDog->fragments[SelectedFragment]->PositionOfLast);
     }
 }
 
@@ -508,8 +554,6 @@ void MainWindow::on_GoLeft_clicked()
     TextCenterIsBlocked = true;
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
-    QTextCharFormat format;
-    format.setFontWeight(QFont::Normal);
     QString tmp = ui->TextRight->toPlainText();
 
     if (m_addNewFrag) {
@@ -543,11 +587,7 @@ void MainWindow::on_GoLeft_clicked()
         frag->PositionOfFirst = posPrevFragLast;
         frag->PositionOfLast = frag->PositionOfFirst + frag->Size;
         //Убираем выделение старого и нового фрагмента
-        cursor.setPosition(posPrevFragFirst, QTextCursor::MoveAnchor);
-        cursor.setPosition(frag->PositionOfLast, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(format);
-        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(format);
+        _clearSelectionInCentral(posPrevFragFirst, frag->PositionOfLast);
         //
         if (m_addFirst) {
             currentKolDog->addFragOnFirstPos(frag);
@@ -583,11 +623,8 @@ void MainWindow::on_GoLeft_clicked()
         }
         currentKolDog->fragments[SelectedFragment]->Resize();
         //Убираем выделение изменённого фрагмента
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfFirst, QTextCursor::MoveAnchor);
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->PositionOfLast, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(format);
-        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(format);
+        _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->PositionOfFirst,
+                                 currentKolDog->fragments[SelectedFragment]->PositionOfLast);
     }
     //Удаление данных
     ui->TextRight->clear();
@@ -601,6 +638,7 @@ void MainWindow::on_GoLeft_clicked()
     AbbreviationVopros.clear();
 
     setWorkMode(eBasicMode);
+    //! TODO: сделать перерасчёт кэффов
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)

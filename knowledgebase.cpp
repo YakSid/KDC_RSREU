@@ -11,6 +11,7 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     ui->setupUi(this);
     this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     _changeViewMode(eTypicalKD);
+    // TODO: Заполнить комбобоксы при создании (механизм выбора вопроса везде починить и стандартизировать)
 }
 
 // TODO: [11] [mdl] загрузку фрагментов немного изменить по блокноту
