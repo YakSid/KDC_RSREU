@@ -10,6 +10,7 @@ const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "
 //! Вопросы:
 //! Эффективность и Кэф это одно и то же? Почему в БД два разных поля?
 //! Можно ли не выбрав фрагмент зайти в базу знаний? (Можно ради добавления нового пункта?)
+//! Клавиша "Очистить поле" очищает параметры фрагмента или только текстовое поле?
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -18,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
     connect(kBase, &knowledgebase::startTransportFrag, this, &MainWindow::insertFragFromKB);
 
-    bool debugMode = false;
+    bool debugMode = true;
     if (!debugMode) {
         sDialog.setModal(true);
         sDialog.exec();
@@ -351,27 +352,26 @@ float MainWindow::_strDoubleToFloat(QString value)
 
 void MainWindow::_setSelectionInCentral(qint32 posStart, qint32 posEnd)
 {
-    //! BUG: WARNING: СЕЙЧАС ЖЕ: поломал выделение (из-за разделения на функции выделяются не так. Предусмотреть смену шрифта для изменённых)
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
     QTextCharFormat format;
+    format.setFontWeight(QFont::Bold);
     //Выделить
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
-    format.setFontWeight(QFont::Bold);
     cursor.mergeCharFormat(format);
 }
 
 void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
 {
+    // TODO: [min] сделать чтобы m_document и cursor один раз для всез инициализировался, а не постоянно
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
     QTextCharFormat format;
+    format.setFontWeight(QFont::Normal);
     //Убираем выделение
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
-    cursor.mergeCharFormat(format);
-    cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
 }
 
@@ -379,9 +379,9 @@ void MainWindow::_clearSelectionInCentral()
 {
     QTextCursor cursor(m_document);
     QTextCharFormat format;
-    cursor.setPosition(0, QTextCursor::MoveAnchor);
-    cursor.setPosition(ui->te_textCenter->toPlainText().length() - 1, QTextCursor::KeepAnchor);
     format.setFontWeight(QFont::Normal);
+    cursor.setPosition(0, QTextCursor::MoveAnchor);
+    cursor.setPosition(ui->te_textCenter->toPlainText().length(), QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
 }
 
@@ -450,16 +450,15 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
     if (!TextCenterIsBlocked) {
         setWorkMode(eItemSelectedMode);
 
-        qint32 posOfFragsLastLetter = 0;
         if (SelectedFragment != -1) {
             _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->PositionOfFirst,
                                      currentKolDog->fragments[SelectedFragment]->PositionOfLast);
-            //Поиск id выделенного фрагмента
-            posOfFragsLastLetter = currentKolDog->fragments[SelectedFragment]->PositionOfLast;
         }
+        //Поиск id выделенного фрагмента
+        qint32 cursorPos = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
-            if (currentKolDog->fragments[i]->PositionOfFirst <= posOfFragsLastLetter
-                && currentKolDog->fragments[i]->PositionOfLast > posOfFragsLastLetter) {
+            if (currentKolDog->fragments[i]->PositionOfFirst <= cursorPos
+                && currentKolDog->fragments[i]->PositionOfLast > cursorPos) {
                 SelectedFragment = i;
                 break;
             }
