@@ -21,72 +21,6 @@ knowledgebase::~knowledgebase()
     delete ui;
 }
 
-void knowledgebase::_setUpVopros()
-{
-    if (ui->cmb_razdel->currentIndex() == 0) {
-        m_listVopros.append({ "Стороны и их полномочия", "Разрешение споров", "Изменение, заключение и контроль КД",
-                              "Ответственность сторон", "Сроки и действие КД", "Консультация, переговоры сторон",
-                              "Цель заключения, правовые основы", "Информирование и знакомство с КД",
-                              "Обязательства сторон", "Другие вопросы", "Определения, содержание КД" });
-        m_abbreviationVopros.append({ "ПЛН", "РСП", "ИЗК", "ОТВ", "СДД", "ПЕГ", "ЦЕЗ", "ИНФ", "ОБЯ", "ДРГ", "ОПР" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 1) {
-        m_listVopros.append({ "Заключение ТД", "Срок ТД", "Изменение ТД", "Повышение квалификации", "Занятость",
-                              "Увольнение", "Сокращение", "Гарантия, компенсации", "Обязательства сторон" });
-        m_abbreviationVopros.append({ "ЗТД", "СТД", "ИТД", "ПК", "ЗАН", "УВ", "СОК", "ГАР", "ОБЯ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 2) {
-        m_listVopros.append({ "Продолжительность РВ", "Режим работы", "Сверхурочные", "Нормирование труда",
-                              "Дисциплина", "Гарантии, компенсации", "Обязательства сторон" });
-        m_abbreviationVopros.append({ "ПР", "РЕЖ", "СВХ", "НОР", "ДИС", "ГАР", "ОБЯ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 3) {
-        m_listVopros.append({ "Перерыв в течение рабочего дня", "Выходные дни", "Ежегодный отпуск",
-                              "Дополнительный отпуск", "Гарантии, компенсации", "Обязательства сторон" });
-        m_abbreviationVopros.append({ "ПЕР", "ВЫХ", "ОТП", "ДОВ", "ГАР", "ОБЯ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 4) {
-        m_listVopros.append({ "Права профкома, профсоюза", "Условия предоставляемые для деятельности",
-                              "Не члены профсоюза", "Льготы неосвобожденному профактиву",
-                              "Льготы освобожденному профактиву", "Согласования", "Льготы членам профсоюза",
-                              "Обязательства сторон" });
-        m_abbreviationVopros.append({ "ПКМ", "УСЛ", "НЧП", "ЛГН", "ЛГО", "СГЛ", "ЛЧП", "ОБГ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 5) {
-        m_listVopros.append({ "Система оплаты", "Надбавки", "Доплаты за не нормальные условия", "Сроки выплат",
-                              "Индексация", "Внебюджетные средства", "Премии", "Гарантии, компенсации",
-                              "Обязательства сторон" });
-        m_abbreviationVopros.append({ "СИС", "НАД", "ДОП", "СРК", "ИНД", "ВНБ", "ПРМ", "ГАР", "ОБЯ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 6) {
-        m_listVopros.append({ "Средства на ОТ", "Соглашение по ОТ", "Мероприятия по улучшению ОТ",
-                              "Аттестация рабочих мест", "Обеспечение средствами защиты",
-                              "Страхование и проф. обследование", "Контроль за ОТ", "Гарантии, компенсации",
-                              "Обязательства сторон", "Ответственность сторон" });
-        m_abbreviationVopros.append({ "СУМ", "СОГ", "МЕР", "АТТ", "ИСЗ", "ПРФ", "КОН", "ГАР", "ОБЯ", "ОТВ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 7) {
-        m_listVopros.append({ "Обращения, жалобы", "Индивидуальные", "Коллективные", "Комиссия по труд. спорам" });
-        m_abbreviationVopros.append({ "ЖЛБ", "ИНД", "КОЛ", "КОМ" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 8) {
-        m_listVopros.append({ "Социальное страхование", "Медиц. обслуживание", "Жилищные вопросы",
-                              "Организация отдыха работников", "Услуги (бытовые, спорт, культура и пр.)",
-                              "Контроль в соцсфере", "Материальная помощь, социальная защита",
-                              "Мероприятия и средства" });
-        m_abbreviationVopros.append({ "СТР", "МЕД", "ЖИЛ", "ОТД", "УСЛ", "КОН", "МАТ", "МСР" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 9) {
-        m_listVopros.append(
-                { "Совместители", "Руководители", "Женщины, семейные", "Молодые, учащиеся", "Гарантии, компенсации" });
-        m_abbreviationVopros.append({ "СОВ", "РУК", "ЖЕН", "МОЛ", "ГАР" });
-    }
-    if (ui->cmb_razdel->currentIndex() == 10) {
-        m_listVopros.append({ "Производственно-экономические", "Внебюджетная деятельность", "Обязательства сторон" });
-        m_abbreviationVopros.append({ "ПРЭ", "ВБД", "ОБЯ" });
-    }
-}
-
 void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
 {
     switch (newViewMode) {
@@ -118,32 +52,41 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
 
 void knowledgebase::getFragment(fragment *frag)
 {
+    ui->cmb_razdel->clear();
+    ui->cmb_question->clear();
+    ui->cmb_act->clear();
+    ui->cmb_quality->clear();
+
     ui->cmb_act->addItems(ListAct);
     ui->cmb_razdel->addItems(ListRazd);
     ui->cmb_quality->addItems(ListQuality);
+
+    QString fragAkt = frag->getAkt();
+    QString fragRazdel = frag->getRazdel();
+    QString fragQuality = frag->getKachestvo();
+    QString fragQuestionABR = frag->getVoprosABR();
+
     for (int i = 0; i < ListAct.size(); i++) {
-        if (frag->getAkt() == AbbreviationAct[i]) {
+        if (fragAkt == AbbreviationAct[i]) {
             ui->cmb_act->setCurrentIndex(i);
             break;
         }
     }
     for (int i = 0; i < ListRazd.size(); i++) {
-        if (frag->getRazdel() == AbbreviationRazd[i]) {
+        if (fragRazdel == AbbreviationRazd[i]) {
             ui->cmb_razdel->setCurrentIndex(i);
+            ui->cmb_question->addItems(QuestionsAtRazdel[i]);
+            for (int j = 0; j < ABRQuestionsAtRazdel[i].size(); j++) {
+                if (fragQuestionABR == ABRQuestionsAtRazdel[i][j]) {
+                    ui->cmb_question->setCurrentIndex(j);
+                }
+            }
             break;
         }
     }
     for (int i = 0; i < ListQuality.size(); i++) {
-        if (frag->getKachestvo() == AbbreviationQuality[i]) {
+        if (fragQuality == AbbreviationQuality[i]) {
             ui->cmb_quality->setCurrentIndex(i);
-            break;
-        }
-    }
-    _setUpVopros();
-    ui->cmb_question->addItems(m_listVopros);
-    for (int i = 0; i < m_listVopros.size(); i++) {
-        if (frag->getVoprosABR() == m_abbreviationVopros[i]) {
-            ui->cmb_question->setCurrentIndex(i);
             break;
         }
     }
@@ -218,14 +161,18 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     if (ui->te_text->toPlainText().isEmpty())
         return;
 
-    auto frag = new fragment();
-    frag = new fragment();
-    frag->SetArguments(ui->te_text->toPlainText(), ui->cmb_quality->currentText(), ""); // TODO: СЕЙЧАС Акт?
-    frag->setVoprosABR(ui->cmb_question->currentText()); // TODO: нужно в аббревиатуру сделать
-    frag->setRazdel(ui->cmb_razdel->currentText());
-    frag->setChanged(true);
+    auto transportFrag = new fragment();
+    transportFrag = new fragment();
+    transportFrag->setText(ui->te_text->toPlainText());
+    transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    // TODO: СЕЙЧАС какой отправить Акт если не показан?
+    transportFrag->setAkt(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
+    transportFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
+    transportFrag->setChanged(true);
 
-    emit startTransportFrag(frag);
+    emit startTransportFrag(transportFrag);
+    delete transportFrag;
     close();
 }
 

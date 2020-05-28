@@ -16,13 +16,6 @@ void fragment::SetPositions(int posStart, int posEnd)
     size = lastPos - firstPos;
 }
 
-void fragment::SetArguments(QString newText, QString newKachestvo, QString newAkt)
-{
-    text = newText;
-    kachestvo = newKachestvo;
-    akt = newAkt;
-}
-
 void fragment::Resize()
 {
     size = lastPos - firstPos;

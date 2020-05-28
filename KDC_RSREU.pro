@@ -38,6 +38,7 @@ SOURCES += \
     kef.cpp
 
 HEADERS += \
+    cconstants.h \
     cdatabasemanager.h \
     ckoldog.h \
     knowledgebase.h \

@@ -5,12 +5,17 @@
 #include "cdatabasemanager.h"
 
 const char PREVIOUS_SELECTION[] = "previousSelection";
-const QStringList AbbreviationTreeHead = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
+
+//Добавил с предыдущей релизной версии: добавление нового пункта, добавление из БЗ, починил хар-ку вопрос,
+//сделал подсветку кэффов при изменении,
 
 //! Вопросы:
 //! Эффективность и Кэф это одно и то же? Почему в БД два разных поля?
 //! Можно ли не выбрав фрагмент зайти в базу знаний? (Можно ради добавления нового пункта?)
 //! Клавиша "Очистить поле" очищает параметры фрагмента или только текстовое поле?
+//! В БД различающиеся немного сокращения таблицы вопросы и вопросы2
+//! Для фрагментов законов переносящихся из БЗ в mw что указывать в поле КАЧЕСТВО (Было же ВОЗМОЖНОСТЬ)
+//! Что писать в поле АКТ, когда выбраны "Все фрагменты" в БЗ? (ведь поле Акт скрывается(МОЖЕТ ЕГО БЛОКИРОВАТЬ, А НЕ СКРЫВАТЬ?))
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -94,6 +99,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->groupBox->setEnabled(true);
         ui->tw_navigator->setEnabled(false);
         ui->btn_showFullText->setEnabled(false);
+        m_document = ui->TextRight->document();
         break;
     }
     m_currentWorkMode = newMode;
@@ -115,17 +121,10 @@ void MainWindow::insertFragFromKB(fragment *frag)
         break;
     }
     setWorkMode(eRightFrameMode);
-    //! 2. Заполнить поля из frag
-    //
 
-    //Подготовка к вставке нового пункта
-    m_document = ui->TextRight->document();
-    QTextCursor cursor(m_document);
-    ui->Act->addItems(ListAct);
-    ui->Razd->addItems(ListRazd);
-    ui->Quality->addItems(ListQuality);
-    _setUpQuestion();
-    ui->Question->addItems(ListVopros);
+    ui->TextRight->setText(frag->getText());
+    _prepareSettingsInRight(frag->getAkt(), frag->getRazdel(), frag->getKachestvo(), frag->getVoprosABR());
+
     TextCenterIsBlocked = true;
     m_addNewFrag = true;
 
@@ -190,6 +189,7 @@ void MainWindow::_prepareMainWindow(QString docId)
     while (in2_query.next()) {
         fragment *frag = new fragment();
         //Заполнение данных фрагмента и навигатора
+        // TODO: WARNING: СЕЙЧАСЖЕ Разные вариации вопросов в базе! Учесть и переделать!
         QuestionNum = in2_query.value(6).toInt();
         in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
         in3_query.bindValue(":val1", QuestionNum);
@@ -198,13 +198,15 @@ void MainWindow::_prepareMainWindow(QString docId)
         }
         if (in3_query.next()) {
             for (int i = 0; i < 11; i++)
-                if (in3_query.value(2) == AbbreviationTreeHead[i]) {
+                if (in3_query.value(2) == AbbreviationRazd[i]) {
                     frag->setRazdel(in3_query.value(2).toString());
                     frag->setVoprosABR(in3_query.value(1).toString());
                     break;
                 }
         }
-        frag->SetArguments(in2_query.value(2).toString(), in2_query.value(4).toString(), in2_query.value(5).toString());
+        frag->setText(in2_query.value(2).toString());
+        frag->setKachestvo(in2_query.value(4).toString());
+        frag->setAkt(in2_query.value(5).toString());
         currentKolDog->fragments.append(frag);
         // WARNING: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
     }
@@ -225,7 +227,7 @@ void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
         }
     } else {
         for (auto fragment : currentKolDog->fragments) {
-            if (fragment->getRazdel() == AbbreviationTreeHead[selectedSection]) {
+            if (fragment->getRazdel() == AbbreviationRazd[selectedSection]) {
                 _addFragmentToCentralField(fragment, cursor);
                 fragment->setVisible(true);
             } else {
@@ -268,72 +270,6 @@ void MainWindow::_recountPositions(int idfrag, int delta, bool withFirstOfCurren
                 withFirstOfCurrent = false;
         }
         currentKolDog->fragments[i]->setPositionLast(currentKolDog->fragments[i]->getPositionLast() + delta);
-    }
-}
-
-void MainWindow::_setUpQuestion()
-{
-    if (ui->Razd->currentIndex() == 0) {
-        ListVopros.append({ "Стороны и их полномочия", "Разрешение споров", "Изменение, заключение и контроль КД",
-                            "Ответственность сторон", "Сроки и действие КД", "Консультация, переговоры сторон",
-                            "Цель заключения, правовые основы", "Информирование и знакомство с КД",
-                            "Обязательства сторон", "Другие вопросы", "Определения, содержание КД" });
-        AbbreviationVopros.append({ "ПЛН", "РСП", "ИЗК", "ОТВ", "СДД", "ПЕГ", "ЦЕЗ", "ИНФ", "ОБЯ", "ДРГ", "ОПР" });
-    }
-    if (ui->Razd->currentIndex() == 1) {
-        ListVopros.append({ "Заключение ТД", "Срок ТД", "Изменение ТД", "Повышение квалификации", "Занятость",
-                            "Увольнение", "Сокращение", "Гарантия, компенсации", "Обязательства сторон" });
-        AbbreviationVopros.append({ "ЗТД", "СТД", "ИТД", "ПК", "ЗАН", "УВ", "СОК", "ГАР", "ОБЯ" });
-    }
-    if (ui->Razd->currentIndex() == 2) {
-        ListVopros.append({ "Продолжительность РВ", "Режим работы", "Сверхурочные", "Нормирование труда", "Дисциплина",
-                            "Гарантии, компенсации", "Обязательства сторон" });
-        AbbreviationVopros.append({ "ПР", "РЕЖ", "СВХ", "НОР", "ДИС", "ГАР", "ОБЯ" });
-    }
-    if (ui->Razd->currentIndex() == 3) {
-        ListVopros.append({ "Перерыв в течение рабочего дня", "Выходные дни", "Ежегодный отпуск",
-                            "Дополнительный отпуск", "Гарантии, компенсации", "Обязательства сторон" });
-        AbbreviationVopros.append({ "ПЕР", "ВЫХ", "ОТП", "ДОВ", "ГАР", "ОБЯ" });
-    }
-    if (ui->Razd->currentIndex() == 4) {
-        ListVopros.append({ "Права профкома, профсоюза", "Условия предоставляемые для деятельности",
-                            "Не члены профсоюза", "Льготы неосвобожденному профактиву",
-                            "Льготы освобожденному профактиву", "Согласования", "Льготы членам профсоюза",
-                            "Обязательства сторон" });
-        AbbreviationVopros.append({ "ПКМ", "УСЛ", "НЧП", "ЛГН", "ЛГО", "СГЛ", "ЛЧП", "ОБГ" });
-    }
-    if (ui->Razd->currentIndex() == 5) {
-        ListVopros.append({ "Система оплаты", "Надбавки", "Доплаты за не нормальные условия", "Сроки выплат",
-                            "Индексация", "Внебюджетные средства", "Премии", "Гарантии, компенсации",
-                            "Обязательства сторон" });
-        AbbreviationVopros.append({ "СИС", "НАД", "ДОП", "СРК", "ИНД", "ВНБ", "ПРМ", "ГАР", "ОБЯ" });
-    }
-    if (ui->Razd->currentIndex() == 6) {
-        ListVopros.append({ "Средства на ОТ", "Соглашение по ОТ", "Мероприятия по улучшению ОТ",
-                            "Аттестация рабочих мест", "Обеспечение средствами защиты",
-                            "Страхование и проф. обследование", "Контроль за ОТ", "Гарантии, компенсации",
-                            "Обязательства сторон", "Ответственность сторон" });
-        AbbreviationVopros.append({ "СУМ", "СОГ", "МЕР", "АТТ", "ИСЗ", "ПРФ", "КОН", "ГАР", "ОБЯ", "ОТВ" });
-    }
-    if (ui->Razd->currentIndex() == 7) {
-        ListVopros.append({ "Обращения, жалобы", "Индивидуальные", "Коллективные", "Комиссия по труд. спорам" });
-        AbbreviationVopros.append({ "ЖЛБ", "ИНД", "КОЛ", "КОМ" });
-    }
-    if (ui->Razd->currentIndex() == 8) {
-        ListVopros.append({ "Социальное страхование", "Медиц. обслуживание", "Жилищные вопросы",
-                            "Организация отдыха работников", "Услуги (бытовые, спорт, культура и пр.)",
-                            "Контроль в соцсфере", "Материальная помощь, социальная защита",
-                            "Мероприятия и средства" });
-        AbbreviationVopros.append({ "СТР", "МЕД", "ЖИЛ", "ОТД", "УСЛ", "КОН", "МАТ", "МСР" });
-    }
-    if (ui->Razd->currentIndex() == 9) {
-        ListVopros.append(
-                { "Совместители", "Руководители", "Женщины, семейные", "Молодые, учащиеся", "Гарантии, компенсации" });
-        AbbreviationVopros.append({ "СОВ", "РУК", "ЖЕН", "МОЛ", "ГАР" });
-    }
-    if (ui->Razd->currentIndex() == 10) {
-        ListVopros.append({ "Производственно-экономические", "Внебюджетная деятельность", "Обязательства сторон" });
-        AbbreviationVopros.append({ "ПРЭ", "ВБД", "ОБЯ" });
     }
 }
 
@@ -445,6 +381,45 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     }
 }
 
+void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality,
+                                         QString fragQuestionABR)
+{
+    ui->Act->clear();
+    ui->Razd->blockSignals(true);
+    ui->Razd->clear();
+    ui->Razd->blockSignals(false);
+    ui->Quality->clear();
+    ui->Question->clear();
+
+    ui->Act->addItems(ListAct);
+    ui->Razd->addItems(ListRazd);
+    ui->Quality->addItems(ListQuality);
+    for (int i = 0; i < ListAct.size(); i++) {
+        if (fragAkt == AbbreviationAct[i]) {
+            ui->Act->setCurrentIndex(i);
+            break;
+        }
+    }
+    for (int i = 0; i < ListQuality.size(); i++) {
+        if (fragQuality == AbbreviationQuality[i]) {
+            ui->Quality->setCurrentIndex(i);
+            break;
+        }
+    }
+    for (int i = 0; i < ListRazd.size(); i++) {
+        if (fragRazdel == AbbreviationRazd[i]) {
+            ui->Razd->setCurrentIndex(i);
+            ui->Question->addItems(QuestionsAtRazdel[i]);
+            for (int j = 0; j < ABRQuestionsAtRazdel[i].size(); j++) {
+                if (fragQuestionABR == ABRQuestionsAtRazdel[i][j]) {
+                    ui->Question->setCurrentIndex(j);
+                }
+            }
+            break;
+        }
+    }
+}
+
 void MainWindow::on_te_textCenter_cursorPositionChanged()
 {
     if (!TextCenterIsBlocked) {
@@ -484,13 +459,10 @@ void MainWindow::on_pb_newFrag_clicked()
     }
     if (m_currentWorkMode != eBasicMode || m_addFirst) {
         setWorkMode(eRightFrameMode);
-        m_document = ui->TextRight->document();
-        QTextCursor cursor(m_document);
         ui->Act->addItems(ListAct);
         ui->Razd->addItems(ListRazd);
         ui->Quality->addItems(ListQuality);
-        _setUpQuestion();
-        ui->Question->addItems(ListVopros);
+        ui->Question->addItems(ABRQuestionsAtRazdel[0]);
         TextCenterIsBlocked = true;
         m_addNewFrag = true;
     }
@@ -508,43 +480,13 @@ void MainWindow::on_GoRight_clicked()
     setWorkMode(eRightFrameMode);
 
     ui->TextRight->clear();
-    m_document = ui->TextRight->document();
-    QTextCursor cursor(m_document);
-    TextCenterIsBlocked = true;
-    //Вставка текста в правое окно
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertText(currentKolDog->fragments[SelectedFragment]->getText());
-    //Заполнение данных
-    TextCenterIsBlocked = false;
-    ui->Act->addItems(ListAct);
-    ui->Razd->addItems(ListRazd);
-    ui->Quality->addItems(ListQuality);
-    for (int i = 0; i < ListAct.size(); i++) {
-        if (currentKolDog->fragments[SelectedFragment]->getAkt() == AbbreviationAct[i]) {
-            ui->Act->setCurrentIndex(i);
-            break;
-        }
-    }
-    for (int i = 0; i < ListRazd.size(); i++) {
-        if (currentKolDog->fragments[SelectedFragment]->getRazdel() == AbbreviationRazd[i]) {
-            ui->Razd->setCurrentIndex(i);
-            break;
-        }
-    }
-    for (int i = 0; i < ListQuality.size(); i++) {
-        if (currentKolDog->fragments[SelectedFragment]->getKachestvo() == AbbreviationQuality[i]) {
-            ui->Quality->setCurrentIndex(i);
-            break;
-        }
-    }
-    _setUpQuestion();
-    ui->Question->addItems(ListVopros);
-    for (int i = 0; i < ListVopros.size(); i++) {
-        if (currentKolDog->fragments[SelectedFragment]->getVoprosABR() == AbbreviationVopros[i]) {
-            ui->Question->setCurrentIndex(i);
-            break;
-        }
-    }
+    ui->TextRight->setText(currentKolDog->fragments[SelectedFragment]->getText());
+    //Заполнение параметров
+    _prepareSettingsInRight(currentKolDog->fragments[SelectedFragment]->getAkt(),
+                            currentKolDog->fragments[SelectedFragment]->getRazdel(),
+                            currentKolDog->fragments[SelectedFragment]->getKachestvo(),
+                            currentKolDog->fragments[SelectedFragment]->getVoprosABR());
+
     TextCenterIsBlocked = true;
 }
 
@@ -553,7 +495,6 @@ void MainWindow::on_GoLeft_clicked()
     TextCenterIsBlocked = true;
     m_document = ui->te_textCenter->document();
     QTextCursor cursor(m_document);
-    QString tmp = ui->TextRight->toPlainText();
 
     if (m_addNewFrag) {
         //Подготовка позиции для размещения фрагмента на первое место или любое другое
@@ -577,9 +518,10 @@ void MainWindow::on_GoLeft_clicked()
         fragment *frag = new fragment();
         frag->setChanged(true);
         frag->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
-        frag->setVoprosABR(AbbreviationVopros[ui->Question->currentIndex()]);
-        frag->SetArguments(tmp, AbbreviationQuality[ui->Quality->currentIndex()],
-                           AbbreviationAct[ui->Act->currentIndex()]);
+        frag->setVoprosABR(ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
+        frag->setText(ui->TextRight->toPlainText());
+        frag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
+        frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
         ArgLine = "\n" + frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t"
                 + frag->getKachestvo();
         frag->setSize(ArgLine.size() + frag->getText().size() + 2);
@@ -602,11 +544,18 @@ void MainWindow::on_GoLeft_clicked()
         m_addNewFrag = false;
     } else {
         //Изменение старого фрагмента
-        currentKolDog->fragments[SelectedFragment]->setText(tmp);
+        //Обновление текста и параметров в памяти
+        currentKolDog->fragments[SelectedFragment]->setText(ui->TextRight->toPlainText());
+        currentKolDog->fragments[SelectedFragment]->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
+        currentKolDog->fragments[SelectedFragment]->setVoprosABR(
+                ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
+        currentKolDog->fragments[SelectedFragment]->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
+        currentKolDog->fragments[SelectedFragment]->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
+        //Обновление данных в центральном поле
         cursor.setPosition(currentKolDog->fragments[SelectedFragment]->getPositionFirst(), QTextCursor::MoveAnchor);
         cursor.setPosition(currentKolDog->fragments[SelectedFragment]->getPositionLast(), QTextCursor::KeepAnchor);
         ArgLine.clear();
-        if (currentKolDog->fragments[SelectedFragment]->getText().right(1) != '\n') {
+        if (ui->TextRight->toPlainText().right(1) != '\n') {
             ArgLine += "\n";
         }
         ArgLine += currentKolDog->fragments[SelectedFragment]->getRazdel() + "\t"
@@ -618,24 +567,28 @@ void MainWindow::on_GoLeft_clicked()
         qint32 delta = ui->TextRight->toPlainText().size() + ArgLine.size() + 2
                 - currentKolDog->fragments[SelectedFragment]->getSize();
         if (delta != 0) {
-            currentKolDog->fragments[SelectedFragment]->setChanged(true);
             _recountPositions(SelectedFragment, delta);
         }
         currentKolDog->fragments[SelectedFragment]->Resize();
+        //Узнаём изменился ли фрагмент
+        if (delta != 0) // TODO: СЕЙЧАС || изменились_параметры или текст блин, хз как проверить isEqual?)
+        {
+            currentKolDog->fragments[SelectedFragment]->setChanged(true);
+        }
         //Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
                                  currentKolDog->fragments[SelectedFragment]->getPositionLast());
     }
     //Удаление данных
     ui->TextRight->clear();
-    //Удаление данных
     TextCenterIsBlocked = false;
+
     ui->Act->clear();
+    ui->Razd->blockSignals(true);
     ui->Razd->clear();
+    ui->Razd->blockSignals(false);
     ui->Quality->clear();
     ui->Question->clear();
-    ListVopros.clear();
-    AbbreviationVopros.clear();
 
     setWorkMode(eBasicMode);
     //! TODO: сделать перерасчёт кэффов
@@ -643,45 +596,9 @@ void MainWindow::on_GoLeft_clicked()
 
 void MainWindow::on_Razd_currentIndexChanged(int index)
 {
-    // BUG: [5] При смене раздела неправильно меняется вопрос, только вручную норм (и изменение параметров пункта
-    // неправильное)
-    //Вообще переделать этот момент: должны же данные меняться по нажатию <<, а не с каждым изменением
-    //Проверить при условиях: добавление фрагмента на первую позицию
-    if (TextCenterIsBlocked) {
-        if (!m_addNewFrag) {
-            currentKolDog->fragments[SelectedFragment]->setRazdel(AbbreviationRazd[index]);
-            QuestionNotSelected = true;
-            ui->Question->clear();
-            ListVopros.clear();
-            AbbreviationVopros.clear();
-            _setUpQuestion();
-            ui->Question->addItems(ListVopros);
-            QuestionNotSelected = false;
-        }
-    }
-}
-
-void MainWindow::on_Question_currentIndexChanged(int index)
-{
-    if (TextCenterIsBlocked) {
-        if (!QuestionNotSelected) {
-            currentKolDog->fragments[SelectedFragment]->setVoprosABR(AbbreviationVopros[index]);
-        }
-    }
-}
-
-void MainWindow::on_Act_currentIndexChanged(int index)
-{
-    if (TextCenterIsBlocked) {
-        currentKolDog->fragments[SelectedFragment]->setAkt(AbbreviationAct[index]);
-    }
-}
-
-void MainWindow::on_Quality_currentIndexChanged(int index)
-{
-    if (TextCenterIsBlocked) {
-        currentKolDog->fragments[SelectedFragment]->setKachestvo(AbbreviationQuality[index]);
-    }
+    ui->Question->clear();
+    ui->Question->addItems(QuestionsAtRazdel[index]);
+    ui->Question->setCurrentIndex(0);
 }
 
 void MainWindow::on_Effekt_po_razd_clicked()

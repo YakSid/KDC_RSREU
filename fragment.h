@@ -8,7 +8,6 @@ class fragment
 public:
     fragment();
     ~fragment();
-    void SetArguments(QString newText, QString newKachestvo, QString newAkt);
     void SetPositions(int posStart, int posEnd);
     void Resize();
     //! Вычслить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса

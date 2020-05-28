@@ -80,14 +80,13 @@ private slots:
     void on_GoRight_clicked();
     void on_GoLeft_clicked();
     void on_Razd_currentIndexChanged(int index);
-    void on_Question_currentIndexChanged(int index);
-    void on_Act_currentIndexChanged(int index);
-    void on_Quality_currentIndexChanged(int index);
     void on_Effekt_po_razd_clicked();
     void on_BazeKnowledge_clicked();
     void on_pb_clearField_clicked();
+    //! Навигатор по разделам
     void on_tw_navigator_cellClicked(int row, int column);
     void on_btn_showFullText_clicked();
+    //! Менюбар
     void on_actionSave_triggered();
     void on_actionStartAnotherKD_triggered();
 
@@ -98,7 +97,6 @@ private:
     void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
     //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)
     void _recountPositions(int idfrag, int delta, bool withFirstOfCurrent = false);
-    void _setUpQuestion();
 
     //! Заменить точку на запятую и округлить до 1 знака после запятой
     QString _doubleToFloatString(double value);
@@ -117,6 +115,8 @@ private:
     bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
     //! Заполнить поля текущих коэффициентов
     void _fillCurrentKeffs(QVariantList keffs);
+    //! Подготовить правое поле с параметрами к вставке пункта
+    void _prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality, QString fragQuestionABR);
 
 private:
     Ui::MainWindow *ui;
@@ -135,34 +135,6 @@ private:
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
-    QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
-                            "ОТС | Решение по вопросам Отраслевого соглашения",
-                            "ТРОТС | решение по вопросам Территориального соглашения" };
-    QStringList ListRazd = { "ПСП | Социальное партнерство",
-                             "ДОГ | Трудовой договор, занятость",
-                             "РВ | Рабочее время",
-                             "ВО | Время отдыха",
-                             "ГДП | Гарантии профкома",
-                             "ЗП | Заработная плата",
-                             "ОТ | Охрана труда",
-                             "ТСП | Трудовые споры",
-                             "СЦ | Социально-бытовое обслуживание",
-                             "ТОК | Труд отдельных категорий работников",
-                             "ПР | Произв. экон. вопросы" };
-    QStringList ListQuality = { "Ан | Аналоги положений",
-                                "Ут | Уточнение положений",
-                                "До | Реализация дозволений",
-                                "Вы | Повышение условий",
-                                "Св | Свои, специфические проблемы",
-                                "Др | Другое",
-                                "Фр | Формулировка",
-                                "Ни | Понижение условий" };
-    QStringList AbbreviationAct = { "КЗОТ", "ОБР", "ОТС", "ТРОТС" };
-    QStringList AbbreviationRazd = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
-    QStringList AbbreviationQuality = { "Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни" };
-    QStringList ListVopros;
-    QStringList AbbreviationVopros;
-    bool QuestionNotSelected = false;
     //!Строчка параметров фрагмента
     QString ArgLine;
 };

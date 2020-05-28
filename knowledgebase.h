@@ -2,33 +2,8 @@
 #define KNOWLEDGEBASE_H
 
 #include "fragment.h"
+#include "cconstants.h"
 #include <QDialog>
-
-const QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
-                              "ОТС | Решение по вопросам Отраслевого соглашения",
-                              "ТРОТС | решение по вопросам Территориального соглашения" };
-const QStringList ListRazd = { "ПСП | Социальное партнерство",
-                               "ДОГ | Трудовой договор, занятость",
-                               "РВ | Рабочее время",
-                               "ВО | Время отдыха",
-                               "ГДП | Гарантии профкома",
-                               "ЗП | Заработная плата",
-                               "ОТ | Охрана труда",
-                               "ТСП | Трудовые споры",
-                               "СЦ | Социально-бытовое обслуживание",
-                               "ТОК | Труд отдельных категорий работников",
-                               "ПР | Произв. экон. вопросы" };
-const QStringList ListQuality = { "Ан | Аналоги положений",
-                                  "Ут | Уточнение положений",
-                                  "До | Реализация дозволений",
-                                  "Вы | Повышение условий",
-                                  "Св | Свои, специфические проблемы",
-                                  "Др | Другое",
-                                  "Фр | Формулировка",
-                                  "Ни | Понижение условий" };
-const QStringList AbbreviationAct = { "КЗОТ", "ОБР", "ОТС", "ТРОТС" };
-const QStringList AbbreviationRazd = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
-const QStringList AbbreviationQuality = { "Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни" };
 
 enum EFragmentsViewMode { eLaw, eTypicalKD, eAllKD };
 
@@ -72,14 +47,11 @@ private slots:
     void on_pb_showList_clicked();
 
 private:
-    void _setUpVopros();
     void _changeViewMode(EFragmentsViewMode newViewMode);
 
 private:
     Ui::knowledgebase *ui;
     EFragmentsViewMode viewMode { eTypicalKD };
-    QStringList m_listVopros;
-    QStringList m_abbreviationVopros;
     //! Номер фрагмента из подготовленного списка, -1 - изначальный
     qint32 currentFragmentNumber { -1 };
     qint32 currentVoprosNumber;
