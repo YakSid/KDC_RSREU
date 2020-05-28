@@ -122,19 +122,19 @@ void knowledgebase::getFragment(fragment *frag)
     ui->cmb_razdel->addItems(ListRazd);
     ui->cmb_quality->addItems(ListQuality);
     for (int i = 0; i < ListAct.size(); i++) {
-        if (frag->Akt == AbbreviationAct[i]) {
+        if (frag->getAkt() == AbbreviationAct[i]) {
             ui->cmb_act->setCurrentIndex(i);
             break;
         }
     }
     for (int i = 0; i < ListRazd.size(); i++) {
-        if (frag->Razdel == AbbreviationRazd[i]) {
+        if (frag->getRazdel() == AbbreviationRazd[i]) {
             ui->cmb_razdel->setCurrentIndex(i);
             break;
         }
     }
     for (int i = 0; i < ListQuality.size(); i++) {
-        if (frag->Kachestvo == AbbreviationQuality[i]) {
+        if (frag->getKachestvo() == AbbreviationQuality[i]) {
             ui->cmb_quality->setCurrentIndex(i);
             break;
         }
@@ -142,7 +142,7 @@ void knowledgebase::getFragment(fragment *frag)
     _setUpVopros();
     ui->cmb_question->addItems(m_listVopros);
     for (int i = 0; i < m_listVopros.size(); i++) {
-        if (frag->VoprosABR == m_abbreviationVopros[i]) {
+        if (frag->getVoprosABR() == m_abbreviationVopros[i]) {
             ui->cmb_question->setCurrentIndex(i);
             break;
         }
@@ -150,9 +150,9 @@ void knowledgebase::getFragment(fragment *frag)
 
     currentVoprosNumber = frag->getVoprosNumber();
 
-    ui->te_text->setText(frag->text);
+    ui->te_text->setText(frag->getText());
     ui->gb_text->setTitle("Начальный фрагмент");
-    originalText = frag->text;
+    originalText = frag->getText();
     _select();
 }
 
@@ -221,9 +221,9 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     auto frag = new fragment();
     frag = new fragment();
     frag->SetArguments(ui->te_text->toPlainText(), ui->cmb_quality->currentText(), ""); // TODO: СЕЙЧАС Акт?
-    frag->VoprosABR = ui->cmb_question->currentText(); // TODO: нужно в аббревиатуру сделать
-    frag->Razdel = ui->cmb_razdel->currentText();
-    frag->changed = true;
+    frag->setVoprosABR(ui->cmb_question->currentText()); // TODO: нужно в аббревиатуру сделать
+    frag->setRazdel(ui->cmb_razdel->currentText());
+    frag->setChanged(true);
 
     emit startTransportFrag(frag);
     close();

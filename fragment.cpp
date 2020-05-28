@@ -9,31 +9,31 @@ fragment::fragment() {}
 
 fragment::~fragment() {}
 
-void fragment::SetPositions(int p1, int p2)
+void fragment::SetPositions(int posStart, int posEnd)
 {
-    PositionOfFirst = p1;
-    PositionOfLast = p2;
-    Size = PositionOfLast - PositionOfFirst;
+    firstPos = posStart;
+    lastPos = posEnd;
+    size = lastPos - firstPos;
 }
 
-void fragment::SetArguments(QString txt, QString kach, QString akt)
+void fragment::SetArguments(QString newText, QString newKachestvo, QString newAkt)
 {
-    text = txt;
-    Kachestvo = kach;
-    Akt = akt;
+    text = newText;
+    kachestvo = newKachestvo;
+    akt = newAkt;
 }
 
 void fragment::Resize()
 {
-    Size = PositionOfLast - PositionOfFirst;
+    size = lastPos - firstPos;
 }
 
 qint32 fragment::getVoprosNumber()
 {
     QSqlQuery querySelect;
     querySelect.prepare("SELECT Вопросы.Код FROM Вопросы WHERE Вопросы.вопрос = :val1 AND Вопросы.раздел = :val2");
-    querySelect.bindValue(":val1", VoprosABR);
-    querySelect.bindValue(":val2", Razdel);
+    querySelect.bindValue(":val1", voprosABR);
+    querySelect.bindValue(":val2", razdel);
     if (!querySelect.exec()) {
         qDebug() << querySelect.lastError().text();
     }
