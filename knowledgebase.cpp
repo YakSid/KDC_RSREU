@@ -11,7 +11,6 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     ui->setupUi(this);
     this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     _changeViewMode(eTypicalKD);
-    // TODO: Заполнить комбобоксы при создании (механизм выбора вопроса везде починить и стандартизировать)
 }
 
 // TODO: [11] [mdl] загрузку фрагментов немного изменить по блокноту
@@ -91,6 +90,7 @@ void knowledgebase::getFragment(fragment *frag)
         }
     }
 
+    // TODO: избавиться от переменной, оптимизировать количество запросов в БД (в селекте только используется)
     currentVoprosNumber = frag->getVoprosNumber();
 
     ui->te_text->setText(frag->getText());

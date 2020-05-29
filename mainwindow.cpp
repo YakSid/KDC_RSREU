@@ -6,16 +6,25 @@
 
 const char PREVIOUS_SELECTION[] = "previousSelection";
 
-//Добавил с предыдущей релизной версии: добавление нового пункта, добавление из БЗ, починил хар-ку вопрос,
-//сделал подсветку кэффов при изменении,
-
 //! Вопросы:
 //! Эффективность и Кэф это одно и то же? Почему в БД два разных поля?
+//! ОТВЕТ: в листКД можно оставить ту, что есть, главное хорошие в КД
+//!
 //! Можно ли не выбрав фрагмент зайти в базу знаний? (Можно ради добавления нового пункта?)
+//! ОТВЕТ: можно (юзер сам введёт параметры)
+//!
 //! Клавиша "Очистить поле" очищает параметры фрагмента или только текстовое поле?
+//! ОТВЕТ: только текстовое поле
+//!
 //! В БД различающиеся немного сокращения таблицы вопросы и вопросы2
+//! ОТВЕТ: вопросы2 использовать
+//!
 //! Для фрагментов законов переносящихся из БЗ в mw что указывать в поле КАЧЕСТВО (Было же ВОЗМОЖНОСТЬ)
+//! ОТВЕТ: ставить Ан аналог
+//!
 //! Что писать в поле АКТ, когда выбраны "Все фрагменты" в БЗ? (ведь поле Акт скрывается(МОЖЕТ ЕГО БЛОКИРОВАТЬ, А НЕ СКРЫВАТЬ?))
+//! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
+//!
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -189,7 +198,7 @@ void MainWindow::_prepareMainWindow(QString docId)
     while (in2_query.next()) {
         fragment *frag = new fragment();
         //Заполнение данных фрагмента и навигатора
-        // TODO: WARNING: СЕЙЧАСЖЕ Разные вариации вопросов в базе! Учесть и переделать!
+        // TODO: WARNING: СЕЙЧАСЖЕ Разные вариации таблиц вопросов в базе! Учесть и переделать!
         QuestionNum = in2_query.value(6).toInt();
         in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
         in3_query.bindValue(":val1", QuestionNum);
@@ -574,6 +583,11 @@ void MainWindow::on_GoLeft_clicked()
         if (delta != 0) // TODO: СЕЙЧАС || изменились_параметры или текст блин, хз как проверить isEqual?)
         {
             currentKolDog->fragments[SelectedFragment]->setChanged(true);
+        } else {
+            //! TODO: Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет.
+            /*if (ui->TextRight->toPlainText() != currentKolDog->fragments[SelectedFragment]->getText()) {
+                currentKolDog->fragments[SelectedFragment]->setChanged(true);
+            }*/
         }
         //Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
