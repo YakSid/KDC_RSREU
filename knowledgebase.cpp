@@ -90,8 +90,7 @@ void knowledgebase::getFragment(fragment *frag)
         }
     }
 
-    // TODO: избавиться от переменной, оптимизировать количество запросов в БД (в селекте только используется)
-    currentVoprosNumber = frag->getVoprosNumber();
+    m_currentVoprosNumber = frag->getVoprosNumber();
 
     ui->te_text->setText(frag->getText());
     ui->gb_text->setTitle("Начальный фрагмент");
@@ -142,7 +141,7 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 void knowledgebase::_select()
 {
     fragmentsForShow.clear();
-    QString questionKod = QString::number(currentVoprosNumber);
+    QString questionKod = QString::number(m_currentVoprosNumber);
     QSqlQuery querySelect;
     querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента FROM ТФрагмент WHERE Тфрагмент.КодВопрос = :val1");
     querySelect.bindValue(":val1", questionKod);

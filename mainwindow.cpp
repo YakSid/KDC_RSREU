@@ -16,15 +16,19 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! Клавиша "Очистить поле" очищает параметры фрагмента или только текстовое поле?
 //! ОТВЕТ: только текстовое поле
 //!
-//! В БД различающиеся немного сокращения таблицы вопросы и вопросы2
-//! ОТВЕТ: вопросы2 использовать
-//!
 //! Для фрагментов законов переносящихся из БЗ в mw что указывать в поле КАЧЕСТВО (Было же ВОЗМОЖНОСТЬ)
 //! ОТВЕТ: ставить Ан аналог
 //!
 //! Что писать в поле АКТ, когда выбраны "Все фрагменты" в БЗ? (ведь поле Акт скрывается(МОЖЕТ ЕГО БЛОКИРОВАТЬ, А НЕ СКРЫВАТЬ?))
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
+
+/* Новые вопросы
+ * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
+ * вообще какая-то странная) [dev: если утвержят, то later можно сделать индексацию вопроса не по abr, а по id]
+ *
+ *
+ */
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -114,9 +118,10 @@ void MainWindow::setWorkMode(EWorkMode newMode)
     m_currentWorkMode = newMode;
 }
 
-// TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
 void MainWindow::insertFragFromKB(fragment *frag)
 {
+    // TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
+    // Учитывать изменённые параметры и при разных типах фрагментов
     qint32 prevSelectedFragId = SelectedFragment;
     switch (m_currentWorkMode) {
     case eBasicMode:
@@ -198,7 +203,7 @@ void MainWindow::_prepareMainWindow(QString docId)
     while (in2_query.next()) {
         fragment *frag = new fragment();
         //Заполнение данных фрагмента и навигатора
-        // TODO: WARNING: СЕЙЧАСЖЕ Разные вариации таблиц вопросов в базе! Учесть и переделать!
+        // NOTE: Использовать таблицу "Вопросы" или "Вопросы"2?
         QuestionNum = in2_query.value(6).toInt();
         in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
         in3_query.bindValue(":val1", QuestionNum);
@@ -401,7 +406,7 @@ void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QS
     ui->Question->clear();
 
     ui->Act->addItems(ListAct);
-    ui->Razd->addItems(ListRazd);
+    ui->Razd->addItems(ListRazd); //От этого сработает on_Razd_currentItemChanged и вопросы добавятся сами
     ui->Quality->addItems(ListQuality);
     for (int i = 0; i < ListAct.size(); i++) {
         if (fragAkt == AbbreviationAct[i]) {
@@ -418,7 +423,6 @@ void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QS
     for (int i = 0; i < ListRazd.size(); i++) {
         if (fragRazdel == AbbreviationRazd[i]) {
             ui->Razd->setCurrentIndex(i);
-            ui->Question->addItems(QuestionsAtRazdel[i]);
             for (int j = 0; j < ABRQuestionsAtRazdel[i].size(); j++) {
                 if (fragQuestionABR == ABRQuestionsAtRazdel[i][j]) {
                     ui->Question->setCurrentIndex(j);
@@ -471,7 +475,6 @@ void MainWindow::on_pb_newFrag_clicked()
         ui->Act->addItems(ListAct);
         ui->Razd->addItems(ListRazd);
         ui->Quality->addItems(ListQuality);
-        ui->Question->addItems(ABRQuestionsAtRazdel[0]);
         TextCenterIsBlocked = true;
         m_addNewFrag = true;
     }
@@ -580,8 +583,7 @@ void MainWindow::on_GoLeft_clicked()
         }
         currentKolDog->fragments[SelectedFragment]->Resize();
         //Узнаём изменился ли фрагмент
-        if (delta != 0) // TODO: СЕЙЧАС || изменились_параметры или текст блин, хз как проверить isEqual?)
-        {
+        if (delta != 0) {
             currentKolDog->fragments[SelectedFragment]->setChanged(true);
         } else {
             //! TODO: Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет.
@@ -606,6 +608,7 @@ void MainWindow::on_GoLeft_clicked()
 
     setWorkMode(eBasicMode);
     //! TODO: сделать перерасчёт кэффов
+    //! TODO: вопросы два раза вставляются почему-то
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)

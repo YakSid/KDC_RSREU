@@ -54,7 +54,7 @@ private:
     EFragmentsViewMode viewMode { eTypicalKD };
     //! Номер фрагмента из подготовленного списка, -1 - изначальный
     qint32 currentFragmentNumber { -1 };
-    qint32 currentVoprosNumber;
+    qint32 m_currentVoprosNumber;
     QString originalText { "" };
     bool m_allActs { false };
     QList<QString> fragmentsForShow;
