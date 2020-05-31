@@ -26,27 +26,23 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
     case eLaw:
         ui->lb_quality->setText("Возможность:");
         ui->ch_all_acts->setVisible(true);
-        ui->lb_act->setVisible(true);
-        ui->cmb_act->setVisible(true);
         ui->frame->setVisible(true);
         break;
     case eTypicalKD:
         ui->lb_quality->setText("Качество:");
         ui->ch_all_acts->setChecked(false);
         ui->ch_all_acts->setVisible(false);
-        ui->lb_act->setVisible(true);
-        ui->cmb_act->setVisible(true);
         ui->frame->setVisible(false);
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
         ui->ch_all_acts->setChecked(false);
         ui->ch_all_acts->setVisible(false);
-        ui->lb_act->setVisible(false);
-        ui->cmb_act->setVisible(false);
         ui->frame->setVisible(false);
         break;
     }
+    m_currentViewMode = newViewMode;
+    _select();
 }
 
 void knowledgebase::getFragment(fragment *frag)
@@ -100,19 +96,16 @@ void knowledgebase::getFragment(fragment *frag)
 
 void knowledgebase::on_pb_unlock_clicked()
 {
-    if (ui->cmb_razdel->isEnabled()) {
-        ui->pb_unlock->setText("Разблокировать");
-        ui->cmb_razdel->setEnabled(false);
-        ui->cmb_act->setEnabled(false);
-        ui->cmb_question->setEnabled(false);
-        ui->cmb_quality->setEnabled(false);
-    } else {
+    m_unlocked = !m_unlocked;
+    if (m_unlocked) {
         ui->pb_unlock->setText("Заблокировать");
-        ui->cmb_razdel->setEnabled(true);
-        ui->cmb_act->setEnabled(true);
-        ui->cmb_question->setEnabled(true);
-        ui->cmb_quality->setEnabled(true);
+    } else {
+        ui->pb_unlock->setText("Разблокировать");
     }
+    ui->cmb_razdel->setEnabled(m_unlocked);
+    ui->cmb_act->setEnabled(m_unlocked);
+    ui->cmb_question->setEnabled(m_unlocked);
+    ui->cmb_quality->setEnabled(m_unlocked);
 }
 
 void knowledgebase::on_rb_law_fragments_toggled(bool checked)
@@ -140,6 +133,8 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 
 void knowledgebase::_select()
 {
+    // TODO: m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
+    //Написать алгоритм на бумаге и проверить его логику
     fragmentsForShow.clear();
     QString questionKod = QString::number(m_currentVoprosNumber);
     QSqlQuery querySelect;
@@ -164,8 +159,7 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     transportFrag = new fragment();
     transportFrag->setText(ui->te_text->toPlainText());
     transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
-    // TODO: СЕЙЧАС какой отправить Акт если не показан?
-    transportFrag->setAkt(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    transportFrag->setAkt(AbbreviationQuality[ui->cmb_act->currentIndex()]);
     transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
     transportFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
     transportFrag->setChanged(true);

@@ -121,7 +121,6 @@ private:
 private:
     Ui::MainWindow *ui;
     CDatabaseManager *m_db;
-    QTextDocument *m_document;
     knowledgebase *kBase;
     StartDialog sDialog;
     ListKD *lDialog;

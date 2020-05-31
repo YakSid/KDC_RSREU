@@ -51,12 +51,13 @@ private:
 
 private:
     Ui::knowledgebase *ui;
-    EFragmentsViewMode viewMode { eTypicalKD };
+    EFragmentsViewMode m_currentViewMode { eTypicalKD };
     //! Номер фрагмента из подготовленного списка, -1 - изначальный
     qint32 currentFragmentNumber { -1 };
     qint32 m_currentVoprosNumber;
     QString originalText { "" };
     bool m_allActs { false };
+    bool m_unlocked { false };
     QList<QString> fragmentsForShow;
 };
 

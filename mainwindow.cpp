@@ -112,7 +112,6 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->groupBox->setEnabled(true);
         ui->tw_navigator->setEnabled(false);
         ui->btn_showFullText->setEnabled(false);
-        m_document = ui->TextRight->document();
         break;
     }
     m_currentWorkMode = newMode;
@@ -203,7 +202,6 @@ void MainWindow::_prepareMainWindow(QString docId)
     while (in2_query.next()) {
         fragment *frag = new fragment();
         //Заполнение данных фрагмента и навигатора
-        // NOTE: Использовать таблицу "Вопросы" или "Вопросы"2?
         QuestionNum = in2_query.value(6).toInt();
         in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
         in3_query.bindValue(":val1", QuestionNum);
@@ -232,8 +230,7 @@ void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
 {
     TextCenterIsBlocked = true;
     ui->te_textCenter->clear();
-    m_document = ui->te_textCenter->document();
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(ui->te_textCenter->document());
 
     if (selectedSection == eAllSections) {
         for (auto fragment : currentKolDog->fragments) {
@@ -302,8 +299,7 @@ float MainWindow::_strDoubleToFloat(QString value)
 
 void MainWindow::_setSelectionInCentral(qint32 posStart, qint32 posEnd)
 {
-    m_document = ui->te_textCenter->document();
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(ui->te_textCenter->document());
     QTextCharFormat format;
     format.setFontWeight(QFont::Bold);
     //Выделить
@@ -314,9 +310,7 @@ void MainWindow::_setSelectionInCentral(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
 {
-    // TODO: [min] сделать чтобы m_document и cursor один раз для всез инициализировался, а не постоянно
-    m_document = ui->te_textCenter->document();
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(ui->te_textCenter->document());
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
     //Убираем выделение
@@ -327,7 +321,7 @@ void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_clearSelectionInCentral()
 {
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(ui->te_textCenter->document());
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
     cursor.setPosition(0, QTextCursor::MoveAnchor);
@@ -505,8 +499,7 @@ void MainWindow::on_GoRight_clicked()
 void MainWindow::on_GoLeft_clicked()
 {
     TextCenterIsBlocked = true;
-    m_document = ui->te_textCenter->document();
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(ui->te_textCenter->document());
 
     if (m_addNewFrag) {
         //Подготовка позиции для размещения фрагмента на первое место или любое другое
@@ -586,7 +579,7 @@ void MainWindow::on_GoLeft_clicked()
         if (delta != 0) {
             currentKolDog->fragments[SelectedFragment]->setChanged(true);
         } else {
-            //! TODO: Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет.
+            //! TODO: [later] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет.
             /*if (ui->TextRight->toPlainText() != currentKolDog->fragments[SelectedFragment]->getText()) {
                 currentKolDog->fragments[SelectedFragment]->setChanged(true);
             }*/
@@ -608,7 +601,6 @@ void MainWindow::on_GoLeft_clicked()
 
     setWorkMode(eBasicMode);
     //! TODO: сделать перерасчёт кэффов
-    //! TODO: вопросы два раза вставляются почему-то
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)
