@@ -25,6 +25,8 @@ const QStringList ListQuality = { "Ан | Аналоги положений",
                                   "Др | Другое",
                                   "Фр | Формулировка",
                                   "Ни | Понижение условий" };
+const QStringList ListVozmojnosti = { "Неизменяемые параметры", "Устанавливаемые в КД в порядке",
+                                      "Повышаемые параметры", "Свои специфические параметры" };
 const QStringList AbbreviationAct = { "КЗОТ", "ОБР", "ОТС", "ТРОТС" };
 const QStringList AbbreviationRazd = { "ПСП", "ДОГ", "РВ", "ВО", "ГДП", "ЗП", "ОТ", "ТСП", "СЦ", "ТОК", "ПР" };
 const QStringList AbbreviationQuality = { "Ан", "Ут", "До", "Вы", "Св", "Др", "Фр", "Ни" };

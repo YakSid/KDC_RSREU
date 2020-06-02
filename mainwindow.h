@@ -122,6 +122,7 @@ private:
     Ui::MainWindow *ui;
     CDatabaseManager *m_db;
     knowledgebase *kBase;
+    kef *kefDialog;
     StartDialog sDialog;
     ListKD *lDialog;
     QSqlRelationalTableModel *model;

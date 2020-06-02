@@ -11,7 +11,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: в листКД можно оставить ту, что есть, главное хорошие в КД
 //!
 //! Можно ли не выбрав фрагмент зайти в базу знаний? (Можно ради добавления нового пункта?)
-//! ОТВЕТ: можно (юзер сам введёт параметры)
+//! TODO: ОТВЕТ: можно (юзер сам введёт параметры)
 //!
 //! Клавиша "Очистить поле" очищает параметры фрагмента или только текстовое поле?
 //! ОТВЕТ: только текстовое поле
@@ -27,7 +27,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
  * вообще какая-то странная) [dev: если утвержят, то later можно сделать индексацию вопроса не по abr, а по id]
  *
- *
+ * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  */
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -119,8 +119,6 @@ void MainWindow::setWorkMode(EWorkMode newMode)
 
 void MainWindow::insertFragFromKB(fragment *frag)
 {
-    // TODO: [9] СЕЙЧАС сделать метод вставки из БЗ в окно редактирования
-    // Учитывать изменённые параметры и при разных типах фрагментов
     qint32 prevSelectedFragId = SelectedFragment;
     switch (m_currentWorkMode) {
     case eBasicMode:
@@ -146,6 +144,9 @@ void MainWindow::insertFragFromKB(fragment *frag)
 
 void MainWindow::_prepareMainWindow(QString docId)
 {
+    kefDialog = new kef();
+    connect(this, &MainWindow::s_sentKefs, kefDialog, &kef::getKefs);
+
     SelectedKD = docId;
     //Здесь производится заполнение данных
     //Заполнение коэффициентов
@@ -612,8 +613,6 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    kef *kefDialog = new kef();
-    connect(this, &MainWindow::s_sentKefs, kefDialog, &kef::getKefs);
     emit s_sentKefs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                     currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(), currentKolDog->getKot(),
                     currentKolDog->getKots(), currentKolDog->getKtsp(), currentKolDog->getKmol());

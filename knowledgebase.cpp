@@ -25,6 +25,9 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
     switch (newViewMode) {
     case eLaw:
         ui->lb_quality->setText("Возможность:");
+        ui->cmb_quality->clear();
+        ui->cmb_quality->addItems(ListVozmojnosti);
+        ui->cmb_quality->setCurrentIndex(0);
         ui->ch_all_acts->setVisible(true);
         ui->frame->setVisible(true);
         break;
@@ -33,12 +36,22 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->ch_all_acts->setChecked(false);
         ui->ch_all_acts->setVisible(false);
         ui->frame->setVisible(false);
+        if (m_currentViewMode == eLaw) {
+            ui->cmb_quality->clear();
+            ui->cmb_quality->addItems(ListQuality);
+            ui->cmb_quality->setCurrentIndex(0);
+        }
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
         ui->ch_all_acts->setChecked(false);
         ui->ch_all_acts->setVisible(false);
         ui->frame->setVisible(false);
+        if (m_currentViewMode == eLaw) {
+            ui->cmb_quality->clear();
+            ui->cmb_quality->addItems(ListQuality);
+            ui->cmb_quality->setCurrentIndex(0);
+        }
         break;
     }
     m_currentViewMode = newViewMode;
@@ -106,6 +119,7 @@ void knowledgebase::on_pb_unlock_clicked()
     ui->cmb_act->setEnabled(m_unlocked);
     ui->cmb_question->setEnabled(m_unlocked);
     ui->cmb_quality->setEnabled(m_unlocked);
+    ui->groupBox_2->setEnabled(m_unlocked);
 }
 
 void knowledgebase::on_rb_law_fragments_toggled(bool checked)
@@ -135,6 +149,7 @@ void knowledgebase::_select()
 {
     // TODO: m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
     //Написать алгоритм на бумаге и проверить его логику
+    //Если m_currentView eLaw, то заполнить поля данных закона из поля КодГрПарам
     fragmentsForShow.clear();
     QString questionKod = QString::number(m_currentVoprosNumber);
     QSqlQuery querySelect;
@@ -158,7 +173,11 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     auto transportFrag = new fragment();
     transportFrag = new fragment();
     transportFrag->setText(ui->te_text->toPlainText());
-    transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    if (m_currentViewMode == eLaw) {
+        transportFrag->setKachestvo("Ан");
+    } else {
+        transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    }
     transportFrag->setAkt(AbbreviationQuality[ui->cmb_act->currentIndex()]);
     transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
     transportFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
