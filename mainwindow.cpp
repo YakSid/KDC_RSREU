@@ -11,7 +11,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: в листКД можно оставить ту, что есть, главное хорошие в КД
 //!
 //! Можно ли не выбрав фрагмент зайти в базу знаний? (Можно ради добавления нового пункта?)
-//! TODO: ОТВЕТ: можно (юзер сам введёт параметры)
+//! ОТВЕТ: можно (юзер сам введёт параметры)
 //!
 //! Клавиша "Очистить поле" очищает параметры фрагмента или только текстовое поле?
 //! ОТВЕТ: только текстовое поле
@@ -192,6 +192,10 @@ void MainWindow::_prepareMainWindow(QString docId)
     }
     //
     ui->tw_navigator->setColumnWidth(0, 211);
+    for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
+        auto item = ui->tw_navigator->item(row, 0);
+        item->setBackgroundColor(Qt::white);
+    }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     //Запрос на заполнение центрального поля
     int QuestionNum = 0;
@@ -634,7 +638,6 @@ void MainWindow::on_pb_clearField_clicked()
     ui->TextRight->clear();
 }
 
-// TODO: [later] в disabled режиме у навигатора цвет выбранных раньше отличается от остальных
 void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
     Q_UNUSED(column);

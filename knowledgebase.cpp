@@ -98,7 +98,8 @@ void knowledgebase::getFragment(fragment *frag)
             break;
         }
     }
-
+    // TODO: вот такое начало с заполнением сделать для конструктора (чтобы без переноса вправо в mw можно было БЗ)
+    // и проверить добавление в mw после этого
     m_currentVoprosNumber = frag->getVoprosNumber();
 
     ui->te_text->setText(frag->getText());
