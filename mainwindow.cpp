@@ -626,8 +626,15 @@ void MainWindow::on_Effekt_po_razd_clicked()
 
 void MainWindow::on_BazeKnowledge_clicked()
 {
-    if (TextCenterIsBlocked) {
+    switch (m_currentWorkMode) {
+    case eBasicMode:
+        return;
+    case eItemSelectedMode:
+        kBase->prepareWindowWithoutFrag();
+        break;
+    case eRightFrameMode:
         emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
+        break;
     }
     kBase->setModal(true);
     kBase->exec();

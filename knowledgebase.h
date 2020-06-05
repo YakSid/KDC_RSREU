@@ -18,6 +18,7 @@ class knowledgebase : public QDialog
 public:
     explicit knowledgebase(QWidget *parent = nullptr);
     ~knowledgebase();
+    void prepareWindowWithoutFrag();
 
 signals:
     void startTransportFrag(fragment *frag);
@@ -46,8 +47,12 @@ private slots:
 
     void on_pb_showList_clicked();
 
+    void on_cmb_razdel_currentTextChanged(const QString &arg1);
+
 private:
     void _changeViewMode(EFragmentsViewMode newViewMode);
+    //! Провести начальную подготовку окна, неважно в каком режим с фрагментом или без
+    void _prepareWindow();
 
 private:
     Ui::knowledgebase *ui;

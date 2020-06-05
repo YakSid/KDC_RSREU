@@ -20,6 +20,17 @@ knowledgebase::~knowledgebase()
     delete ui;
 }
 
+void knowledgebase::prepareWindowWithoutFrag()
+{
+    _prepareWindow();
+    ui->cmb_razdel->setCurrentIndex(0);
+    ui->cmb_question->setCurrentIndex(0);
+    ui->cmb_act->setCurrentIndex(0);
+    ui->cmb_quality->setCurrentIndex(0);
+
+    m_currentVoprosNumber = -1;
+}
+
 void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
 {
     switch (newViewMode) {
@@ -56,18 +67,27 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
     }
     m_currentViewMode = newViewMode;
     _select();
+    // TODO: СЕЙЧАСЖЕ при переноса в mw акт меняется на КЗОТ, почему?
 }
 
-void knowledgebase::getFragment(fragment *frag)
+void knowledgebase::_prepareWindow()
 {
+    ui->gb_text->setTitle("Начальный фрагмент");
+
     ui->cmb_razdel->clear();
     ui->cmb_question->clear();
     ui->cmb_act->clear();
     ui->cmb_quality->clear();
 
-    ui->cmb_act->addItems(ListAct);
     ui->cmb_razdel->addItems(ListRazd);
     ui->cmb_quality->addItems(ListQuality);
+    ui->cmb_act->addItems(ListAct);
+}
+
+void knowledgebase::getFragment(fragment *frag)
+{
+    // TODO: проверить добавление в mw после этого
+    _prepareWindow();
 
     QString fragAkt = frag->getAkt();
     QString fragRazdel = frag->getRazdel();
@@ -83,7 +103,6 @@ void knowledgebase::getFragment(fragment *frag)
     for (int i = 0; i < ListRazd.size(); i++) {
         if (fragRazdel == AbbreviationRazd[i]) {
             ui->cmb_razdel->setCurrentIndex(i);
-            ui->cmb_question->addItems(QuestionsAtRazdel[i]);
             for (int j = 0; j < ABRQuestionsAtRazdel[i].size(); j++) {
                 if (fragQuestionABR == ABRQuestionsAtRazdel[i][j]) {
                     ui->cmb_question->setCurrentIndex(j);
@@ -98,12 +117,9 @@ void knowledgebase::getFragment(fragment *frag)
             break;
         }
     }
-    // TODO: вот такое начало с заполнением сделать для конструктора (чтобы без переноса вправо в mw можно было БЗ)
-    // и проверить добавление в mw после этого
-    m_currentVoprosNumber = frag->getVoprosNumber();
 
+    m_currentVoprosNumber = frag->getVoprosNumber();
     ui->te_text->setText(frag->getText());
-    ui->gb_text->setTitle("Начальный фрагмент");
     originalText = frag->getText();
     _select();
 }
@@ -152,7 +168,11 @@ void knowledgebase::_select()
     //Написать алгоритм на бумаге и проверить его логику
     //Если m_currentView eLaw, то заполнить поля данных закона из поля КодГрПарам
     fragmentsForShow.clear();
-    QString questionKod = QString::number(m_currentVoprosNumber);
+    // m_currentVoprosNumber только если есть (есть только после getFragmnet)
+    QString questionKod;
+    if (m_currentVoprosNumber != -1) {
+        questionKod = QString::number(m_currentVoprosNumber);
+    }
     QSqlQuery querySelect;
     querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента FROM ТФрагмент WHERE Тфрагмент.КодВопрос = :val1");
     querySelect.bindValue(":val1", questionKod);
@@ -232,4 +252,12 @@ void knowledgebase::on_pb_showList_clicked()
 {
     // TODO: [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при наведении
     // ui->lw_fragments->insertItems(0, fragmentsForShow);
+}
+
+void knowledgebase::on_cmb_razdel_currentTextChanged(const QString &arg1)
+{
+    if (arg1.isEmpty())
+        return;
+    ui->cmb_question->clear();
+    ui->cmb_question->addItems(QuestionsAtRazdel[ui->cmb_razdel->currentIndex()]);
 }
