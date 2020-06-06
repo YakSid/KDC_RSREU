@@ -16,7 +16,7 @@
 //! TODO: [8] [mdl] окно эффективности по разделам, прописать формулы
 //! TODO: [1] Продолжение работы (загрузка или продолжение) и стартовое окно для этого
 //! TODO: [later] [1] работа с панелью меню
-//! TODO: [4] [min] layout mainwindow настроить нормально (сузить)
+//! TODO: [later] [4] [min] layout mainwindow настроить нормально (сузить)
 //! TODO: [13] Формулы по 8 пункту Замечаний2
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
 //! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
@@ -97,22 +97,25 @@ private:
     void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
     //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)
     void _recountPositions(int idfrag, int delta, bool withFirstOfCurrent = false);
+    //! Выделить область в центральном поле
+    void _setSelectionInCentral(qint32 posStart, qint32 posEnd);
+    //! Убрать выделение выбора из центрального окна
+    void _clearSelectionInCentral(qint32 posStart, qint32 posEnd);
+    void _clearSelectionInCentral();
+    //! Выделить фрагмент по позициям как изменённый в центральном поле
+    void _markAsChanged(qint32 posStart, qint32 posEnd);
+    //! Удалить выбранный фрагмент отовсюду
+    void _deleteSelectedFrag();
 
     //! Заменить точку на запятую и округлить до 1 знака после запятой
     QString _doubleToFloatString(double value);
     //! Заменить запятую на точку и проверить знаки после запятой
     float _strDoubleToFloat(QString value);
 
-    //! Выделить область в центральном поле
-    void _setSelectionInCentral(qint32 posStart, qint32 posEnd);
-    //! Убрать выделение выбора из центрального окна
-    void _clearSelectionInCentral(qint32 posStart, qint32 posEnd);
-    void _clearSelectionInCentral();
-    //! Удалить выбранный фрагмент отовсюду
-    void _deleteSelectedFrag();
     //! Вывод сообщений на экран
     void _showMessage(QString text, QString title = "Master KDA");
     bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
+
     //! Заполнить поля текущих коэффициентов
     void _fillCurrentKeffs(QVariantList keffs);
     //! Подготовить правое поле с параметрами к вставке пункта

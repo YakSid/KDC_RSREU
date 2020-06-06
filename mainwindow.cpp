@@ -275,6 +275,10 @@ void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
     frag->SetPositions(
             posBegin,
             posEnd); // NOTE: Размер включает в себя: Текст, Размер СтрокиАргументов и 2-3 символа нового параграфа
+    //Окраска в цвет если изменён
+    if (frag->isChanged())
+        _markAsChanged(posBegin, posEnd);
+    // TODO: СЕЙЧАСЖЕ проверить cursor не меняет ли формат после изменений
 }
 
 void MainWindow::_recountPositions(int idfrag, int delta, bool withFirstOfCurrent)
@@ -332,6 +336,18 @@ void MainWindow::_clearSelectionInCentral()
     cursor.setPosition(0, QTextCursor::MoveAnchor);
     cursor.setPosition(ui->te_textCenter->toPlainText().length(), QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
+}
+
+void MainWindow::_markAsChanged(qint32 posStart, qint32 posEnd)
+{
+    QTextCursor cursor(ui->te_textCenter->document());
+    cursor.setPosition(posStart, QTextCursor::MoveAnchor);
+    cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
+    auto format = cursor.charFormat();
+    // format.setForeground(Qt::darkGreen);
+    format.setBackground(Qt::yellow);
+    cursor.mergeCharFormat(format);
+    // TODO: СЕЙЧАСЖЕ если новый - жёлтый фон. Изменённый - фиолетовый шрифт
 }
 
 void MainWindow::_deleteSelectedFrag()
@@ -548,6 +564,8 @@ void MainWindow::on_GoLeft_clicked()
         }
         qint32 idFragAfterInserted = idPrevFrag + 2;
         _recountPositions(idFragAfterInserted, frag->getSize(), true);
+        //Окраска в цвет изменённого
+        _markAsChanged(frag->getPositionFirst(), frag->getPositionLast());
         //Спуск флагов
         if (m_addFirst)
             m_addFirst = false;
@@ -592,6 +610,10 @@ void MainWindow::on_GoLeft_clicked()
         //Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
                                  currentKolDog->fragments[SelectedFragment]->getPositionLast());
+        //Окраска в цвет изменённого
+        if (currentKolDog->fragments[SelectedFragment]->isChanged())
+            _markAsChanged(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
+                           currentKolDog->fragments[SelectedFragment]->getPositionLast());
     }
     //Удаление данных
     ui->TextRight->clear();
@@ -605,7 +627,7 @@ void MainWindow::on_GoLeft_clicked()
     ui->Question->clear();
 
     setWorkMode(eBasicMode);
-    //! TODO: сделать перерасчёт кэффов
+    //! TODO: сделать перерасчёт кэффов (и сверку-окраску нач./тек. проверить)
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)

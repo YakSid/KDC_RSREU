@@ -29,8 +29,7 @@ QVariant modelList::data(const QModelIndex &index, int role) const
     if (index.column() == 2) {
         if (role == Qt::DisplayRole) {
             QModelIndex NewIndex = QAbstractItemModel::createIndex(index.row(), index.column() + 4);
-            QModelIndex NewIndex2 =
-                    QAbstractItemModel::createIndex(index.row(), index.column() + 7);
+            QModelIndex NewIndex2 = QAbstractItemModel::createIndex(index.row(), index.column() + 7);
             return 1.5 * QSqlTableModel::data(NewIndex, role).toDouble()
                     + QSqlTableModel::data(NewIndex2, role).toDouble();
         }
@@ -42,14 +41,10 @@ QVariant modelList::data(const QModelIndex &index, int role) const
     }
     if (index.column() == 5) {
         if (role == Qt::DisplayRole) {
-            QModelIndex NewIndex2 =
-                    QAbstractItemModel::createIndex(index.row(), index.column() + 2);
-            QModelIndex NewIndex3 =
-                    QAbstractItemModel::createIndex(index.row(), index.column() + 3);
-            QModelIndex NewIndex4 =
-                    QAbstractItemModel::createIndex(index.row(), index.column() + 1);
-            QModelIndex NewIndex5 =
-                    QAbstractItemModel::createIndex(index.row(), index.column() + 4);
+            QModelIndex NewIndex2 = QAbstractItemModel::createIndex(index.row(), index.column() + 2);
+            QModelIndex NewIndex3 = QAbstractItemModel::createIndex(index.row(), index.column() + 3);
+            QModelIndex NewIndex4 = QAbstractItemModel::createIndex(index.row(), index.column() + 1);
+            QModelIndex NewIndex5 = QAbstractItemModel::createIndex(index.row(), index.column() + 4);
             QVariant tmp = 1.5 * QSqlTableModel::data(NewIndex4, role).toDouble()
                     + QSqlTableModel::data(NewIndex5, role).toDouble();
             QVariant got = 1.3 * tmp.toDouble() + QSqlTableModel::data(NewIndex2, role).toDouble()
@@ -71,7 +66,7 @@ QVariant modelList::data(const QModelIndex &index, int role) const
     }
     if (index.column() == 3) {
         if (role == Qt::DisplayRole) {
-            return QSqlTableModel::data(index, role).toDateTime().toString("dd.MM.yyyy");
+            return QSqlTableModel::data(index, role).toDate();
         }
     }
     return QSqlTableModel::data(index, role);

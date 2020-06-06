@@ -67,7 +67,6 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
     }
     m_currentViewMode = newViewMode;
     _select();
-    // TODO: СЕЙЧАСЖЕ при переноса в mw акт меняется на КЗОТ, почему?
 }
 
 void knowledgebase::_prepareWindow()
@@ -86,7 +85,6 @@ void knowledgebase::_prepareWindow()
 
 void knowledgebase::getFragment(fragment *frag)
 {
-    // TODO: проверить добавление в mw после этого
     _prepareWindow();
 
     QString fragAkt = frag->getAkt();
@@ -199,7 +197,7 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     } else {
         transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
     }
-    transportFrag->setAkt(AbbreviationQuality[ui->cmb_act->currentIndex()]);
+    transportFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
     transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
     transportFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
     transportFrag->setChanged(true);
