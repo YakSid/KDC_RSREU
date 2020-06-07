@@ -23,6 +23,9 @@ public:
     void setSize(qint32 newSize) { size = newSize; }
     void setChanged(bool state) { changed = state; }
     void setVisible(bool state) { visible = state; }
+    void setNewAdded(bool state) { newAdded = state; }
+    void setViDoSv(bool state) { ViDoSv = state; }
+    void setUt(bool state) { Ut = state; }
 
     QString getText() const { return text; }
     QString getKachestvo() const { return kachestvo; }
@@ -34,6 +37,11 @@ public:
     qint32 getSize() const { return size; }
     bool isChanged() const { return changed; }
     bool isVisible() const { return visible; }
+    bool isNewAdded() const { return newAdded; }
+    bool isViDoSv() const { return ViDoSv; }
+    bool isUt() const { return Ut; }
+    //! Узнать размер объекта
+    qint32 getMySize() const { return (sizeof(text) + sizeof(kachestvo) + sizeof(akt) + sizeof(razdel) + 4); }
 
 private:
     //Основные параметры фрагмента
@@ -49,7 +57,12 @@ private:
     qint32 size;
     //Состояния фрагмента
     bool changed { false };
+    bool newAdded { false };
     bool visible { false };
+    //! Имеет качество Вы, До или Св
+    bool ViDoSv { false };
+    //! Имеет качество Ут
+    bool Ut { false };
 };
 
 #endif // FRAGMENT_H

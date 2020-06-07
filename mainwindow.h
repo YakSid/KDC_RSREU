@@ -67,8 +67,6 @@ public:
 
 signals:
     void s_sentFragment(fragment *frag);
-    void s_sentKefs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
-                    int kmol);
 
 public slots:
     void insertFragFromKB(fragment *frag);
@@ -94,7 +92,7 @@ private:
     //! Подготовка документа и главного окна
     void _prepareMainWindow(QString docId);
     void _fillCentralField(EDisplayedSection selectedSection);
-    void _addFragmentToCentralField(fragment *frag, QTextCursor cursor);
+    void _addFragmentToCentralField(fragment *frag);
     //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)
     void _recountPositions(int idfrag, int delta, bool withFirstOfCurrent = false);
     //! Выделить область в центральном поле
@@ -104,6 +102,8 @@ private:
     void _clearSelectionInCentral();
     //! Выделить фрагмент по позициям как изменённый в центральном поле
     void _markAsChanged(qint32 posStart, qint32 posEnd);
+    //! Выделить фрагмент по позициям как новодобавленный в центральном поле
+    void _markAsNewAdded(qint32 posStart, qint32 posEnd);
     //! Удалить выбранный фрагмент отовсюду
     void _deleteSelectedFrag();
 

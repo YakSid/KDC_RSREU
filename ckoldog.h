@@ -45,6 +45,12 @@ public:
     void addFragOnFirstPos(fragment *frag);
     //! Высчитать текущие коэффициенты
     void calculateCurrentKeffs();
+    //! Узнать размер объекта
+    qint32 getMySize() const { return (sizeof(name) + 90); }
+
+private:
+    //! Обнулить коэффициенты
+    void _resetKeffs();
 
 public:
     //! Фрагменты

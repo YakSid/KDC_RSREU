@@ -145,7 +145,6 @@ void MainWindow::insertFragFromKB(fragment *frag)
 void MainWindow::_prepareMainWindow(QString docId)
 {
     kefDialog = new kef();
-    connect(this, &MainWindow::s_sentKefs, kefDialog, &kef::getKefs);
 
     SelectedKD = docId;
     //Здесь производится заполнение данных
@@ -177,9 +176,6 @@ void MainWindow::_prepareMainWindow(QString docId)
                 in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
                 in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
                 in1_query.value(30).toFloat());
-        //Заполнение текущих коэффициентов
-        currentKolDog->calculateCurrentKeffs();
-        _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
     }
     //Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
@@ -222,11 +218,27 @@ void MainWindow::_prepareMainWindow(QString docId)
                 }
         }
         frag->setText(in2_query.value(2).toString());
-        frag->setKachestvo(in2_query.value(4).toString());
+        QString kachestvo = in2_query.value(4).toString();
+        frag->setKachestvo(kachestvo);
+        if (kachestvo == "Вы" || kachestvo == "До" || kachestvo == "Св") {
+            frag->setViDoSv(true);
+        } else if (kachestvo == "Ut" && in3_query.value(2).toString() == "ПСП") {
+            frag->setUt(true);
+        }
         frag->setAkt(in2_query.value(5).toString());
         currentKolDog->fragments.append(frag);
         // WARNING: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
     }
+    //Заполнение окна кэф начальными данными
+    kefDialog->setStartKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+                             currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
+                             currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
+                             currentKolDog->getKmol());
+    //Заполнение текущих коэффициентов
+    currentKolDog->calculateCurrentKeffs();
+    _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
+    // Примечание: Окно кэф заполнится текущими значениями по востребованию, чтобы зря время не тратить
+
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
 }
@@ -235,16 +247,15 @@ void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
 {
     TextCenterIsBlocked = true;
     ui->te_textCenter->clear();
-    QTextCursor cursor(ui->te_textCenter->document());
 
     if (selectedSection == eAllSections) {
         for (auto fragment : currentKolDog->fragments) {
-            _addFragmentToCentralField(fragment, cursor);
+            _addFragmentToCentralField(fragment);
         }
     } else {
         for (auto fragment : currentKolDog->fragments) {
             if (fragment->getRazdel() == AbbreviationRazd[selectedSection]) {
-                _addFragmentToCentralField(fragment, cursor);
+                _addFragmentToCentralField(fragment);
                 fragment->setVisible(true);
             } else {
                 fragment->SetPositions(0, 0);
@@ -256,18 +267,22 @@ void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
     setWorkMode(eBasicMode);
 }
 
-void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
+void MainWindow::_addFragmentToCentralField(fragment *frag)
 {
-    QString argLine;
+    QTextCursor cursor(ui->te_textCenter->document());
+    QTextCharFormat format;
+    // format.setForeground(Qt::black);
+    // format.setBackground(Qt::white);
     qint32 posBegin, posEnd;
     cursor.movePosition(QTextCursor::End);
+    cursor.setCharFormat(format);
     posBegin = cursor.position();
     cursor.insertText(frag->getText());
     if (frag->getText().right(1) != '\n') {
         cursor.insertBlock();
     }
-    argLine.clear();
-    argLine += frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t" + frag->getKachestvo();
+    QString argLine =
+            frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t" + frag->getKachestvo();
     cursor.insertText(argLine);
     cursor.insertBlock();
     cursor.insertBlock();
@@ -278,7 +293,8 @@ void MainWindow::_addFragmentToCentralField(fragment *frag, QTextCursor cursor)
     //Окраска в цвет если изменён
     if (frag->isChanged())
         _markAsChanged(posBegin, posEnd);
-    // TODO: СЕЙЧАСЖЕ проверить cursor не меняет ли формат после изменений
+    if (frag->isNewAdded())
+        _markAsNewAdded(posBegin, posEnd);
 }
 
 void MainWindow::_recountPositions(int idfrag, int delta, bool withFirstOfCurrent)
@@ -344,10 +360,18 @@ void MainWindow::_markAsChanged(qint32 posStart, qint32 posEnd)
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
     auto format = cursor.charFormat();
-    // format.setForeground(Qt::darkGreen);
+    format.setForeground(Qt::darkMagenta);
+    cursor.mergeCharFormat(format);
+}
+
+void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
+{
+    QTextCursor cursor(ui->te_textCenter->document());
+    cursor.setPosition(posStart, QTextCursor::MoveAnchor);
+    cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
+    auto format = cursor.charFormat();
     format.setBackground(Qt::yellow);
     cursor.mergeCharFormat(format);
-    // TODO: СЕЙЧАСЖЕ если новый - жёлтый фон. Изменённый - фиолетовый шрифт
 }
 
 void MainWindow::_deleteSelectedFrag()
@@ -539,10 +563,11 @@ void MainWindow::on_GoLeft_clicked()
             posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
             idPrevFrag = SelectedFragment;
         }
+        //! СЕЙЧАСЖЕ предусмотреть, что есть кач выдосв или ут+псп, то поднять флаги и пересчитать кэф
         //Создание нового фрагмента
         cursor.setPosition(posPrevFragLast, QTextCursor::MoveAnchor);
         fragment *frag = new fragment();
-        frag->setChanged(true);
+        frag->setNewAdded(true);
         frag->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
         frag->setVoprosABR(ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
         frag->setText(ui->TextRight->toPlainText());
@@ -565,12 +590,13 @@ void MainWindow::on_GoLeft_clicked()
         qint32 idFragAfterInserted = idPrevFrag + 2;
         _recountPositions(idFragAfterInserted, frag->getSize(), true);
         //Окраска в цвет изменённого
-        _markAsChanged(frag->getPositionFirst(), frag->getPositionLast());
+        _markAsNewAdded(frag->getPositionFirst(), frag->getPositionLast());
         //Спуск флагов
         if (m_addFirst)
             m_addFirst = false;
         m_addNewFrag = false;
     } else {
+        //! СЕЙЧАСЖЕ предусмотреть, что есть качество или раздел изменились, то поменять флаги и пересчитать кэф
         //Изменение старого фрагмента
         //Обновление текста и параметров в памяти
         currentKolDog->fragments[SelectedFragment]->setText(ui->TextRight->toPlainText());
@@ -639,9 +665,10 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    emit s_sentKefs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
-                    currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(), currentKolDog->getKot(),
-                    currentKolDog->getKots(), currentKolDog->getKtsp(), currentKolDog->getKmol());
+    kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+                               currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
+                               currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
+                               currentKolDog->getKmol());
     kefDialog->setModal(true);
     kefDialog->exec();
 }

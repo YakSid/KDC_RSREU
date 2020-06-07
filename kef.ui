@@ -96,7 +96,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kef_2">
+         <widget class="QLineEdit" name="kefStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -160,7 +160,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kzn">
+         <widget class="QLineEdit" name="kznStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -224,7 +224,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kdog">
+         <widget class="QLineEdit" name="kdogStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -285,7 +285,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="krv">
+         <widget class="QLineEdit" name="krvStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -349,7 +349,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kzp">
+         <widget class="QLineEdit" name="kzpStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -413,7 +413,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kvo">
+         <widget class="QLineEdit" name="kvoStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -477,7 +477,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kot">
+         <widget class="QLineEdit" name="kotStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -541,7 +541,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kpr">
+         <widget class="QLineEdit" name="kprStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -605,7 +605,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ktsp">
+         <widget class="QLineEdit" name="ktspStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -669,7 +669,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kmol">
+         <widget class="QLineEdit" name="kmolStart">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -750,7 +750,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_18">
+         <widget class="QLineEdit" name="kef_2">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -814,7 +814,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_19">
+         <widget class="QLineEdit" name="kzn">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -878,7 +878,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_20">
+         <widget class="QLineEdit" name="kdog">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -939,7 +939,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_21">
+         <widget class="QLineEdit" name="krv">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -1003,7 +1003,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_22">
+         <widget class="QLineEdit" name="kzp">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -1067,7 +1067,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_23">
+         <widget class="QLineEdit" name="kvo">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -1131,7 +1131,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_24">
+         <widget class="QLineEdit" name="kot">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -1195,7 +1195,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_25">
+         <widget class="QLineEdit" name="kpr">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -1259,7 +1259,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_26">
+         <widget class="QLineEdit" name="ktsp">
           <property name="minimumSize">
            <size>
             <width>51</width>
@@ -1323,7 +1323,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="kmol2">
+         <widget class="QLineEdit" name="kmol">
           <property name="minimumSize">
            <size>
             <width>51</width>

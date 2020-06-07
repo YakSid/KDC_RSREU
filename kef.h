@@ -14,10 +14,12 @@ class kef : public QDialog
 public:
     explicit kef(QWidget *parent = nullptr);
     ~kef();
-
-public slots:
-    void getKefs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
-                 int kmol);
+    void setStartKeffs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
+                       int kmol);
+    void setCurrentKeffs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
+                         int kmol);
+    //! Сравнение и раскрашивание
+    void compareAndPaint();
 
 private:
     Ui::kef *ui;

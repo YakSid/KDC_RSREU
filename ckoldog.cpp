@@ -115,6 +115,15 @@ CKolDog::CKolDog() {}
 
 CKolDog::~CKolDog()
 {
+    //Узнать размер объекта
+    /*
+    qint32 mySize = getMySize();
+    for (auto frag : fragments) {
+        mySize += frag->getMySize();
+    }
+    qDebug() << "My size was: " << mySize;
+    */
+
     for (auto frag : fragments)
         delete frag;
     fragments.clear();
@@ -166,5 +175,65 @@ void CKolDog::addFragOnFirstPos(fragment *frag)
 
 void CKolDog::calculateCurrentKeffs()
 {
-    // TODO: высчитывание текущих коэффициентов
+    // TODO: высчитывание текущих коэффициентов для изменений и добавления (кпсп еще проверить)
+    _resetKeffs();
+    for (auto frag : fragments) {
+        if (frag->isViDoSv()) {
+            //узнать какой раздел и куда плюсовать и плюсовать
+            QString razdel = frag->getRazdel();
+            if (razdel == "ПСП") {
+                kpsp++;
+            } else if (razdel == "ДОГ") {
+                kdog++;
+                ktr++;
+            } else if (razdel == "РВ") {
+                krv++;
+                ktr++;
+            } else if (razdel == "ВО") {
+                kvo++;
+                ktr++;
+            } else if (razdel == "ГДП") {
+                kgdp++;
+            } else if (razdel == "ЗП") {
+                kzp++;
+                ktr++;
+            } else if (razdel == "ОТ") {
+                kot++;
+                ktr++;
+            } else if (razdel == "ТСП") {
+                ktsp++;
+                ktr++;
+            } else if (razdel == "СЦ") {
+                ksc++;
+            } else if (razdel == "ТОК") {
+                kmol++;
+                ktr++;
+            } else if (razdel == "ПР") {
+                kots++;
+                ktr++;
+            }
+        } else if (frag->isUt()) {
+            kpsp += static_cast<float>(0.3);
+        }
+    }
+}
+
+void CKolDog::_resetKeffs()
+{
+    //Основные
+    ktr = 0;
+    ksc = 0;
+    kgdp = 0;
+    kpsp = 0;
+    //Подробные
+    kdog = 0;
+    krv = 0;
+    kvo = 0;
+    kzp = 0;
+    kot = 0;
+    // WARNING: kots, kpr, kmol пройти по всему проекту и узнать их
+    kots = 0;
+    // kpr = 0;
+    kmol = 0;
+    ktsp = 0;
 }

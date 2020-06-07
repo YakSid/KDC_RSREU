@@ -200,7 +200,7 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     transportFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
     transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
     transportFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
-    transportFrag->setChanged(true);
+    transportFrag->setNewAdded(true);
 
     emit startTransportFrag(transportFrag);
     delete transportFrag;
