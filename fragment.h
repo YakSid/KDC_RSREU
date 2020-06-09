@@ -2,6 +2,7 @@
 #define FRAGMENT_H
 
 #include <QString>
+#include <QVariantList>
 
 class fragment
 {
@@ -10,8 +11,16 @@ public:
     ~fragment();
     void SetPositions(int posStart, int posEnd);
     void Resize();
-    //! Вычслить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса
+    //! Вычислить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса
     qint32 getVoprosNumber();
+    //! Вычислить как изменятся кэффы текущего фрагмента после изменений фрагмента в сравнении с его версией до изменений
+    QVariantList getKeffsDelta(const fragment *pastFrag);
+    //! Вычислить как изменятся кэффы если этот фрагмент новый
+    QVariantList getKeffsDeltaFromZero();
+    //! Вычислить как изменятся кэффы если этот фрагмент удалить
+    QVariantList getKeffsDeltaToZero();
+    //! Обновить состояние флагов isViDoSv и isUt
+    void updateFlagsViDoSvUt();
 
     void setText(QString newText) { text = newText; }
     void setKachestvo(QString newKachestvo) { kachestvo = newKachestvo; }
@@ -39,6 +48,7 @@ public:
     bool isVisible() const { return visible; }
     bool isNewAdded() const { return newAdded; }
     bool isViDoSv() const { return ViDoSv; }
+    //! Если значение "Ут", но раздел не "ПСП", то вернёт false
     bool isUt() const { return Ut; }
     //! Узнать размер объекта
     qint32 getMySize() const { return (sizeof(text) + sizeof(kachestvo) + sizeof(akt) + sizeof(razdel) + 4); }

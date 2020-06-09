@@ -218,13 +218,8 @@ void MainWindow::_prepareMainWindow(QString docId)
                 }
         }
         frag->setText(in2_query.value(2).toString());
-        QString kachestvo = in2_query.value(4).toString();
-        frag->setKachestvo(kachestvo);
-        if (kachestvo == "Вы" || kachestvo == "До" || kachestvo == "Св") {
-            frag->setViDoSv(true);
-        } else if (kachestvo == "Ut" && in3_query.value(2).toString() == "ПСП") {
-            frag->setUt(true);
-        }
+        frag->setKachestvo(in2_query.value(4).toString());
+        frag->updateFlagsViDoSvUt();
         frag->setAkt(in2_query.value(5).toString());
         currentKolDog->fragments.append(frag);
         // WARNING: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
@@ -376,7 +371,7 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: [later] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: СЕЙЧАС переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -432,6 +427,18 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
             labels[i]->setPalette(blackPal);
         }
     }
+    //! СЕЙЧАС double псп окрашиваетв красный если равны, проблемы округления?
+}
+
+QVariantList MainWindow::_calculateKeffsWithDelta(QVariantList delta)
+{
+    QVariantList result { 0, 0, 0, 0.0, 0.0 };
+    result[0] = ui->KTR->text().toInt() + delta[0].toInt();
+    result[1] = ui->KSC->text().toInt() + delta[1].toInt();
+    result[2] = ui->KGDP->text().toInt() + delta[2].toInt();
+    result[3] = static_cast<double>(_strDoubleToFloat(ui->KPSP->text())) + delta[3].toDouble();
+    result[4] = static_cast<double>(_strDoubleToFloat(ui->KEF->text())) + delta[4].toDouble();
+    return result;
 }
 
 void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality,
@@ -523,6 +530,11 @@ void MainWindow::on_pb_deleteFrag_clicked()
 {
     if (SelectedFragment == -1)
         return;
+    //Изменение кэффов
+    QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
+    QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
+    _fillCurrentKeffs(newKeffs);
+
     _deleteSelectedFrag();
 }
 
@@ -563,7 +575,6 @@ void MainWindow::on_GoLeft_clicked()
             posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
             idPrevFrag = SelectedFragment;
         }
-        //! СЕЙЧАСЖЕ предусмотреть, что есть кач выдосв или ут+псп, то поднять флаги и пересчитать кэф
         //Создание нового фрагмента
         cursor.setPosition(posPrevFragLast, QTextCursor::MoveAnchor);
         fragment *frag = new fragment();
@@ -579,6 +590,10 @@ void MainWindow::on_GoLeft_clicked()
         cursor.insertText(frag->getText() + ArgLine + "\n\n");
         frag->setPositionFirst(posPrevFragLast);
         frag->setPositionLast(frag->getPositionFirst() + frag->getSize());
+        //Изменение кэффов
+        QVariantList deltaKeffs = frag->getKeffsDeltaFromZero();
+        QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
+        _fillCurrentKeffs(newKeffs);
         //Убираем выделение старого и нового фрагмента
         _clearSelectionInCentral(posPrevFragFirst, frag->getPositionLast());
         //
@@ -596,64 +611,64 @@ void MainWindow::on_GoLeft_clicked()
             m_addFirst = false;
         m_addNewFrag = false;
     } else {
-        //! СЕЙЧАСЖЕ предусмотреть, что есть качество или раздел изменились, то поменять флаги и пересчитать кэф
         //Изменение старого фрагмента
         //Обновление текста и параметров в памяти
-        currentKolDog->fragments[SelectedFragment]->setText(ui->TextRight->toPlainText());
-        currentKolDog->fragments[SelectedFragment]->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
-        currentKolDog->fragments[SelectedFragment]->setVoprosABR(
-                ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
-        currentKolDog->fragments[SelectedFragment]->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
-        currentKolDog->fragments[SelectedFragment]->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
+        auto fragBeforeChange = *currentKolDog->fragments[SelectedFragment];
+        auto currentFrag = currentKolDog->fragments[SelectedFragment];
+        currentFrag->setText(ui->TextRight->toPlainText());
+        currentFrag->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
+        currentFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
+        currentFrag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
+        currentFrag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
+        currentFrag->updateFlagsViDoSvUt();
         //Обновление данных в центральном поле
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->getPositionFirst(), QTextCursor::MoveAnchor);
-        cursor.setPosition(currentKolDog->fragments[SelectedFragment]->getPositionLast(), QTextCursor::KeepAnchor);
+        cursor.setPosition(currentFrag->getPositionFirst(), QTextCursor::MoveAnchor);
+        cursor.setPosition(currentFrag->getPositionLast(), QTextCursor::KeepAnchor);
         ArgLine.clear();
         if (ui->TextRight->toPlainText().right(1) != '\n') {
             ArgLine += "\n";
         }
-        ArgLine += currentKolDog->fragments[SelectedFragment]->getRazdel() + "\t"
-                + currentKolDog->fragments[SelectedFragment]->getVoprosABR() + "\t"
-                + currentKolDog->fragments[SelectedFragment]->getAkt() + "\t"
-                + currentKolDog->fragments[SelectedFragment]->getKachestvo();
-        cursor.insertText(currentKolDog->fragments[SelectedFragment]->getText() + ArgLine + "\n\n");
+        ArgLine += currentFrag->getRazdel() + "\t" + currentFrag->getVoprosABR() + "\t" + currentFrag->getAkt() + "\t"
+                + currentFrag->getKachestvo();
+        cursor.insertText(currentFrag->getText() + ArgLine + "\n\n");
         //Вычисление нового размера
-        qint32 delta = ui->TextRight->toPlainText().size() + ArgLine.size() + 2
-                - currentKolDog->fragments[SelectedFragment]->getSize();
+        qint32 delta = ui->TextRight->toPlainText().size() + ArgLine.size() + 2 - currentFrag->getSize();
         if (delta != 0) {
             _recountPositions(SelectedFragment, delta);
         }
-        currentKolDog->fragments[SelectedFragment]->Resize();
+        currentFrag->Resize();
+        //Изменение кэффов
+        QVariantList deltaKeffs = currentFrag->getKeffsDelta(&fragBeforeChange);
+        QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
+        _fillCurrentKeffs(newKeffs);
         //Узнаём изменился ли фрагмент
         if (delta != 0) {
-            currentKolDog->fragments[SelectedFragment]->setChanged(true);
+            //! TODO: СЕЙЧАС сделать changed если изменились параметры
+            currentFrag->setChanged(true);
         } else {
             //! TODO: [later] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет.
-            /*if (ui->TextRight->toPlainText() != currentKolDog->fragments[SelectedFragment]->getText()) {
-                currentKolDog->fragments[SelectedFragment]->setChanged(true);
+            /*if (ui->TextRight->toPlainText() != currentFrag->getText()) {
+                currentFrag->setChanged(true);
             }*/
         }
         //Убираем выделение изменённого фрагмента
-        _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
-                                 currentKolDog->fragments[SelectedFragment]->getPositionLast());
+        _clearSelectionInCentral(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
         //Окраска в цвет изменённого
-        if (currentKolDog->fragments[SelectedFragment]->isChanged())
-            _markAsChanged(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
-                           currentKolDog->fragments[SelectedFragment]->getPositionLast());
+        if (currentFrag->isChanged())
+            _markAsChanged(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
     }
     //Удаление данных
     ui->TextRight->clear();
     TextCenterIsBlocked = false;
-
     ui->Act->clear();
     ui->Razd->blockSignals(true);
     ui->Razd->clear();
     ui->Razd->blockSignals(false);
     ui->Quality->clear();
     ui->Question->clear();
+    //Заполнение текущих коэффициентов
 
     setWorkMode(eBasicMode);
-    //! TODO: сделать перерасчёт кэффов (и сверку-окраску нач./тек. проверить)
 }
 
 void MainWindow::on_Razd_currentIndexChanged(int index)

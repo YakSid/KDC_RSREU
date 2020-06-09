@@ -62,7 +62,7 @@ void kef::compareAndPaint()
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
     blackPal.setColor(QPalette::WindowText, Qt::black);
-    //! TODO: СЕЙЧАСЖЕ сделать перерасчёт кэффов
+    //! TODO: СЕЙЧАС сделать перерасчёт дополнительных кэффов (напоминалка: это происходит по запросу)
     /*QVariantList startKeffs({ ui->startKTR->text().toFloat(), ui->startKSC->text().toFloat(),
                               ui->startKGDP->text().toFloat(), _strDoubleToFloat(ui->startKPSP->text()),
                               _strDoubleToFloat(ui->kefStart->text()) });

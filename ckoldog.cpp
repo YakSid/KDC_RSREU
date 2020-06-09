@@ -175,7 +175,6 @@ void CKolDog::addFragOnFirstPos(fragment *frag)
 
 void CKolDog::calculateCurrentKeffs()
 {
-    // TODO: высчитывание текущих коэффициентов для изменений и добавления (кпсп еще проверить)
     _resetKeffs();
     for (auto frag : fragments) {
         if (frag->isViDoSv()) {
@@ -212,6 +211,7 @@ void CKolDog::calculateCurrentKeffs()
                 kots++;
                 ktr++;
             }
+            kef++;
         } else if (frag->isUt()) {
             kpsp += static_cast<float>(0.3);
         }
@@ -225,13 +225,14 @@ void CKolDog::_resetKeffs()
     ksc = 0;
     kgdp = 0;
     kpsp = 0;
+    kef = 0;
     //Подробные
     kdog = 0;
     krv = 0;
     kvo = 0;
     kzp = 0;
     kot = 0;
-    // WARNING: kots, kpr, kmol пройти по всему проекту и узнать их
+    // WARNING: ВАЖНО (после СЕЙЧАС) kots, kpr, kmol пройти по всему проекту и узнать их
     kots = 0;
     // kpr = 0;
     kmol = 0;
