@@ -409,7 +409,7 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     ui->KPSP->setText(_doubleToFloatString(keffs[3].toDouble()));
     ui->KEF->setText(_doubleToFloatString(keffs[4].toDouble()));
     // Сравнение и раскрашивание
-    // NOTE: потом-потом оптимизировать
+    // NOTE: потом-потом оптимизировать (типы)
     QPalette greenPal, redPal, blackPal;
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
@@ -439,6 +439,15 @@ QVariantList MainWindow::_calculateKeffsWithDelta(QVariantList delta)
     result[3] = static_cast<double>(_strDoubleToFloat(ui->KPSP->text())) + delta[3].toDouble();
     result[4] = static_cast<double>(_strDoubleToFloat(ui->KEF->text())) + delta[4].toDouble();
     return result;
+}
+
+bool MainWindow::_isKeffsChanged(QVariantList delta)
+{
+    for (auto value : delta) {
+        if (value.toInt() != 0)
+            return true;
+    }
+    return false;
 }
 
 void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality,
@@ -632,25 +641,23 @@ void MainWindow::on_GoLeft_clicked()
                 + currentFrag->getKachestvo();
         cursor.insertText(currentFrag->getText() + ArgLine + "\n\n");
         //Вычисление нового размера
-        qint32 delta = ui->TextRight->toPlainText().size() + ArgLine.size() + 2 - currentFrag->getSize();
-        if (delta != 0) {
-            _recountPositions(SelectedFragment, delta);
+        qint32 deltaTextSize = ui->TextRight->toPlainText().size() + ArgLine.size() + 2 - currentFrag->getSize();
+        if (deltaTextSize != 0) {
+            _recountPositions(SelectedFragment, deltaTextSize);
         }
         currentFrag->Resize();
-        //Изменение кэффов
+        //Изменение кэффов и узнаём изменился ли фрагмент
         QVariantList deltaKeffs = currentFrag->getKeffsDelta(&fragBeforeChange);
-        QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
-        _fillCurrentKeffs(newKeffs);
-        //Узнаём изменился ли фрагмент
-        if (delta != 0) {
-            //! TODO: СЕЙЧАС сделать changed если изменились параметры
+        if (_isKeffsChanged(deltaKeffs)) {
+            QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
+            _fillCurrentKeffs(newKeffs);
             currentFrag->setChanged(true);
         } else {
-            //! TODO: [later] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет.
-            /*if (ui->TextRight->toPlainText() != currentFrag->getText()) {
+            if (deltaTextSize != 0)
                 currentFrag->setChanged(true);
-            }*/
+            //! TODO: [later] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет
         }
+
         //Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
         //Окраска в цвет изменённого
@@ -680,6 +687,7 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
+    // TODO: сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)
     kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
                                currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),

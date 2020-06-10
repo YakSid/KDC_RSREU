@@ -119,6 +119,8 @@ private:
     void _fillCurrentKeffs(QVariantList keffs);
     //! Посчитать новые значения коэффициентов применив дельту
     QVariantList _calculateKeffsWithDelta(QVariantList delta);
+    //! Узнать изменились ли коэффициенты проверив каждую дельту на отличие от нуля
+    bool _isKeffsChanged(QVariantList delta);
     //! Подготовить правое поле с параметрами к вставке пункта
     void _prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality, QString fragQuestionABR);
 

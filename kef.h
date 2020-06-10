@@ -18,8 +18,10 @@ public:
                        int kmol);
     void setCurrentKeffs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
                          int kmol);
-    //! Сравнение и раскрашивание
-    void compareAndPaint();
+
+private:
+    //! Сравнить текущие коэффициенты с начальными и раскрасить
+    void _compareAndPaint();
 
 private:
     Ui::kef *ui;
