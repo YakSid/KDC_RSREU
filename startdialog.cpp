@@ -34,21 +34,15 @@ StartDialog::~StartDialog()
 
 void StartDialog::on_Start_clicked()
 {
-    StartMode = 1;
+    startClicked = true;
     StartDialog::close();
 }
-
-/*void StartDialog::on_Continue_clicked()
-{
-    StartMode = 2;
-    StartDialog::close();
-}*/
 
 void StartDialog::on_pb_accept_clicked()
 {
     if (ui->cb_author->currentText() != "") {
         authorName = ui->cb_author->currentText();
-        ui->stackedWidget->setCurrentWidget(ui->page_start);
+        ui->stackedWidget->setCurrentWidget(ui->page_modeSettings);
         ui->lb_author->setText("Сотрудник: " + authorName);
     } else {
         _showMessage("Выберите сотрудника");
@@ -157,5 +151,21 @@ void StartDialog::on_stackedWidget_currentChanged(int arg1)
         this->resize(this->width(), 239);
     } else {
         this->resize(this->width(), 225);
+    }
+}
+
+void StartDialog::on_pb_startNew_clicked()
+{
+    StartMode = EStartMode::startNew;
+    ui->stackedWidget->setCurrentWidget(ui->page_start);
+}
+
+void StartDialog::on_pb_continueSaved_clicked()
+{
+    if (ui->lineEdit->text().isEmpty())
+        _showMessage("Выберите проект");
+    else {
+        StartMode = EStartMode::contibueOld;
+        ui->stackedWidget->setCurrentWidget(ui->page_start);
     }
 }

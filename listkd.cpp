@@ -47,9 +47,8 @@ void ListKD::on_tableView_clicked(const QModelIndex &index)
 
 void ListKD::_prepareView(EViewMode mode)
 {
-    // BUG: Сделать возможность несколько раз выбирать новый КД (разобраться со связками конструктовров и дстрктрв)
 
-    // TODO: [later] Сделать второй класс модели листа для детализированного показа и разблокировать кнопку
+    // TODO: [later] [3] Сделать второй класс модели листа для детализированного показа и разблокировать кнопку
     // "Детализировать"
     modelForList = new modelList();
     modelForList->setTable("Договор");

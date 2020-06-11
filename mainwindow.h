@@ -10,16 +10,12 @@
 #include "kef.h"
 #include "knowledgebase.h"
 #include "ckoldog.h"
+#include "cjsonmanager.h"
 
-//! Задачи
-//! TODO: [later] [3] окно детализации КТР
-//! TODO: [8] [mdl] окно эффективности по разделам, прописать формулы
 //! TODO: [1] Продолжение работы (загрузка или продолжение) и стартовое окно для этого
 //! TODO: [later] [1] работа с панелью меню
-//! TODO: [later] [4] [min] layout mainwindow настроить нормально (сузить)
-//! TODO: [13] Формулы по 8 пункту Замечаний2
+//! TODO: [4] [min] layout mainwindow настроить нормально (сузить)
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
-//! TODO: [7] Выделять изменённые фрагменты курсивом или фоном
 //! TODO: [later] Добавить проверку подключения к БД и указание пути к БД!
 
 //! TODO: [later] Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
@@ -86,6 +82,7 @@ private slots:
     //! Менюбар
     void on_actionSave_triggered();
     void on_actionStartAnotherKD_triggered();
+    void on_actionSaveProject_triggered();
 
 private:
     //! Подготовка документа и главного окна
@@ -126,10 +123,11 @@ private:
 
 private:
     Ui::MainWindow *ui;
+    CJSONManager *m_jsonManager;
     CDatabaseManager *m_db;
     knowledgebase *kBase;
     kef *kefDialog;
-    StartDialog sDialog;
+    StartDialog *sDialog;
     ListKD *lDialog;
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;

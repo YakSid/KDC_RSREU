@@ -26,6 +26,7 @@ CONFIG += c++11
 
 SOURCES += \
     cdatabasemanager.cpp \
+    cjsonmanager.cpp \
     ckoldog.cpp \
     knowledgebase.cpp \
         main.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
 HEADERS += \
     cconstants.h \
     cdatabasemanager.h \
+    cjsonmanager.h \
     ckoldog.h \
     knowledgebase.h \
         mainwindow.h \

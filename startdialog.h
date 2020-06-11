@@ -15,8 +15,10 @@ public:
     explicit StartDialog(QWidget *parent = nullptr);
     ~StartDialog();
 
-    int StartMode { 0 };
+    enum EStartMode { startNew, contibueOld, exitApp };
+    EStartMode StartMode { EStartMode::exitApp };
     QString authorName;
+    bool startClicked { false };
 
 private slots:
     void on_Start_clicked();
@@ -30,6 +32,10 @@ private slots:
     void on_pb_changeAuthor_clicked();
 
     void on_stackedWidget_currentChanged(int arg1);
+
+    void on_pb_startNew_clicked();
+
+    void on_pb_continueSaved_clicked();
 
 private:
     void _addAuthor(QString name);

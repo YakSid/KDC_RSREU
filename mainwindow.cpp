@@ -32,28 +32,39 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    sDialog = new StartDialog();
     lDialog = new ListKD();
+    kefDialog = new kef();
     kBase = new knowledgebase();
     connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
     connect(kBase, &knowledgebase::startTransportFrag, this, &MainWindow::insertFragFromKB);
 
-    bool debugMode = true;
+    bool debugMode = false;
     if (!debugMode) {
-        sDialog.setModal(true);
-        sDialog.exec();
-        if (sDialog.StartMode == 1) {
-            lDialog->setModal(true);
-            lDialog->exec();
-            if (!lDialog->WantGo) {
-                exit(3);
-            } else {
+        sDialog->setModal(true);
+        sDialog->exec();
+        if (sDialog->startClicked) {
+            if (sDialog->StartMode == StartDialog::EStartMode::startNew) {
+                lDialog->setModal(true);
+                lDialog->exec();
+                if (!lDialog->WantGo) {
+                    exit(3);
+                } else {
+                    ui->setupUi(this);
+                    m_db = new CDatabaseManager();
+                    //Подготовка договора и mw
+                    _prepareMainWindow(lDialog->SelectedKD);
+                }
+            } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
+                //Загрузка сохранённого проекта
                 ui->setupUi(this);
-                m_db = new CDatabaseManager();
-                //Подготовка договора и mw
-                _prepareMainWindow(lDialog->SelectedKD);
+                // TODO: достать данные из json
+            } else {
+                exit(2);
             }
-        } else
+        } else {
             exit(2);
+        }
     } else {
         // DebugMode
         ui->setupUi(this);
@@ -144,8 +155,6 @@ void MainWindow::insertFragFromKB(fragment *frag)
 
 void MainWindow::_prepareMainWindow(QString docId)
 {
-    kefDialog = new kef();
-
     SelectedKD = docId;
     //Здесь производится заполнение данных
     //Заполнение коэффициентов
@@ -222,7 +231,7 @@ void MainWindow::_prepareMainWindow(QString docId)
         frag->updateFlagsViDoSvUt();
         frag->setAkt(in2_query.value(5).toString());
         currentKolDog->fragments.append(frag);
-        // WARNING: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
+        // NOTE: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
     }
     //Заполнение окна кэф начальными данными
     kefDialog->setStartKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
@@ -371,7 +380,7 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: СЕЙЧАС переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -409,7 +418,7 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     ui->KPSP->setText(_doubleToFloatString(keffs[3].toDouble()));
     ui->KEF->setText(_doubleToFloatString(keffs[4].toDouble()));
     // Сравнение и раскрашивание
-    // NOTE: потом-потом оптимизировать (типы)
+    // NOTE: [later] потом-потом оптимизировать (типы)
     QPalette greenPal, redPal, blackPal;
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
@@ -779,9 +788,8 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;
-    delete lDialog;
-    lDialog = new ListKD();
     //Новый старт
+    lDialog->WantGo = false;
     lDialog->setModal(true);
     lDialog->exec();
     if (!lDialog->WantGo) {
@@ -790,4 +798,12 @@ void MainWindow::on_actionStartAnotherKD_triggered()
         //Подготовка договора и mw
         _prepareMainWindow(lDialog->SelectedKD);
     }
+}
+
+void MainWindow::on_actionSaveProject_triggered()
+{
+    qDebug() << "ща будем сохранять";
+    //Конвертирование данных ckoldog и всех fragments в json
+    //Сохранение json файла
+    // TODO:
 }
