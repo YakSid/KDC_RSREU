@@ -13,7 +13,7 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     _changeViewMode(eTypicalKD);
 }
 
-// TODO: [11] [mdl] загрузку фрагментов немного изменить по блокноту
+// TODO: [ДЕМО] [11] [mdl] KB загрузку фрагментов немного изменить по блокноту
 knowledgebase::~knowledgebase()
 {
     qDebug() << "destructor knowledgebase";
@@ -162,7 +162,7 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 
 void knowledgebase::_select()
 {
-    // TODO: m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
+    // TODO: [ДЕМО] m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
     //Написать алгоритм на бумаге и проверить его логику
     //Если m_currentView eLaw, то заполнить поля данных закона из поля КодГрПарам
     fragmentsForShow.clear();

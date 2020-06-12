@@ -18,7 +18,7 @@ public:
     uint getValidity();
     bool getComplWithReq();
     float getZnachimost();
-    //! TODO: ВАЖНО (после или во время СЕЙЧАС) оставить либо kef либо effectivnost и стандартизировать везде int float double
+    //! WARNING: ОшибкаКэф оставить либо kef либо effectivnost и стандартизировать везде int float double
     int getEffektivnost();
     int getKtr();
     float getKef();

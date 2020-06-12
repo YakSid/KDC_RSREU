@@ -232,7 +232,7 @@ void CKolDog::_resetKeffs()
     kvo = 0;
     kzp = 0;
     kot = 0;
-    // WARNING: ВАЖНО (после СЕЙЧАС) kots, kpr, kmol пройти по всему проекту и узнать их
+    // WARNING: ОшибкаКэф kots, kpr, kmol пройти по всему проекту и узнать их
     kots = 0;
     // kpr = 0;
     kmol = 0;

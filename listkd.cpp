@@ -53,7 +53,7 @@ void ListKD::_prepareView(EViewMode mode)
     modelForList = new modelList();
     modelForList->setTable("Договор");
 
-    // TODO: [2] [min] Сортировка по дате заключения, а не создания (возможно в другой таблице)
+    // TODO: [ДЕМО] [2] [min] Сортировка по дате заключения, а не создания (возможно в другой таблице)
     if (mode == eStandardView) {
         modelForList->removeColumns(3, 2);
         modelForList->removeColumns(6, 6);

@@ -58,7 +58,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
                 //Загрузка сохранённого проекта
                 ui->setupUi(this);
-                // TODO: достать данные из json
+                m_db = new CDatabaseManager();
+                // TODO: СЕЙЧАС 1. достать данные из json
+                // 2. заполнить и подготовить mw
             } else {
                 exit(2);
             }
@@ -380,7 +382,7 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: [later] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -696,7 +698,7 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    // TODO: сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)
+    // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)
     kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
                                currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
@@ -805,5 +807,5 @@ void MainWindow::on_actionSaveProject_triggered()
     qDebug() << "ща будем сохранять";
     //Конвертирование данных ckoldog и всех fragments в json
     //Сохранение json файла
-    // TODO:
+    // TODO: [ДЕМО] реализация jsonManager и конвертирование данных в него
 }
