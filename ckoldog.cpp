@@ -129,10 +129,9 @@ CKolDog::~CKolDog()
     fragments.clear();
 }
 
-void CKolDog::setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq,
-                                float znachimost, int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc,
-                                QDate endDate, int kdog, int krv, int kvo, int kzp, int kot, int ktsp, int kots,
-                                int kmol, float sum)
+void CKolDog::setMainParameters(QString id, QString name, QDate date, int validity, bool complWithReq, float znachimost,
+                                int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate,
+                                int kdog, int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum)
 {
     this->id = id;
     this->name = name;
@@ -216,6 +215,60 @@ void CKolDog::calculateCurrentKeffs()
             kpsp += static_cast<float>(0.3);
         }
     }
+}
+
+QJsonDocument *CKolDog::packKolDogToJson()
+{
+    auto jDoc = new QJsonDocument();
+    auto jObjInsideDoc = jDoc->object();
+
+    QJsonObject mainSettings;
+    mainSettings.insert("id", id);
+    mainSettings.insert("name", name);
+    mainSettings.insert("dateStr", date.toString("dd.MM.yyyy"));
+    mainSettings.insert("validity", validity);
+    mainSettings.insert("complWithReq", complWithReq);
+    mainSettings.insert("znachimost", znachimost);
+    mainSettings.insert("effektivnost", effektivnost);
+    mainSettings.insert("ktr", ktr);
+    mainSettings.insert("kef", kef);
+    mainSettings.insert("kpsp", kpsp);
+    mainSettings.insert("kgdp", kgdp);
+    mainSettings.insert("ksc", ksc);
+    mainSettings.insert("endDateStr", endDate.toString("dd.MM.yyyy"));
+    mainSettings.insert("kdog", kdog);
+    mainSettings.insert("krv", krv);
+    mainSettings.insert("kvo", kvo);
+    mainSettings.insert("kzp", kzp);
+    mainSettings.insert("kot", kot);
+    mainSettings.insert("ktsp", ktsp);
+    mainSettings.insert("kots", kots);
+    mainSettings.insert("kmol", kmol);
+    mainSettings.insert("sum", sum);
+    jObjInsideDoc["mainSettings"] = mainSettings;
+
+    QJsonObject jfragments;
+    qint32 fragId = 0;
+    for (auto frag : fragments) {
+        auto jFrag = new QJsonObject();
+        jFrag->insert("text", frag->getText());
+        jFrag->insert("kachestvo", frag->getKachestvo());
+        jFrag->insert("akt", frag->getAkt());
+        jFrag->insert("voprosABR", frag->getVoprosABR());
+        jFrag->insert("razdel", frag->getRazdel());
+        jFrag->insert("size", frag->getSize());
+        jFrag->insert("changed", frag->isChanged());
+        jFrag->insert("newAdded", frag->isNewAdded());
+        jFrag->insert("visible", frag->isVisible());
+        jFrag->insert("ViDoSv", frag->isViDoSv());
+        jFrag->insert("Ut", frag->isUt());
+        jfragments.insert("frag" + QString::number(fragId), *jFrag);
+        fragId++;
+    }
+    jObjInsideDoc["fragments"] = jfragments;
+
+    jDoc->setObject(jObjInsideDoc);
+    return jDoc;
 }
 
 void CKolDog::_resetKeffs()

@@ -69,7 +69,5 @@ QVariant modelList::data(const QModelIndex &index, int role) const
             return QSqlTableModel::data(index, role).toDate();
         }
     }
-    // BUG: СЕЙЧАС Сделать возможность несколько раз выбирать новый КД (разобраться со связками конструктовров и
-    // дстрктрв)
     return QSqlTableModel::data(index, role);
 }

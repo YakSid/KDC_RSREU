@@ -38,6 +38,8 @@ class ListKD : public QDialog
 public:
     explicit ListKD(QWidget *parent = nullptr);
     ~ListKD();
+
+public:
     QString SelectedKD = "";
     bool WantGo = false;
 

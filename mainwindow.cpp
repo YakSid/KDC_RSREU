@@ -59,8 +59,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 //Загрузка сохранённого проекта
                 ui->setupUi(this);
                 m_db = new CDatabaseManager();
-                // TODO: СЕЙЧАС 1. достать данные из json
-                // 2. заполнить и подготовить mw
+                QJsonDocument jDoc = m_jsonManager->loadJson(sDialog->jFilename);
+                _prepareMainWindowFromJson(jDoc);
             } else {
                 exit(2);
             }
@@ -180,7 +180,7 @@ void MainWindow::_prepareMainWindow(QString docId)
         // Заполнение параметров класса договора
         currentKolDog->setMainParameters(
                 in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
-                in1_query.value(3).toUInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
+                in1_query.value(3).toInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
                 in1_query.value(6).toInt(), in1_query.value(7).toInt(), _strDoubleToFloat(strKEF),
                 in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
                 in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
@@ -247,6 +247,17 @@ void MainWindow::_prepareMainWindow(QString docId)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
+}
+
+void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
+{
+    QJsonObject jObjInsideDoc = jDoc.object();
+    QJsonObject mainSettings = jObjInsideDoc["mainSettings"].toObject();
+    QJsonObject jfragments = jObjInsideDoc["fragments"].toObject();
+
+    auto id = mainSettings["id"].toString();
+    auto dateStr = mainSettings["dateStr"].toString();
+    // TODO: СЕЙЧАС заполнить mw из jDoc и подготовить mw
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -790,6 +801,8 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;
+    delete lDialog;
+    lDialog = new ListKD();
     //Новый старт
     lDialog->WantGo = false;
     lDialog->setModal(true);
@@ -798,14 +811,15 @@ void MainWindow::on_actionStartAnotherKD_triggered()
         exit(3);
     } else {
         //Подготовка договора и mw
+        //! [later] проверить все new и delete
+        m_db = new CDatabaseManager();
         _prepareMainWindow(lDialog->SelectedKD);
     }
 }
 
 void MainWindow::on_actionSaveProject_triggered()
 {
-    qDebug() << "ща будем сохранять";
-    //Конвертирование данных ckoldog и всех fragments в json
-    //Сохранение json файла
-    // TODO: [ДЕМО] реализация jsonManager и конвертирование данных в него
+    // TODO: [ДЕМО] сохранение в jsonFile (задать ему имя)
+    auto jDocPtr = currentKolDog->packKolDogToJson();
+    m_jsonManager->saveJson(jDocPtr, "test.json");
 }

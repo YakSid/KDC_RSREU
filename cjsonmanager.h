@@ -8,10 +8,10 @@ class CJSONManager : public QObject
     Q_OBJECT
 public:
     explicit CJSONManager(QObject *parent = nullptr);
+    void saveJson(const QJsonDocument *jDoc, QString filename);
+    QJsonDocument loadJson(QString filename);
 
-signals:
-
-public slots:
+private:
 };
 
 #endif // CJSONMANAGER_H

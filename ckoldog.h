@@ -6,6 +6,9 @@
 #include <QVector>
 #include <QVariant>
 #include <fragment.h>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 class CKolDog
 {
@@ -35,7 +38,7 @@ public:
     int getKots();
     int getKmol();
     float getSum();
-    void setMainParameters(QString id, QString name, QDate date, uint validity, bool complWithReq, float znachimost,
+    void setMainParameters(QString id, QString name, QDate date, int validity, bool complWithReq, float znachimost,
                            int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog,
                            int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum);
     //! Получить выводимую пятёрку коэффициентов списком (Ктр, Ксц, Кгдп, Кпсп, Кэф)
@@ -48,6 +51,8 @@ public:
     void calculateCurrentKeffs();
     //! Узнать размер объекта
     qint32 getMySize() const { return (sizeof(name) + 90); }
+    //! Сформировать json документ из КД для сохранения
+    QJsonDocument *packKolDogToJson();
 
 private:
     //! Обнулить коэффициенты
@@ -62,7 +67,7 @@ private:
     QString id;
     QString name;
     QDate date;
-    uint validity;
+    int validity;
     bool complWithReq; // Соответствие требованиям
     float znachimost;
     int effektivnost;

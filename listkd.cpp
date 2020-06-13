@@ -3,7 +3,6 @@
 
 ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 {
-
     ui->setupUi(this);
     this->setWindowFlag(Qt::WindowMinimizeButtonHint);
     ui->SelectKD->setEnabled(false);
@@ -15,6 +14,7 @@ ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
 
 ListKD::~ListKD()
 {
+    qDebug() << "listDialog with db was deleted";
     delete ui;
     delete m_db;
 }
@@ -47,7 +47,6 @@ void ListKD::on_tableView_clicked(const QModelIndex &index)
 
 void ListKD::_prepareView(EViewMode mode)
 {
-
     // TODO: [later] [3] Сделать второй класс модели листа для детализированного показа и разблокировать кнопку
     // "Детализировать"
     modelForList = new modelList();

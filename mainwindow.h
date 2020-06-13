@@ -12,7 +12,6 @@
 #include "ckoldog.h"
 #include "cjsonmanager.h"
 
-//! TODO: [later] [1] работа с панелью меню
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
 //! TODO: [later] Добавить проверку подключения к БД и указание пути к БД!
 
@@ -85,6 +84,7 @@ private slots:
 private:
     //! Подготовка документа и главного окна
     void _prepareMainWindow(QString docId);
+    void _prepareMainWindowFromJson(QJsonDocument jDoc);
     void _fillCentralField(EDisplayedSection selectedSection);
     void _addFragmentToCentralField(fragment *frag);
     //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)

@@ -248,7 +248,7 @@ void knowledgebase::on_pb_prev_clicked()
 
 void knowledgebase::on_pb_showList_clicked()
 {
-    // TODO: [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при наведении
+    // TODO: [later] [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при наведении
     // ui->lw_fragments->insertItems(0, fragmentsForShow);
 }
 

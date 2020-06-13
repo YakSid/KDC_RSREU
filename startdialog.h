@@ -19,6 +19,7 @@ public:
     EStartMode StartMode { EStartMode::exitApp };
     QString authorName;
     bool startClicked { false };
+    QString jFilename { "" };
 
 private slots:
     void on_Start_clicked();
@@ -36,6 +37,8 @@ private slots:
     void on_pb_startNew_clicked();
 
     void on_pb_continueSaved_clicked();
+
+    void on_pb_loadFile_clicked();
 
 private:
     void _addAuthor(QString name);

@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMessageBox>
+#include <QFileDialog>
 
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
@@ -164,10 +165,12 @@ void StartDialog::on_pb_startNew_clicked()
 
 void StartDialog::on_pb_continueSaved_clicked()
 {
-    if (ui->lineEdit->text().isEmpty())
-        _showMessage("Выберите проект");
-    else {
-        StartMode = EStartMode::contibueOld;
-        ui->stackedWidget->setCurrentWidget(ui->page_start);
-    }
+    StartMode = EStartMode::contibueOld;
+    ui->stackedWidget->setCurrentWidget(ui->page_start);
+}
+
+void StartDialog::on_pb_loadFile_clicked()
+{
+    jFilename = QFileDialog::getOpenFileName(this, "Выберите проект", QString(), tr("JSON (*.json)"));
+    ui->pb_continueSaved->setEnabled(true);
 }
