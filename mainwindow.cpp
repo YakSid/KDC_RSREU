@@ -255,9 +255,59 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     QJsonObject mainSettings = jObjInsideDoc["mainSettings"].toObject();
     QJsonObject jfragments = jObjInsideDoc["fragments"].toObject();
 
+    currentKolDog = new CKolDog();
+    SelectedKD = docId;
+    //
     auto id = mainSettings["id"].toString();
     auto dateStr = mainSettings["dateStr"].toString();
     // TODO: СЕЙЧАС заполнить mw из jDoc и подготовить mw
+
+    /*
+    QJsonObject mainSettings;
+    mainSettings.insert("id", id);
+    mainSettings.insert("name", name);
+    mainSettings.insert("dateStr", date.toString("dd.MM.yyyy"));
+    mainSettings.insert("validity", validity);
+    mainSettings.insert("complWithReq", complWithReq);
+    mainSettings.insert("znachimost", znachimost);
+    mainSettings.insert("effektivnost", effektivnost);
+    mainSettings.insert("ktr", ktr);
+    mainSettings.insert("kef", kef);
+    mainSettings.insert("kpsp", kpsp);
+    mainSettings.insert("kgdp", kgdp);
+    mainSettings.insert("ksc", ksc);
+    mainSettings.insert("endDateStr", endDate.toString("dd.MM.yyyy"));
+    mainSettings.insert("kdog", kdog);
+    mainSettings.insert("krv", krv);
+    mainSettings.insert("kvo", kvo);
+    mainSettings.insert("kzp", kzp);
+    mainSettings.insert("kot", kot);
+    mainSettings.insert("ktsp", ktsp);
+    mainSettings.insert("kots", kots);
+    mainSettings.insert("kmol", kmol);
+    mainSettings.insert("sum", sum);
+    jObjInsideDoc["mainSettings"] = mainSettings;
+
+    QJsonObject jfragments;
+    qint32 fragId = 0;
+    for (auto frag : fragments) {
+        auto jFrag = new QJsonObject();
+        jFrag->insert("text", frag->getText());
+        jFrag->insert("kachestvo", frag->getKachestvo());
+        jFrag->insert("akt", frag->getAkt());
+        jFrag->insert("voprosABR", frag->getVoprosABR());
+        jFrag->insert("razdel", frag->getRazdel());
+        jFrag->insert("size", frag->getSize());
+        jFrag->insert("changed", frag->isChanged());
+        jFrag->insert("newAdded", frag->isNewAdded());
+        jFrag->insert("visible", frag->isVisible());
+        jFrag->insert("ViDoSv", frag->isViDoSv());
+        jFrag->insert("Ut", frag->isUt());
+        jfragments.insert("frag" + QString::number(fragId), *jFrag);
+        fragId++;
+    }
+    jObjInsideDoc["fragments"] = jfragments;
+*/
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
