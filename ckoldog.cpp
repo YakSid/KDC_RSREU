@@ -137,8 +137,7 @@ QJsonDocument *CKolDog::packKolDogToJson()
     mainSettings.insert("sum", sum);
     jObjInsideDoc["mainSettings"] = mainSettings;
 
-    QJsonObject jfragments;
-    qint32 fragId = 0;
+    QJsonArray jArray;
     for (auto frag : fragments) {
         auto jFrag = new QJsonObject();
         jFrag->insert("text", frag->getText());
@@ -152,10 +151,9 @@ QJsonDocument *CKolDog::packKolDogToJson()
         jFrag->insert("visible", frag->isVisible());
         jFrag->insert("ViDoSv", frag->isViDoSv());
         jFrag->insert("Ut", frag->isUt());
-        jfragments.insert("frag" + QString::number(fragId), *jFrag);
-        fragId++;
+        jArray.append(*jFrag);
     }
-    jObjInsideDoc["fragments"] = jfragments;
+    jObjInsideDoc["fragments"] = jArray;
 
     jDoc->setObject(jObjInsideDoc);
     return jDoc;

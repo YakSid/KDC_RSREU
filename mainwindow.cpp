@@ -157,9 +157,16 @@ void MainWindow::insertFragFromKB(fragment *frag)
 
 void MainWindow::_prepareMainWindow(QString docId)
 {
-    SelectedKD = docId;
+    //Настройка навигатора
+    ui->tw_navigator->setColumnWidth(0, 211);
+    for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
+        auto item = ui->tw_navigator->item(row, 0);
+        item->setBackgroundColor(Qt::white);
+    }
+    ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     //Здесь производится заполнение данных
     //Заполнение коэффициентов
+    SelectedKD = docId;
     currentKolDog = new CKolDog();
     QSqlQuery in1_query, in2_query, in3_query, in4_query;
     in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
@@ -197,13 +204,6 @@ void MainWindow::_prepareMainWindow(QString docId)
     if (in4_query.next()) {
         ui->DogName->setText(in4_query.value(0).toString());
     }
-    //
-    ui->tw_navigator->setColumnWidth(0, 211);
-    for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
-        auto item = ui->tw_navigator->item(row, 0);
-        item->setBackgroundColor(Qt::white);
-    }
-    ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     //Запрос на заполнение центрального поля
     int QuestionNum = 0;
     in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
@@ -253,61 +253,78 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 {
     QJsonObject jObjInsideDoc = jDoc.object();
     QJsonObject mainSettings = jObjInsideDoc["mainSettings"].toObject();
-    QJsonObject jfragments = jObjInsideDoc["fragments"].toObject();
-
+    //Заполнение текущего КД из сохранённого json документа
     currentKolDog = new CKolDog();
-    SelectedKD = docId;
-    //
-    auto id = mainSettings["id"].toString();
-    auto dateStr = mainSettings["dateStr"].toString();
-    // TODO: СЕЙЧАС заполнить mw из jDoc и подготовить mw
-
-    /*
-    QJsonObject mainSettings;
-    mainSettings.insert("id", id);
-    mainSettings.insert("name", name);
-    mainSettings.insert("dateStr", date.toString("dd.MM.yyyy"));
-    mainSettings.insert("validity", validity);
-    mainSettings.insert("complWithReq", complWithReq);
-    mainSettings.insert("znachimost", znachimost);
-    mainSettings.insert("effektivnost", effektivnost);
-    mainSettings.insert("ktr", ktr);
-    mainSettings.insert("kef", kef);
-    mainSettings.insert("kpsp", kpsp);
-    mainSettings.insert("kgdp", kgdp);
-    mainSettings.insert("ksc", ksc);
-    mainSettings.insert("endDateStr", endDate.toString("dd.MM.yyyy"));
-    mainSettings.insert("kdog", kdog);
-    mainSettings.insert("krv", krv);
-    mainSettings.insert("kvo", kvo);
-    mainSettings.insert("kzp", kzp);
-    mainSettings.insert("kot", kot);
-    mainSettings.insert("ktsp", ktsp);
-    mainSettings.insert("kots", kots);
-    mainSettings.insert("kmol", kmol);
-    mainSettings.insert("sum", sum);
-    jObjInsideDoc["mainSettings"] = mainSettings;
-
-    QJsonObject jfragments;
-    qint32 fragId = 0;
-    for (auto frag : fragments) {
-        auto jFrag = new QJsonObject();
-        jFrag->insert("text", frag->getText());
-        jFrag->insert("kachestvo", frag->getKachestvo());
-        jFrag->insert("akt", frag->getAkt());
-        jFrag->insert("voprosABR", frag->getVoprosABR());
-        jFrag->insert("razdel", frag->getRazdel());
-        jFrag->insert("size", frag->getSize());
-        jFrag->insert("changed", frag->isChanged());
-        jFrag->insert("newAdded", frag->isNewAdded());
-        jFrag->insert("visible", frag->isVisible());
-        jFrag->insert("ViDoSv", frag->isViDoSv());
-        jFrag->insert("Ut", frag->isUt());
-        jfragments.insert("frag" + QString::number(fragId), *jFrag);
-        fragId++;
+    currentKolDog->setId(mainSettings["id"].toString());
+    currentKolDog->setName(mainSettings["name"].toString());
+    QDate date;
+    date.fromString(mainSettings["dateStr"].toString(), "dd.MM.yyyy");
+    currentKolDog->setDate(date);
+    currentKolDog->setValidity(mainSettings["validity"].toInt());
+    currentKolDog->setComplWithReq(mainSettings["validity"].toBool());
+    currentKolDog->setZnachimost(mainSettings["znachimost"].toDouble());
+    currentKolDog->setEffektivnost(mainSettings["effektivnost"].toInt());
+    currentKolDog->setKtr(mainSettings["ktr"].toInt());
+    currentKolDog->setKef(mainSettings["kef"].toDouble());
+    currentKolDog->setKpsp(mainSettings["kpsp"].toDouble());
+    currentKolDog->setKgdp(mainSettings["kgdp"].toInt());
+    currentKolDog->setKsc(mainSettings["ksc"].toInt());
+    QDate endDate;
+    endDate.fromString(mainSettings["endDateStr"].toString(), "dd.MM.yyyy");
+    currentKolDog->setEndDate(endDate);
+    currentKolDog->setKdog(mainSettings["kdog"].toInt());
+    currentKolDog->setKrv(mainSettings["krv"].toInt());
+    currentKolDog->setKvo(mainSettings["kvo"].toInt());
+    currentKolDog->setKzp(mainSettings["kzp"].toInt());
+    currentKolDog->setKot(mainSettings["kot"].toInt());
+    currentKolDog->setKtsp(mainSettings["ktsp"].toInt());
+    currentKolDog->setKots(mainSettings["kots"].toInt());
+    currentKolDog->setKmol(mainSettings["kmol"].toInt());
+    currentKolDog->setSum(mainSettings["sum"].toDouble());
+    //Заполнение фрагментов текущего КД из сохранённого json документа
+    QJsonArray jArray = jObjInsideDoc["fragments"].toArray();
+    for (QJsonValueRef jValueRef : jArray) {
+        auto jFrag = jValueRef.toObject();
+        auto frag = new fragment();
+        frag->setText(jFrag["text"].toString());
+        frag->setKachestvo(jFrag["kachestvo"].toString());
+        frag->setAkt(jFrag["akt"].toString());
+        frag->setVoprosABR(jFrag["voprosABR"].toString());
+        frag->setRazdel(jFrag["razdel"].toString());
+        frag->setSize(jFrag["size"].toInt());
+        frag->setChanged(jFrag["changed"].toBool());
+        frag->setNewAdded(jFrag["newAdded"].toBool());
+        frag->setVisible(jFrag["visible"].toBool());
+        frag->setViDoSv(jFrag["ViDoSv"].toBool());
+        frag->setUt(jFrag["Ut"].toBool());
+        currentKolDog->fragments.append(frag);
     }
-    jObjInsideDoc["fragments"] = jfragments;
-*/
+    //Заполнение переменных и настройка mw
+    SelectedKD = currentKolDog->getId();
+    ui->startKTR->setText(QString::number(currentKolDog->getKtr()));
+    ui->startKSC->setText(QString::number(currentKolDog->getKsc()));
+    ui->startKGDP->setText(QString::number(currentKolDog->getKgdp()));
+    ui->startKPSP->setText(_doubleToFloatString(currentKolDog->getKpsp()));
+    ui->startKEF->setText(_doubleToFloatString(currentKolDog->getKef()));
+    ui->DogName->setText(currentKolDog->getName());
+    //Настройка навигатора
+    ui->tw_navigator->setColumnWidth(0, 211);
+    for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
+        auto item = ui->tw_navigator->item(row, 0);
+        item->setBackgroundColor(Qt::white);
+    }
+    ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
+    //Заполнение окна кэф начальными данными
+    kefDialog->setStartKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+                             currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
+                             currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
+                             currentKolDog->getKmol());
+    //Заполнение текущих коэффициентов
+    currentKolDog->calculateCurrentKeffs();
+    _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
+
+    _fillCentralField(eAllSections);
+    TextCenterIsBlocked = false;
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)

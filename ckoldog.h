@@ -63,7 +63,6 @@ public:
     void setKots(int newKots) { kots = newKots; }
     void setKmol(int newKmol) { kmol = newKmol; }
     void setSum(float newSum) { sum = newSum; }
-
     //! Получить выводимую пятёрку коэффициентов списком (Ктр, Ксц, Кгдп, Кпсп, Кэф)
     QVariantList getFiveCurrentKeffs();
     //! Вставить фрагмент после pos фрагмента
