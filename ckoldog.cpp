@@ -19,12 +19,11 @@ CKolDog::~CKolDog()
     fragments.clear();
 }
 
-void CKolDog::setMainParameters(QString id, QString name, QDate date, int validity, bool complWithReq, float znachimost,
+void CKolDog::setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost,
                                 int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate,
                                 int kdog, int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum)
 {
     this->id = id;
-    this->name = name;
     this->date = date;
     this->validity = validity;
     this->complWithReq = complWithReq;

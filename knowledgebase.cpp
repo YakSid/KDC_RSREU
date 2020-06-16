@@ -13,7 +13,7 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     _changeViewMode(eTypicalKD);
 }
 
-// TODO: [ДЕМО] [11] [mdl] KB загрузку фрагментов немного изменить по блокноту
+// TODO: [ДЕМО] [11] [mdl] В БЗ загрузку фрагментов немного изменить по блокноту
 knowledgebase::~knowledgebase()
 {
     qDebug() << "destructor knowledgebase";

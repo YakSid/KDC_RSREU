@@ -38,9 +38,9 @@ public:
     int getKots() const { return kots; }
     int getKmol() const { return kmol; }
     float getSum() const { return sum; }
-    void setMainParameters(QString id, QString name, QDate date, int validity, bool complWithReq, float znachimost,
-                           int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog,
-                           int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum);
+    void setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int effektivnost,
+                           int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo,
+                           int kzp, int kot, int ktsp, int kots, int kmol, float sum);
     void setId(QString newId) { id = newId; }
     void setName(QString newName) { name = newName; }
     void setDate(QDate newDate) { date = newDate; }

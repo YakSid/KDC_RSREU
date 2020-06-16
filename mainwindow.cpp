@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QFileDialog>
 #include <QAxObject>
 #include "cdatabasemanager.h"
 
@@ -23,6 +24,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
 
+// TODO: Сравнить с таблицей параметры вопроса доп/дов
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
  * вообще какая-то странная) [dev: если утвержят, то later можно сделать индексацию вопроса не по abr, а по id]
@@ -186,14 +188,13 @@ void MainWindow::_prepareMainWindow(QString docId)
         ui->startKEF->setText(strKEF);
         // Заполнение параметров класса договора
         currentKolDog->setMainParameters(
-                in1_query.value(0).toString(), in1_query.value(1).toString(), in1_query.value(2).toDate(),
-                in1_query.value(3).toInt(), in1_query.value(4).toBool(), in1_query.value(5).toFloat(),
-                in1_query.value(6).toInt(), in1_query.value(7).toInt(), _strDoubleToFloat(strKEF),
-                in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
-                in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
-                in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
-                in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
-                in1_query.value(30).toFloat());
+                in1_query.value(0).toString(), in1_query.value(2).toDate(), in1_query.value(3).toInt(),
+                in1_query.value(4).toBool(), in1_query.value(5).toFloat(), in1_query.value(6).toInt(),
+                in1_query.value(7).toInt(), _strDoubleToFloat(strKEF), in1_query.value(14).toFloat(),
+                in1_query.value(15).toInt(), in1_query.value(16).toInt(), in1_query.value(20).toDate(),
+                in1_query.value(21).toInt(), in1_query.value(22).toInt(), in1_query.value(23).toInt(),
+                in1_query.value(24).toInt(), in1_query.value(25).toInt(), in1_query.value(26).toInt(),
+                in1_query.value(28).toInt(), in1_query.value(27).toInt(), in1_query.value(30).toFloat());
     }
     //Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
@@ -203,6 +204,7 @@ void MainWindow::_prepareMainWindow(QString docId)
     }
     if (in4_query.next()) {
         ui->DogName->setText(in4_query.value(0).toString());
+        currentKolDog->setName(ui->DogName->text());
     }
     //Запрос на заполнение центрального поля
     int QuestionNum = 0;
@@ -492,6 +494,13 @@ bool MainWindow::_showQuestion(QString text, QString title, QString textYes, QSt
 
 void MainWindow::_fillCurrentKeffs(QVariantList keffs)
 {
+    //Изменение кэффов в КД
+    currentKolDog->setKtr(keffs[0].toInt());
+    currentKolDog->setKsc(keffs[1].toInt());
+    currentKolDog->setKgdp(keffs[2].toInt());
+    currentKolDog->setKpsp(keffs[3].toDouble());
+    currentKolDog->setKef(keffs[4].toDouble());
+    //Изменение кэффов в mw
     ui->KTR->setText(QString::number(keffs[0].toInt()));
     ui->KSC->setText(QString::number(keffs[1].toInt()));
     ui->KGDP->setText(QString::number(keffs[2].toInt()));
@@ -776,7 +785,7 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)
+    // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление) и заполнение в кд
     kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
                                currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
@@ -836,6 +845,7 @@ void MainWindow::on_actionSave_triggered()
 {
     // TODO: [later] [1] сделать автоматическое сохранение файла по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
+    currentKolDog->setName(ui->DogName->text()); //учесть имя КД
 
     // Инициализация переменных для настройки документа
     QAxObject *word = new QAxObject("Word.Application");
@@ -869,24 +879,52 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     delete currentKolDog;
     delete m_db;
     delete lDialog;
-    lDialog = new ListKD();
+    delete sDialog;
+    ui->TextRight->clear();
+    ui->Act->clear();
+    ui->Razd->blockSignals(true);
+    ui->Razd->clear();
+    ui->Razd->blockSignals(false);
+    ui->Quality->clear();
+    ui->Question->clear();
+    setWorkMode(eBasicMode);
+    // TODO: [later] Добавить анимацию загрузки (мб на central widget) тут и в других местах
+    ui->centralWidget->setHidden(true);
     //Новый старт
-    lDialog->WantGo = false;
-    lDialog->setModal(true);
-    lDialog->exec();
-    if (!lDialog->WantGo) {
-        exit(3);
+    sDialog = new StartDialog();
+    sDialog->setModal(true);
+    sDialog->exec();
+    if (sDialog->startClicked) {
+        if (sDialog->StartMode == StartDialog::EStartMode::startNew) {
+            lDialog = new ListKD();
+            lDialog->setModal(true);
+            lDialog->exec();
+            if (!lDialog->WantGo) {
+                exit(3);
+            } else {
+                // TODO: [later] Проверить все new и delete
+                m_db = new CDatabaseManager();
+                ui->centralWidget->setHidden(false);
+                _prepareMainWindow(lDialog->SelectedKD);
+            }
+        } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
+            //Загрузка сохранённого проекта
+            m_db = new CDatabaseManager();
+            QJsonDocument jDoc = m_jsonManager->loadJson(sDialog->jFilename);
+            ui->centralWidget->setHidden(false);
+            _prepareMainWindowFromJson(jDoc);
+        } else {
+            exit(2);
+        }
     } else {
-        //Подготовка договора и mw
-        //! [later] проверить все new и delete
-        m_db = new CDatabaseManager();
-        _prepareMainWindow(lDialog->SelectedKD);
+        exit(2);
     }
 }
 
 void MainWindow::on_actionSaveProject_triggered()
 {
-    // TODO: [ДЕМО] сохранение в jsonFile (задать ему имя)
+    currentKolDog->setName(ui->DogName->text());
     auto jDocPtr = currentKolDog->packKolDogToJson();
-    m_jsonManager->saveJson(jDocPtr, "test.json");
+    QString jName = QFileDialog::getSaveFileName(this, "Сохранить проект", "", "*.json");
+    m_jsonManager->saveJson(jDocPtr, jName);
 }
