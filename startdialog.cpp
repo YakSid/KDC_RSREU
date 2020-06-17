@@ -5,7 +5,7 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QFileDialog>
-
+// TODO: [later] указывать имя выбранного к продолжению кд?
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
     ui->setupUi(this);

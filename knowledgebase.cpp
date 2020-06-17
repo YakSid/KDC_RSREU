@@ -13,7 +13,6 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     _changeViewMode(eTypicalKD);
 }
 
-// TODO: [ДЕМО] [11] [mdl] В БЗ загрузку фрагментов немного изменить по блокноту
 knowledgebase::~knowledgebase()
 {
     qDebug() << "destructor knowledgebase";
@@ -162,11 +161,11 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 
 void knowledgebase::_select()
 {
+    // TODO: [ДЕМО] [11] [mdl] В БЗ загрузку фрагментов немного изменить по блокноту
     // TODO: [ДЕМО] m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
     //Написать алгоритм на бумаге и проверить его логику
-    //Если m_currentView eLaw, то заполнить поля данных закона из поля КодГрПарам
     fragmentsForShow.clear();
-    // m_currentVoprosNumber только если есть (есть только после getFragmnet)
+    // m_currentVoprosNumber только если есть (есть только после getFragment)
     QString questionKod;
     if (m_currentVoprosNumber != -1) {
         questionKod = QString::number(m_currentVoprosNumber);

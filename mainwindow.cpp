@@ -24,7 +24,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
 
-// TODO: Сравнить с таблицей параметры вопроса доп/дов
+// TODO: [ДЕМО] Сравнить с таблицей параметры вопроса доп/дов
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
  * вообще какая-то странная) [dev: если утвержят, то later можно сделать индексацию вопроса не по abr, а по id]
@@ -662,6 +662,7 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
+    // TODO: [ДЕМО] Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
@@ -691,6 +692,7 @@ void MainWindow::on_GoLeft_clicked()
         frag->setText(ui->TextRight->toPlainText());
         frag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
         frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
+        frag->updateFlagsViDoSvUt();
         ArgLine = "\n" + frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t"
                 + frag->getKachestvo();
         frag->setSize(ArgLine.size() + frag->getText().size() + 2);
@@ -785,7 +787,7 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление) и заполнение в кд
+    // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)и заполнение в кд!
     kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
                                currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
@@ -875,6 +877,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionStartAnotherKD_triggered()
 {
+    // BUG: [ДЕМО] вылетело, когда после загрузки одного, загрузил второй другой
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;
