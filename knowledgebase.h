@@ -61,9 +61,15 @@ private:
     qint32 currentFragmentNumber { -1 };
     qint32 m_currentVoprosNumber;
     QString originalText { "" };
-    bool m_allActs { false };
+    bool m_allActs { true }; // NOTE: временно true, потом сделать false
     bool m_unlocked { false };
     QList<QString> fragmentsForShow;
+    struct LawInfo {
+        QString order;
+        QString adoptationDate;
+        QString changeDate;
+    };
+    QList<LawInfo *> lawsInformations;
 };
 
 #endif // KNOWLEDGEBASE_H

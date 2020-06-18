@@ -662,7 +662,7 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    // TODO: [ДЕМО] Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
+    // TODO: [ДЕМО] П!роверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 

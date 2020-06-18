@@ -43,7 +43,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         break;
     case eTypicalKD:
         ui->lb_quality->setText("Качество:");
-        ui->ch_all_acts->setChecked(false);
+        // NOTE: ui->ch_all_acts->setChecked(false); //временно заблокировал
         ui->ch_all_acts->setVisible(false);
         ui->frame->setVisible(false);
         if (m_currentViewMode == eLaw) {
@@ -54,7 +54,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
-        ui->ch_all_acts->setChecked(false);
+        // NOTE: ui->ch_all_acts->setChecked(false); //временно заблокировал
         ui->ch_all_acts->setVisible(false);
         ui->frame->setVisible(false);
         if (m_currentViewMode == eLaw) {
@@ -65,7 +65,11 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         break;
     }
     m_currentViewMode = newViewMode;
-    _select();
+    if (ui->cmb_razdel->currentText() != "") {
+        ui->gb_text->setTitle("Начальный фрагмент");
+        ui->te_text->setText(originalText);
+        _select();
+    }
 }
 
 void knowledgebase::_prepareWindow()
@@ -157,21 +161,40 @@ void knowledgebase::on_rb_all_fragments_kd_toggled(bool checked)
 void knowledgebase::on_ch_all_acts_toggled(bool checked)
 {
     m_allActs = checked;
+    _select();
 }
 
 void knowledgebase::_select()
 {
-    // TODO: [ДЕМО] [11] [mdl] В БЗ загрузку фрагментов немного изменить по блокноту
-    // TODO: [ДЕМО] m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
-    //Написать алгоритм на бумаге и проверить его логику
+    // TODO: [later] m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
     fragmentsForShow.clear();
+    for (auto lawInfo : lawsInformations) {
+        delete lawInfo;
+    }
+    lawsInformations.clear();
     // m_currentVoprosNumber только если есть (есть только после getFragment)
     QString questionKod;
     if (m_currentVoprosNumber != -1) {
         questionKod = QString::number(m_currentVoprosNumber);
     }
-    QSqlQuery querySelect;
-    querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента FROM ТФрагмент WHERE Тфрагмент.КодВопрос = :val1");
+    QSqlQuery querySelect, queryLawSelect;
+    switch (m_currentViewMode) {
+    case eLaw: {
+        querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
+                            "Тфрагмент.КодВопрос = :val1");
+        queryLawSelect.prepare("SELECT ТЗакон.НазвЗакона, ТЗакон.ДатаПринятия, ТЗакон.ДатаИзмен FROM ТЗакон WHERE "
+                               "ТЗакон.КодЗакона = :val1");
+        break;
+    }
+    case eTypicalKD:
+        querySelect.prepare("SELECT Тексты.Текст FROM Тексты WHERE Тексты.Вопрос = :val1 AND ВклВСправку=true");
+        break;
+    case eAllKD:
+        querySelect.prepare("SELECT Тексты.Текст FROM Тексты WHERE Тексты.Вопрос = :val1");
+        break;
+    }
+
+    QStringList kodZakona;
     querySelect.bindValue(":val1", questionKod);
     if (!querySelect.exec()) {
         qDebug() << querySelect.lastError().text();
@@ -179,7 +202,25 @@ void knowledgebase::_select()
     while (querySelect.next()) {
         QString text = querySelect.value(0).toString();
         fragmentsForShow.append(text);
+        if (m_currentViewMode == eLaw)
+            kodZakona.append(querySelect.value(1).toString());
     }
+
+    if (m_currentViewMode == eLaw) {
+        // TODO: [ДЕМО] ПЕРЕДЕЛАТЬ в cconstants, чтобы не запрашивать каждый раз
+        queryLawSelect.bindValue(":val1", kodZakona);
+        if (!queryLawSelect.exec()) {
+            qDebug() << queryLawSelect.lastError().text();
+        }
+        while (queryLawSelect.next()) {
+            auto lawInfo = new LawInfo();
+            lawInfo->order = queryLawSelect.value(0).toString();
+            lawInfo->adoptationDate = queryLawSelect.value(1).toString();
+            lawInfo->changeDate = queryLawSelect.value(2).toString();
+            lawsInformations.append(lawInfo);
+        }
+    }
+
     currentFragmentNumber = -1;
 }
 
@@ -221,6 +262,18 @@ void knowledgebase::on_pb_next_clicked()
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
     }
+
+    if (m_currentViewMode == eLaw && lawsInformations.count() >= currentFragmentNumber) {
+        if (currentFragmentNumber == -1) {
+            ui->ln_order->setText("");
+            ui->ln_adoption_date->setText("");
+            ui->ln_change_date->setText("");
+        } else {
+            ui->ln_order->setText(lawsInformations[currentFragmentNumber]->order);
+            ui->ln_adoption_date->setText(lawsInformations[currentFragmentNumber]->adoptationDate);
+            ui->ln_change_date->setText(lawsInformations[currentFragmentNumber]->changeDate);
+        }
+    }
 }
 
 void knowledgebase::on_pb_prev_clicked()
@@ -242,6 +295,18 @@ void knowledgebase::on_pb_prev_clicked()
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
+    }
+
+    if (m_currentViewMode == eLaw && lawsInformations.count() >= currentFragmentNumber) {
+        if (currentFragmentNumber == -1) {
+            ui->ln_order->setText("");
+            ui->ln_adoption_date->setText("");
+            ui->ln_change_date->setText("");
+        } else {
+            ui->ln_order->setText(lawsInformations[currentFragmentNumber]->order);
+            ui->ln_adoption_date->setText(lawsInformations[currentFragmentNumber]->adoptationDate);
+            ui->ln_change_date->setText(lawsInformations[currentFragmentNumber]->changeDate);
+        }
     }
 }
 
