@@ -375,6 +375,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QLineEdit" name="ln_order">
+        <property name="text">
+         <string>-</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -382,6 +385,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="ln_adoption_date">
+        <property name="text">
+         <string>-</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -389,6 +395,9 @@
       </item>
       <item row="1" column="2">
        <widget class="QLineEdit" name="ln_change_date">
+        <property name="text">
+         <string>-</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>

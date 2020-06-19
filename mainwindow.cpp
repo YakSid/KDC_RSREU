@@ -24,10 +24,9 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
 
-// TODO: [ДЕМО] Сравнить с таблицей параметры вопроса доп/дов
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
- * вообще какая-то странная) [dev: если утвержят, то later можно сделать индексацию вопроса не по abr, а по id]
+ * вообще какая-то странная) [dev: если утвердят, то later можно сделать индексацию вопроса не по abr, а по id]
  *
  * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  */
@@ -104,7 +103,8 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         break;
     case eItemSelectedMode:
         if (m_currentWorkMode != eItemSelectedMode) {
-            ui->BazeKnowledge->setEnabled(true);
+            ui->BazeKnowledge->setEnabled(
+                    false); // NOTE: временно false. Если реализовать добавление, то потом можно true
             ui->TextRight->setEnabled(false);
             ui->pb_clearField->setEnabled(false);
             ui->pb_deleteFrag->setEnabled(true);
@@ -187,14 +187,15 @@ void MainWindow::_prepareMainWindow(QString docId)
         QString strKEF = _doubleToFloatString(doubleKEF);
         ui->startKEF->setText(strKEF);
         // Заполнение параметров класса договора
+        currentKolDog->setKef(doubleKEF);
         currentKolDog->setMainParameters(
                 in1_query.value(0).toString(), in1_query.value(2).toDate(), in1_query.value(3).toInt(),
-                in1_query.value(4).toBool(), in1_query.value(5).toFloat(), in1_query.value(6).toInt(),
-                in1_query.value(7).toInt(), _strDoubleToFloat(strKEF), in1_query.value(14).toFloat(),
-                in1_query.value(15).toInt(), in1_query.value(16).toInt(), in1_query.value(20).toDate(),
-                in1_query.value(21).toInt(), in1_query.value(22).toInt(), in1_query.value(23).toInt(),
-                in1_query.value(24).toInt(), in1_query.value(25).toInt(), in1_query.value(26).toInt(),
-                in1_query.value(28).toInt(), in1_query.value(27).toInt(), in1_query.value(30).toFloat());
+                in1_query.value(4).toBool(), in1_query.value(5).toFloat(), in1_query.value(7).toInt(),
+                in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
+                in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
+                in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
+                in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
+                in1_query.value(30).toFloat());
     }
     //Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
@@ -265,7 +266,6 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     currentKolDog->setValidity(mainSettings["validity"].toInt());
     currentKolDog->setComplWithReq(mainSettings["validity"].toBool());
     currentKolDog->setZnachimost(mainSettings["znachimost"].toDouble());
-    currentKolDog->setEffektivnost(mainSettings["effektivnost"].toInt());
     currentKolDog->setKtr(mainSettings["ktr"].toInt());
     currentKolDog->setKef(mainSettings["kef"].toDouble());
     currentKolDog->setKpsp(mainSettings["kpsp"].toDouble());
@@ -517,15 +517,32 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
                               _strDoubleToFloat(ui->startKEF->text()) });
     QList<QLabel *> labels({ ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef });
     for (int i = 0; i < startKeffs.size(); i++) {
-        if (keffs[i].toFloat() > startKeffs[i].toFloat()) {
-            labels[i]->setPalette(greenPal);
-        } else if (keffs[i].toFloat() < startKeffs[i].toFloat()) {
-            labels[i]->setPalette(redPal);
+
+        //Исключение для kpsp и kef т.к. там есть знаки после запятой
+        if (i == 3 || i == 4) {
+            QString currentKString = QString::number(keffs[i].toDouble(), 'f', 2);
+            QString startKString = QString::number(startKeffs[i].toDouble(), 'f', 2);
+            double currentK = currentKString.toDouble();
+            double startK = startKString.toDouble();
+            if (currentK > startK) {
+                labels[i]->setPalette(greenPal);
+            } else if (currentK < startK) {
+                labels[i]->setPalette(redPal);
+            } else {
+                labels[i]->setPalette(blackPal);
+            }
+
         } else {
-            labels[i]->setPalette(blackPal);
+
+            if (keffs[i].toFloat() > startKeffs[i].toFloat()) {
+                labels[i]->setPalette(greenPal);
+            } else if (keffs[i].toFloat() < startKeffs[i].toFloat()) {
+                labels[i]->setPalette(redPal);
+            } else {
+                labels[i]->setPalette(blackPal);
+            }
         }
     }
-    //! СЕЙЧАС double псп окрашиваетв красный если равны, проблемы округления?
 }
 
 QVariantList MainWindow::_calculateKeffsWithDelta(QVariantList delta)
@@ -637,10 +654,12 @@ void MainWindow::on_pb_deleteFrag_clicked()
 {
     if (SelectedFragment == -1)
         return;
-    //Изменение кэффов
+    //Изменение основных кэффов
     QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
+    // TODO: kzn не рассчитывается, какая формула для его подсчёта? (это значимость)
+    //Изменение дополнительных кэффов
 
     _deleteSelectedFrag();
 }

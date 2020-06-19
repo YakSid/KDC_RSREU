@@ -52,7 +52,6 @@ void ListKD::_prepareView(EViewMode mode)
     modelForList = new modelList();
     modelForList->setTable("Договор");
 
-    // TODO: [ДЕМО] [2] [min] Сортировка по дате заключения, а не создания (возможно в другой таблице)
     if (mode == eStandardView) {
         modelForList->removeColumns(3, 2);
         modelForList->removeColumns(6, 6);
@@ -81,7 +80,7 @@ void ListKD::_prepareView(EViewMode mode)
     modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
     modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));
     modelForList->setHeaderData(2, Qt::Horizontal, tr("Ктсц"));
-    modelForList->setHeaderData(3, Qt::Horizontal, tr("Дата создания"));
+    modelForList->setHeaderData(3, Qt::Horizontal, tr("Дата заключения"));
     modelForList->setHeaderData(4, Qt::Horizontal, tr("Кзн"));
     modelForList->setHeaderData(5, Qt::Horizontal, tr("Эффективн.Кэф"));
 

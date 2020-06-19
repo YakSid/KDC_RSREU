@@ -21,8 +21,7 @@ public:
     int getValidity() const { return validity; }
     bool getComplWithReq() const { return complWithReq; }
     float getZnachimost() const { return znachimost; }
-    //! WARNING: ОшибкаКэф оставить либо kef либо effectivnost и стандартизировать везде int float double
-    int getEffektivnost() const { return effektivnost; }
+    //! TODO: [later] стандартизировать везде int float double
     int getKtr() const { return ktr; }
     float getKef() const { return kef; }
     float getKpsp() const { return kpsp; }
@@ -38,16 +37,15 @@ public:
     int getKots() const { return kots; }
     int getKmol() const { return kmol; }
     float getSum() const { return sum; }
-    void setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int effektivnost,
-                           int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo,
-                           int kzp, int kot, int ktsp, int kots, int kmol, float sum);
+    void setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
+                           float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp, int kot,
+                           int ktsp, int kots, int kmol, float sum);
     void setId(QString newId) { id = newId; }
     void setName(QString newName) { name = newName; }
     void setDate(QDate newDate) { date = newDate; }
     void setValidity(int newValidity) { validity = newValidity; }
     void setComplWithReq(bool newComplWithReq) { complWithReq = newComplWithReq; }
     void setZnachimost(float newZnachimost) { znachimost = newZnachimost; }
-    void setEffektivnost(int newEffektivnost) { effektivnost = newEffektivnost; }
     void setKtr(int newKtr) { ktr = newKtr; }
     void setKef(float newKef) { kef = newKef; }
     void setKpsp(float newKpsp) { kpsp = newKpsp; }
@@ -92,7 +90,6 @@ private:
     int validity;
     bool complWithReq; // Соответствие требованиям
     float znachimost;
-    int effektivnost;
     int ktr;
     float kef;
     float kpsp;

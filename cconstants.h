@@ -2,6 +2,7 @@
 #define CCONSTANTS_H
 
 #include <QStringList>
+#include <QDate>
 
 const QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
                               "ОТС | Решение по вопросам Отраслевого соглашения",
@@ -63,9 +64,9 @@ const QStringList ABRQuestionsRV = { "ПР", "РЕЖ", "СВХ", "НОР", "ДИ
 //! ВО | Время отдыха
 const QStringList QuestionsVO = {
     "ПЕР | Перерыв в течение рабочего дня", "ВЫХ | Выходные дни",          "ОТП | Ежегодный отпуск",
-    "ДОВ | Дополнительный отпуск",          "ГАР | Гарантии, компенсации", "ОБЯ | Обязательства сторон"
+    "ДОП | Дополнительный отпуск",          "ГАР | Гарантии, компенсации", "ОБЯ | Обязательства сторон"
 };
-const QStringList ABRQuestionsVO = { "ПЕР", "ВЫХ", "ОТП", "ДОВ", "ГАР", "ОБЯ" };
+const QStringList ABRQuestionsVO = { "ПЕР", "ВЫХ", "ОТП", "ДОП", "ГАР", "ОБЯ" };
 
 //! ГДП | Гарантии профкома
 const QStringList QuestionsGDP = { "ПКМ | Права профкома, профсоюза",
@@ -125,9 +126,9 @@ const QStringList QuestionsTOK = { "СОВ | Совместители", "РУК 
 const QStringList ABRQuestionsTOK = { "СОВ", "РУК", "ЖЕН", "МОЛ", "ГАР" };
 
 //! ПР | Произв. экон. вопросы
-const QStringList QuestionsPR = { "ПРЭ | Производственно-экономические", "ВБД | Внебюджетная деятельность",
+const QStringList QuestionsPR = { "ПРЭ | Производственно-экономические", "ВНБ | Внебюджетная деятельность",
                                   "ОБЯ | Обязательства сторон" };
-const QStringList ABRQuestionsPR = { "ПРЭ", "ВБД", "ОБЯ" };
+const QStringList ABRQuestionsPR = { "ПРЭ", "ВНБ", "ОБЯ" };
 
 //! Все вопросы по разделам
 const QList<QStringList> QuestionsAtRazdel { QuestionsPSP, QuestionsDOG, QuestionsRV, QuestionsVO,
@@ -136,5 +137,14 @@ const QList<QStringList> QuestionsAtRazdel { QuestionsPSP, QuestionsDOG, Questio
 const QList<QStringList> ABRQuestionsAtRazdel { ABRQuestionsPSP, ABRQuestionsDOG, ABRQuestionsRV, ABRQuestionsVO,
                                                 ABRQuestionsGDP, ABRQuestionsZP,  ABRQuestionsOT, ABRQuestionsTSP,
                                                 ABRQuestionsSC,  ABRQuestionsTOK, ABRQuestionsPR };
+//!==============================================Таблица ТЗакон==============================================
+struct structOrder {
+    qint32 id;
+    QString name;
+    QDate dateAdoptation;
+    QDate dateChange;
+};
+// TODO: [later] можно переделать потом это в паттерн синглтон
+extern QList<structOrder *> TOrder;
 
 #endif // CCONSTANTS_H

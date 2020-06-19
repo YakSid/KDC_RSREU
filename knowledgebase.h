@@ -64,12 +64,7 @@ private:
     bool m_allActs { true }; // NOTE: временно true, потом сделать false
     bool m_unlocked { false };
     QList<QString> fragmentsForShow;
-    struct LawInfo {
-        QString order;
-        QString adoptationDate;
-        QString changeDate;
-    };
-    QList<LawInfo *> lawsInformations;
+    QList<structOrder *> ordersForShow;
 };
 
 #endif // KNOWLEDGEBASE_H

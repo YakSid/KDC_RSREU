@@ -16,6 +16,12 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
 knowledgebase::~knowledgebase()
 {
     qDebug() << "destructor knowledgebase";
+    if (ordersForShow.size() > 0) {
+        for (auto order : ordersForShow) {
+            delete order;
+        }
+        ordersForShow.clear();
+    }
     delete ui;
 }
 
@@ -168,22 +174,20 @@ void knowledgebase::_select()
 {
     // TODO: [later] m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
     fragmentsForShow.clear();
-    for (auto lawInfo : lawsInformations) {
-        delete lawInfo;
+    for (auto order : ordersForShow) {
+        delete order;
     }
-    lawsInformations.clear();
+    ordersForShow.clear();
     // m_currentVoprosNumber только если есть (есть только после getFragment)
     QString questionKod;
     if (m_currentVoprosNumber != -1) {
         questionKod = QString::number(m_currentVoprosNumber);
     }
-    QSqlQuery querySelect, queryLawSelect;
+    QSqlQuery querySelect;
     switch (m_currentViewMode) {
     case eLaw: {
         querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
                             "Тфрагмент.КодВопрос = :val1");
-        queryLawSelect.prepare("SELECT ТЗакон.НазвЗакона, ТЗакон.ДатаПринятия, ТЗакон.ДатаИзмен FROM ТЗакон WHERE "
-                               "ТЗакон.КодЗакона = :val1");
         break;
     }
     case eTypicalKD:
@@ -194,7 +198,6 @@ void knowledgebase::_select()
         break;
     }
 
-    QStringList kodZakona;
     querySelect.bindValue(":val1", questionKod);
     if (!querySelect.exec()) {
         qDebug() << querySelect.lastError().text();
@@ -202,28 +205,23 @@ void knowledgebase::_select()
     while (querySelect.next()) {
         QString text = querySelect.value(0).toString();
         fragmentsForShow.append(text);
-        if (m_currentViewMode == eLaw)
-            kodZakona.append(querySelect.value(1).toString());
-    }
-
-    if (m_currentViewMode == eLaw) {
-        // TODO: [ДЕМО] ПЕРЕДЕЛАТЬ в cconstants, чтобы не запрашивать каждый раз
-        queryLawSelect.bindValue(":val1", kodZakona);
-        if (!queryLawSelect.exec()) {
-            qDebug() << queryLawSelect.lastError().text();
-        }
-        while (queryLawSelect.next()) {
-            auto lawInfo = new LawInfo();
-            lawInfo->order = queryLawSelect.value(0).toString();
-            lawInfo->adoptationDate = queryLawSelect.value(1).toString();
-            lawInfo->changeDate = queryLawSelect.value(2).toString();
-            lawsInformations.append(lawInfo);
+        if (m_currentViewMode == eLaw) {
+            qint32 kodZakona = querySelect.value(1).toInt();
+            for (auto order : TOrder) {
+                if (kodZakona == order->id) {
+                    auto zakonInfo = new structOrder();
+                    zakonInfo->name = order->name;
+                    zakonInfo->dateAdoptation = order->dateAdoptation;
+                    zakonInfo->dateChange = order->dateChange;
+                    ordersForShow.append(zakonInfo);
+                }
+            }
         }
     }
 
     currentFragmentNumber = -1;
 }
-
+// TODO: [later] Текст в окошках закона сдвинуть влево
 void knowledgebase::on_pb_insert_into_kd_clicked()
 {
     if (ui->te_text->toPlainText().isEmpty())
@@ -263,15 +261,15 @@ void knowledgebase::on_pb_next_clicked()
                               + QString::number(fragmentsForShow.size()));
     }
 
-    if (m_currentViewMode == eLaw && lawsInformations.count() >= currentFragmentNumber) {
+    if (m_currentViewMode == eLaw) {
         if (currentFragmentNumber == -1) {
-            ui->ln_order->setText("");
-            ui->ln_adoption_date->setText("");
-            ui->ln_change_date->setText("");
-        } else {
-            ui->ln_order->setText(lawsInformations[currentFragmentNumber]->order);
-            ui->ln_adoption_date->setText(lawsInformations[currentFragmentNumber]->adoptationDate);
-            ui->ln_change_date->setText(lawsInformations[currentFragmentNumber]->changeDate);
+            ui->ln_order->setText("-");
+            ui->ln_adoption_date->setText("-");
+            ui->ln_change_date->setText("-");
+        } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
+            ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
+            ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
+            ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
         }
     }
 }
@@ -290,22 +288,22 @@ void knowledgebase::on_pb_prev_clicked()
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
-    } else {
+    } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
         currentFragmentNumber--;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
     }
 
-    if (m_currentViewMode == eLaw && lawsInformations.count() >= currentFragmentNumber) {
+    if (m_currentViewMode == eLaw) {
         if (currentFragmentNumber == -1) {
-            ui->ln_order->setText("");
-            ui->ln_adoption_date->setText("");
-            ui->ln_change_date->setText("");
+            ui->ln_order->setText("-");
+            ui->ln_adoption_date->setText("-");
+            ui->ln_change_date->setText("-");
         } else {
-            ui->ln_order->setText(lawsInformations[currentFragmentNumber]->order);
-            ui->ln_adoption_date->setText(lawsInformations[currentFragmentNumber]->adoptationDate);
-            ui->ln_change_date->setText(lawsInformations[currentFragmentNumber]->changeDate);
+            ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
+            ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
+            ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
         }
     }
 }

@@ -19,16 +19,15 @@ CKolDog::~CKolDog()
     fragments.clear();
 }
 
-void CKolDog::setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost,
-                                int effektivnost, int ktr, float kef, float kpsp, int kgdp, int ksc, QDate endDate,
-                                int kdog, int krv, int kvo, int kzp, int kot, int ktsp, int kots, int kmol, float sum)
+void CKolDog::setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
+                                float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp,
+                                int kot, int ktsp, int kots, int kmol, float sum)
 {
     this->id = id;
     this->date = date;
     this->validity = validity;
     this->complWithReq = complWithReq;
     this->znachimost = znachimost;
-    this->effektivnost = effektivnost;
     this->ktr = ktr;
     this->kef = kef;
     this->kpsp = kpsp;
@@ -118,7 +117,6 @@ QJsonDocument *CKolDog::packKolDogToJson()
     mainSettings.insert("validity", validity);
     mainSettings.insert("complWithReq", complWithReq);
     mainSettings.insert("znachimost", znachimost);
-    mainSettings.insert("effektivnost", effektivnost);
     mainSettings.insert("ktr", ktr);
     mainSettings.insert("kef", kef);
     mainSettings.insert("kpsp", kpsp);
@@ -172,7 +170,9 @@ void CKolDog::_resetKeffs()
     kvo = 0;
     kzp = 0;
     kot = 0;
-    // WARNING: ОшибкаКэф kots, kpr, kmol пройти по всему проекту и узнать их
+    // WARNING: ОшибкаКэф kots, kpr, kmol пройти по всему проекту и узнать их: узнал, теперь:
+    // Нужно пройтись по проекту, добавить везде kpr, приравнять к одному kots и kmol
+    //Пр существует! мол = отс
     kots = 0;
     // kpr = 0;
     kmol = 0;
