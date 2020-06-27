@@ -31,6 +31,12 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  */
 
+// TODO: [ПРАВКИ] [min] сделать формулу кэф: Кэф=1,3*(1,5*Ктр+Ксц)+Кгдп+Кпсп
+// TODO: [ПРАВКИ] [min] вид кэф сделать как на картинке
+// TODO: [ПРАВКИ] [min] начальные значения сделать константными из БД
+// TODO: [ПРАВКИ] [min] вопрос о сохранении проекта при нажатии на крестик
+// TODO: [ПРАВКИ] [min] сделать автосозданием пустую папку "Проекты"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     sDialog = new StartDialog();
@@ -103,8 +109,8 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         break;
     case eItemSelectedMode:
         if (m_currentWorkMode != eItemSelectedMode) {
-            ui->BazeKnowledge->setEnabled(
-                    false); // NOTE: временно false. Если реализовать добавление, то потом можно true
+            ui->BazeKnowledge->setEnabled(false); // NOTE: временно false. Если реализовать добавление выбранного
+                                                  // неперенесённого, то потом можно true
             ui->TextRight->setEnabled(false);
             ui->pb_clearField->setEnabled(false);
             ui->pb_deleteFrag->setEnabled(true);
@@ -462,7 +468,7 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: [later] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -658,7 +664,9 @@ void MainWindow::on_pb_deleteFrag_clicked()
     QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
-    // TODO: kzn не рассчитывается, какая формула для его подсчёта? (это значимость)
+    // TODO: [ПРАВКИ] [min] kzn рассчитать везде: кзн=(ктр+ксц+кгдп+Nпсп)/M*100% (M-число всех пунктов КД,
+    // Nпсп-колвоПСПпунктов с vidosv)
+
     //Изменение дополнительных кэффов
 
     _deleteSelectedFrag();
@@ -864,7 +872,7 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionSave_triggered()
 {
-    // TODO: [later] [1] сделать автоматическое сохранение файла по указанному пути
+    // TODO: [later] [1] переделать сохранение файла текста по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
     currentKolDog->setName(ui->DogName->text()); //учесть имя КД
 
@@ -910,7 +918,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     ui->Quality->clear();
     ui->Question->clear();
     setWorkMode(eBasicMode);
-    // TODO: [later] Добавить анимацию загрузки (мб на central widget) тут и в других местах
+    // TODO: Добавить анимацию загрузки (мб на central widget) тут и в других местах
     ui->centralWidget->setHidden(true);
     //Новый старт
     sDialog = new StartDialog();
@@ -924,7 +932,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
             if (!lDialog->WantGo) {
                 exit(3);
             } else {
-                // TODO: [later] Проверить все new и delete
+                // TODO: Проверить все new и delete
                 m_db = new CDatabaseManager();
                 ui->centralWidget->setHidden(false);
                 _prepareMainWindow(lDialog->SelectedKD);

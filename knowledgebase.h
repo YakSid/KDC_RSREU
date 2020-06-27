@@ -61,7 +61,7 @@ private:
     qint32 currentFragmentNumber { -1 };
     qint32 m_currentVoprosNumber;
     QString originalText { "" };
-    bool m_allActs { true }; // NOTE: временно true, потом сделать false
+    bool m_allActs { false };
     bool m_unlocked { false };
     QList<QString> fragmentsForShow;
     QList<structOrder *> ordersForShow;

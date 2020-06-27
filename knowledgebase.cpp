@@ -11,6 +11,7 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     ui->setupUi(this);
     this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     _changeViewMode(eTypicalKD);
+    // TODO: [ПРАВКИ] [min] Поле названия закона сделать в две строки и сделать больше его дат, даты уменьшить
 }
 
 knowledgebase::~knowledgebase()
@@ -24,7 +25,8 @@ knowledgebase::~knowledgebase()
     }
     delete ui;
 }
-
+// TODO: [ПРАВКИ] [min] Элемент «Все акты» должен появляться при просмотре Типовых фрагментов и «Все фрагменты КД». А
+// при просмотре Фрагментов законов возможность задания требуемого значения характеристики Акт должна быть!!
 void knowledgebase::prepareWindowWithoutFrag()
 {
     _prepareWindow();
@@ -44,13 +46,10 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->cmb_quality->clear();
         ui->cmb_quality->addItems(ListVozmojnosti);
         ui->cmb_quality->setCurrentIndex(0);
-        ui->ch_all_acts->setVisible(true);
         ui->frame->setVisible(true);
         break;
     case eTypicalKD:
         ui->lb_quality->setText("Качество:");
-        // NOTE: ui->ch_all_acts->setChecked(false); //временно заблокировал
-        ui->ch_all_acts->setVisible(false);
         ui->frame->setVisible(false);
         if (m_currentViewMode == eLaw) {
             ui->cmb_quality->clear();
@@ -60,8 +59,6 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
-        // NOTE: ui->ch_all_acts->setChecked(false); //временно заблокировал
-        ui->ch_all_acts->setVisible(false);
         ui->frame->setVisible(false);
         if (m_currentViewMode == eLaw) {
             ui->cmb_quality->clear();
@@ -167,12 +164,13 @@ void knowledgebase::on_rb_all_fragments_kd_toggled(bool checked)
 void knowledgebase::on_ch_all_acts_toggled(bool checked)
 {
     m_allActs = checked;
-    _select();
 }
 
 void knowledgebase::_select()
 {
-    // TODO: [later] m_allActs тут должно использоваться и накладывать фильтр, что если eAllActs то не играет роли
+    // TODO: [ПРАВКИ] делать select по кнопке "Разблокировать" - ей второй стейт заменить на "Применить"
+    //И реализовать в select'е подбор по всем параметрам запроса (4 параметра)
+    // TODO: m_allActs тут должно использоваться и накладывать фильтр. m_allActs устновить везде где нужно
     fragmentsForShow.clear();
     for (auto order : ordersForShow) {
         delete order;
@@ -221,7 +219,7 @@ void knowledgebase::_select()
 
     currentFragmentNumber = -1;
 }
-// TODO: [later] Текст в окошках закона сдвинуть влево
+
 void knowledgebase::on_pb_insert_into_kd_clicked()
 {
     if (ui->te_text->toPlainText().isEmpty())
@@ -310,7 +308,7 @@ void knowledgebase::on_pb_prev_clicked()
 
 void knowledgebase::on_pb_showList_clicked()
 {
-    // TODO: [later] [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при наведении
+    // TODO: [?later?] [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при наведении
     // ui->lw_fragments->insertItems(0, fragmentsForShow);
 }
 
