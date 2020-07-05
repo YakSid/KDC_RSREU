@@ -22,6 +22,11 @@ public:
     bool getComplWithReq() const { return complWithReq; }
     float getZnachimost() const { return znachimost; }
     //! TODO: [later] стандартизировать везде int float double
+    int getStartKtr() const { return startKtr; }
+    float getStartKef() const { return startKef; }
+    float getStartKpsp() const { return startKpsp; }
+    int getStartKgdp() const { return startKgdp; }
+    int getStartKsc() const { return startKsc; }
     int getKtr() const { return ktr; }
     float getKef() const { return kef; }
     float getKpsp() const { return kpsp; }
@@ -46,6 +51,11 @@ public:
     void setValidity(int newValidity) { validity = newValidity; }
     void setComplWithReq(bool newComplWithReq) { complWithReq = newComplWithReq; }
     void setZnachimost(float newZnachimost) { znachimost = newZnachimost; }
+    void setStartKtr(int newStartKtr) { startKtr = newStartKtr; }
+    void setStartKef(float newStartKef) { startKef = newStartKef; }
+    void setStartKpsp(float newStartKpsp) { startKpsp = newStartKpsp; }
+    void setStartKgdp(int newStartKgdp) { startKgdp = newStartKgdp; }
+    void setStartKsc(int newStartKsc) { startKsc = newStartKsc; }
     void setKtr(int newKtr) { ktr = newKtr; }
     void setKef(float newKef) { kef = newKef; }
     void setKpsp(float newKpsp) { kpsp = newKpsp; }
@@ -106,6 +116,12 @@ private:
     int kots;
     int kmol;
     float sum;
+    //Начальные параметры (не меняются после первого присвоения)
+    int startKtr;
+    float startKef;
+    float startKpsp;
+    int startKgdp;
+    int startKsc;
 };
 
 #endif // CKOLDOG_H

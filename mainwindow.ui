@@ -779,19 +779,6 @@ p, li { white-space: pre-wrap; }
       <item row="0" column="1" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <widget class="QPushButton" name="BazeKnowledge">
           <property name="minimumSize">
            <size>
@@ -801,7 +788,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="maximumSize">
            <size>
-            <width>101</width>
+            <width>16777215</width>
             <height>51</height>
            </size>
           </property>
@@ -809,19 +796,6 @@ p, li { white-space: pre-wrap; }
            <string>База знаний</string>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
@@ -1036,7 +1010,7 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Проект</string>
     </property>
-    <addaction name="actionSave"/>
+    <addaction name="actionMakeDoc"/>
     <addaction name="separator"/>
     <addaction name="actionStartAnotherKD"/>
     <addaction name="actionSaveProject"/>
@@ -1055,7 +1029,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="menu_2"/>
    <addaction name="menu_3"/>
   </widget>
-  <action name="actionSave">
+  <action name="actionMakeDoc">
    <property name="text">
     <string>Сформировать в документ .docx</string>
    </property>

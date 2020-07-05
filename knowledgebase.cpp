@@ -11,7 +11,6 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     ui->setupUi(this);
     this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     _changeViewMode(eTypicalKD);
-    // TODO: [ПРАВКИ] [min] Поле названия закона сделать в две строки и сделать больше его дат, даты уменьшить
 }
 
 knowledgebase::~knowledgebase()
@@ -25,8 +24,7 @@ knowledgebase::~knowledgebase()
     }
     delete ui;
 }
-// TODO: [ПРАВКИ] [min] Элемент «Все акты» должен появляться при просмотре Типовых фрагментов и «Все фрагменты КД». А
-// при просмотре Фрагментов законов возможность задания требуемого значения характеристики Акт должна быть!!
+
 void knowledgebase::prepareWindowWithoutFrag()
 {
     _prepareWindow();
@@ -47,6 +45,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->cmb_quality->addItems(ListVozmojnosti);
         ui->cmb_quality->setCurrentIndex(0);
         ui->frame->setVisible(true);
+        ui->ch_all_acts->setVisible(false);
         break;
     case eTypicalKD:
         ui->lb_quality->setText("Качество:");
@@ -56,6 +55,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
             ui->cmb_quality->addItems(ListQuality);
             ui->cmb_quality->setCurrentIndex(0);
         }
+        ui->ch_all_acts->setVisible(true);
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
@@ -65,6 +65,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
             ui->cmb_quality->addItems(ListQuality);
             ui->cmb_quality->setCurrentIndex(0);
         }
+        ui->ch_all_acts->setVisible(true);
         break;
     }
     m_currentViewMode = newViewMode;

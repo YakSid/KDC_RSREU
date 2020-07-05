@@ -117,6 +117,11 @@ QJsonDocument *CKolDog::packKolDogToJson()
     mainSettings.insert("validity", validity);
     mainSettings.insert("complWithReq", complWithReq);
     mainSettings.insert("znachimost", znachimost);
+    mainSettings.insert("startKtr", startKtr);
+    mainSettings.insert("startKef", startKef);
+    mainSettings.insert("startKpsp", startKpsp);
+    mainSettings.insert("startKgdp", startKgdp);
+    mainSettings.insert("startKsc", startKsc);
     mainSettings.insert("ktr", ktr);
     mainSettings.insert("kef", kef);
     mainSettings.insert("kpsp", kpsp);

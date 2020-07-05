@@ -31,11 +31,8 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  */
 
-// TODO: [ПРАВКИ] [min] сделать формулу кэф: Кэф=1,3*(1,5*Ктр+Ксц)+Кгдп+Кпсп
-// TODO: [ПРАВКИ] [min] вид кэф сделать как на картинке
-// TODO: [ПРАВКИ] [min] начальные значения сделать константными из БД
-// TODO: [ПРАВКИ] [min] вопрос о сохранении проекта при нажатии на крестик
 // TODO: [ПРАВКИ] [min] сделать автосозданием пустую папку "Проекты"
+// TODO: [ПРАВКИ] БЗ: "Добавить в файл" сделать отдельный файл док
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -109,8 +106,8 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         break;
     case eItemSelectedMode:
         if (m_currentWorkMode != eItemSelectedMode) {
-            ui->BazeKnowledge->setEnabled(false); // NOTE: временно false. Если реализовать добавление выбранного
-                                                  // неперенесённого, то потом можно true
+            ui->BazeKnowledge->setEnabled(false); // NOTE: [later] временно false. Если реализовать добавление
+                                                  // выбранного неперенесённого, то потом можно true
             ui->TextRight->setEnabled(false);
             ui->pb_clearField->setEnabled(false);
             ui->pb_deleteFrag->setEnabled(true);
@@ -163,6 +160,18 @@ void MainWindow::insertFragFromKB(fragment *frag)
     SelectedFragment = prevSelectedFragId;
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (lDialog->WantGo || sDialog->StartMode != StartDialog::EStartMode::exitApp) {
+        bool answer = _showQuestion("Вы сохранили проект и хотите выйти?");
+        if (answer) {
+            event->accept();
+        } else {
+            event->ignore();
+        }
+    }
+}
+
 void MainWindow::_prepareMainWindow(QString docId)
 {
     //Настройка навигатора
@@ -185,13 +194,18 @@ void MainWindow::_prepareMainWindow(QString docId)
     if (in1_query.next()) {
         // Расчёт параметров и заполнение полей mw
         ui->startKTR->setText(in1_query.value(7).toString());
+        currentKolDog->setStartKtr(in1_query.value(7).toInt());
         ui->startKSC->setText(in1_query.value(16).toString());
+        currentKolDog->setStartKsc(in1_query.value(16).toInt());
         ui->startKGDP->setText(in1_query.value(15).toString());
+        currentKolDog->setStartKgdp(in1_query.value(15).toInt());
         ui->startKPSP->setText(_doubleToFloatString(in1_query.value(14).toDouble()));
+        currentKolDog->setStartKpsp(in1_query.value(14).toDouble());
         double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
                 + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
         QString strKEF = _doubleToFloatString(doubleKEF);
         ui->startKEF->setText(strKEF);
+        currentKolDog->setStartKef(doubleKEF);
         // Заполнение параметров класса договора
         currentKolDog->setKef(doubleKEF);
         currentKolDog->setMainParameters(
@@ -272,6 +286,11 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     currentKolDog->setValidity(mainSettings["validity"].toInt());
     currentKolDog->setComplWithReq(mainSettings["validity"].toBool());
     currentKolDog->setZnachimost(mainSettings["znachimost"].toDouble());
+    currentKolDog->setStartKtr(mainSettings["startKtr"].toInt());
+    currentKolDog->setStartKef(mainSettings["startKef"].toDouble());
+    currentKolDog->setStartKpsp(mainSettings["startKpsp"].toDouble());
+    currentKolDog->setStartKgdp(mainSettings["startKgdp"].toInt());
+    currentKolDog->setStartKsc(mainSettings["startKsc"].toInt());
     currentKolDog->setKtr(mainSettings["ktr"].toInt());
     currentKolDog->setKef(mainSettings["kef"].toDouble());
     currentKolDog->setKpsp(mainSettings["kpsp"].toDouble());
@@ -309,11 +328,11 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     }
     //Заполнение переменных и настройка mw
     SelectedKD = currentKolDog->getId();
-    ui->startKTR->setText(QString::number(currentKolDog->getKtr()));
-    ui->startKSC->setText(QString::number(currentKolDog->getKsc()));
-    ui->startKGDP->setText(QString::number(currentKolDog->getKgdp()));
-    ui->startKPSP->setText(_doubleToFloatString(currentKolDog->getKpsp()));
-    ui->startKEF->setText(_doubleToFloatString(currentKolDog->getKef()));
+    ui->startKTR->setText(QString::number(currentKolDog->getStartKtr()));
+    ui->startKSC->setText(QString::number(currentKolDog->getStartKsc()));
+    ui->startKGDP->setText(QString::number(currentKolDog->getStartKgdp()));
+    ui->startKPSP->setText(_doubleToFloatString(currentKolDog->getStartKpsp()));
+    ui->startKEF->setText(_doubleToFloatString(currentKolDog->getStartKef()));
     ui->DogName->setText(currentKolDog->getName());
     //Настройка навигатора
     ui->tw_navigator->setColumnWidth(0, 211);
@@ -689,7 +708,7 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    // TODO: [ДЕМО] П!роверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
+    // TODO: [ДЕМО] !Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
@@ -870,7 +889,7 @@ void MainWindow::on_btn_showFullText_clicked()
     m_navigatorButtonEnabled = false;
 }
 
-void MainWindow::on_actionSave_triggered()
+void MainWindow::on_actionMakeDoc_triggered()
 {
     // TODO: [later] [1] переделать сохранение файла текста по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
@@ -904,7 +923,8 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionStartAnotherKD_triggered()
 {
-    // BUG: [ДЕМО] вылетело, когда после загрузки одного, загрузил второй другой
+    // BUG: [ПРАВКИ] вылетело, когда после загрузки одного, загрузил второй другой (тест сохранения дока в текст ворд 2
+    // подряд)
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;

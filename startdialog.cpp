@@ -8,9 +8,8 @@
 // TODO: [later] указывать имя выбранного к продолжению кд?
 // TODO: [later] сделать автосохранение?
 
-//! TODO: Добавить проверку подключения к БД и указание пути к БД!
+//! TODO: [ПРАВКИ] Добавить проверку подключения к БД и указание пути к БД!
 
-// WARNING: [ПРАВКИ] ВАЖНО на Vista не работает
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
     ui->setupUi(this);

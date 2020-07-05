@@ -62,6 +62,9 @@ signals:
 public slots:
     void insertFragFromKB(fragment *frag);
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void on_te_textCenter_cursorPositionChanged();
     void on_pb_newFrag_clicked();
@@ -76,7 +79,7 @@ private slots:
     void on_tw_navigator_cellClicked(int row, int column);
     void on_btn_showFullText_clicked();
     //! Менюбар
-    void on_actionSave_triggered();
+    void on_actionMakeDoc_triggered();
     void on_actionStartAnotherKD_triggered();
     void on_actionSaveProject_triggered();
 
