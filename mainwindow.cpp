@@ -31,9 +31,6 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  */
 
-// TODO: [ПРАВКИ] [min] сделать автосозданием пустую папку "Проекты"
-// TODO: [ПРАВКИ] БЗ: "Добавить в файл" сделать отдельный файл док
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     sDialog = new StartDialog();

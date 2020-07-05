@@ -5,6 +5,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QMessageBox>
+#include <QFileDialog>
 
 knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::knowledgebase)
 {
@@ -72,7 +73,6 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
     if (ui->cmb_razdel->currentText() != "") {
         ui->gb_text->setTitle("Начальный фрагмент");
         ui->te_text->setText(originalText);
-        _select();
     }
 }
 
@@ -133,9 +133,10 @@ void knowledgebase::on_pb_unlock_clicked()
 {
     m_unlocked = !m_unlocked;
     if (m_unlocked) {
-        ui->pb_unlock->setText("Заблокировать");
+        ui->pb_unlock->setText("Применить");
     } else {
         ui->pb_unlock->setText("Разблокировать");
+        _select();
     }
     ui->cmb_razdel->setEnabled(m_unlocked);
     ui->cmb_act->setEnabled(m_unlocked);
@@ -169,8 +170,7 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 
 void knowledgebase::_select()
 {
-    // TODO: [ПРАВКИ] делать select по кнопке "Разблокировать" - ей второй стейт заменить на "Применить"
-    //И реализовать в select'е подбор по всем параметрам запроса (4 параметра)
+    // TODO: [ПРАВКИ] реализовать в select'е подбор по всем параметрам запроса (4 параметра)
     // TODO: m_allActs тут должно использоваться и накладывать фильтр. m_allActs устновить везде где нужно
     fragmentsForShow.clear();
     for (auto order : ordersForShow) {
@@ -319,4 +319,16 @@ void knowledgebase::on_cmb_razdel_currentTextChanged(const QString &arg1)
         return;
     ui->cmb_question->clear();
     ui->cmb_question->addItems(QuestionsAtRazdel[ui->cmb_razdel->currentIndex()]);
+}
+
+void knowledgebase::on_pb_insert_into_file_clicked()
+{
+    if (fileWithAdd.isEmpty()) {
+        fileWithAdd = QFileDialog::getSaveFileName(this, "Текстовый файл для дополнительных фрагментов", "", "*.txt");
+    }
+    QFile file(fileWithAdd);
+    file.open(QIODevice::Append | QIODevice::Text);
+    QTextStream writeStream(&file);
+    writeStream << "\n\n" << ui->te_text->toPlainText();
+    file.close();
 }

@@ -17,9 +17,9 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
     this->resize(this->width(), 200);
 
-    QFile logfile("LoginInfo.txt");
+    QFile logfile("LoginInfo.ini");
     if (!logfile.exists()) {
-        logfile.setFileName("LoginInfo.txt");
+        logfile.setFileName("LoginInfo.ini");
     } else {
         firstStart = false;
         logfile.open(QIODevice::ReadOnly);
@@ -92,7 +92,7 @@ void StartDialog::on_pb_deleteAuthor_clicked()
 
 void StartDialog::_addAuthor(QString name)
 {
-    QFile logfile("LoginInfo.txt");
+    QFile logfile("LoginInfo.ini");
     logfile.open(QIODevice::Append | QIODevice::Text);
     QTextStream writeStream(&logfile);
     if (!firstStart)
@@ -105,7 +105,7 @@ QStringList StartDialog::_getAllAuthors()
 {
     QStringList result;
 
-    QFile logfile("LoginInfo.txt");
+    QFile logfile("LoginInfo.ini");
     logfile.open(QIODevice::ReadOnly);
     QTextStream in(&logfile);
     while (!in.atEnd()) {
@@ -126,7 +126,7 @@ void StartDialog::_showMessage(QString text)
 
 void StartDialog::_updateLogfile(QStringList authors)
 {
-    QFile logfile("LoginInfo.txt");
+    QFile logfile("LoginInfo.ini");
     logfile.open(QIODevice::Append | QIODevice::Text);
     QTextStream writeStream(&logfile);
     while (authors.count() != 0) {
@@ -140,7 +140,7 @@ void StartDialog::_updateLogfile(QStringList authors)
 
 void StartDialog::_clearLogfile()
 {
-    QFile logfile("LoginInfo.txt");
+    QFile logfile("LoginInfo.ini");
     if (logfile.open(QIODevice::WriteOnly | QIODevice::Truncate))
         logfile.close();
 }

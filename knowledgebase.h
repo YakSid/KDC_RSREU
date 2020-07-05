@@ -49,6 +49,8 @@ private slots:
 
     void on_cmb_razdel_currentTextChanged(const QString &arg1);
 
+    void on_pb_insert_into_file_clicked();
+
 private:
     void _changeViewMode(EFragmentsViewMode newViewMode);
     //! Провести начальную подготовку окна, неважно в каком режим с фрагментом или без
@@ -65,6 +67,8 @@ private:
     bool m_unlocked { false };
     QList<QString> fragmentsForShow;
     QList<structOrder *> ordersForShow;
+    //! Файл для вынесения дополнительных пунктов
+    QString fileWithAdd = "";
 };
 
 #endif // KNOWLEDGEBASE_H
