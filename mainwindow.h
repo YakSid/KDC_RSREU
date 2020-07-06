@@ -128,7 +128,7 @@ private:
     knowledgebase *kBase;
     kef *kefDialog;
     StartDialog *sDialog;
-    ListKD *lDialog;
+    ListKD *lDialog { nullptr };
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     EWorkMode m_currentWorkMode;

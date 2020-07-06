@@ -159,7 +159,11 @@ void MainWindow::insertFragFromKB(fragment *frag)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (lDialog->WantGo || sDialog->StartMode != StartDialog::EStartMode::exitApp) {
+    bool needToAsk = false;
+    if (lDialog != nullptr) {
+        needToAsk = lDialog->WantGo;
+    }
+    if (needToAsk || sDialog->StartMode != StartDialog::EStartMode::exitApp) {
         bool answer = _showQuestion("Вы сохранили проект и хотите выйти?");
         if (answer) {
             event->accept();
@@ -484,7 +488,7 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: [later] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -920,12 +924,13 @@ void MainWindow::on_actionMakeDoc_triggered()
 
 void MainWindow::on_actionStartAnotherKD_triggered()
 {
-    // BUG: [ПРАВКИ] вылетело, когда после загрузки одного, загрузил второй другой (тест сохранения дока в текст ворд 2
-    // подряд)
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;
-    delete lDialog;
+    if (lDialog != nullptr) {
+        delete lDialog;
+    }
+    lDialog = nullptr;
     delete sDialog;
     ui->TextRight->clear();
     ui->Act->clear();
@@ -935,7 +940,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     ui->Quality->clear();
     ui->Question->clear();
     setWorkMode(eBasicMode);
-    // TODO: Добавить анимацию загрузки (мб на central widget) тут и в других местах
+    // TODO: [later] Добавить анимацию загрузки (мб на central widget) тут и в других местах
     ui->centralWidget->setHidden(true);
     //Новый старт
     sDialog = new StartDialog();
@@ -949,7 +954,6 @@ void MainWindow::on_actionStartAnotherKD_triggered()
             if (!lDialog->WantGo) {
                 exit(3);
             } else {
-                // TODO: Проверить все new и delete
                 m_db = new CDatabaseManager();
                 ui->centralWidget->setHidden(false);
                 _prepareMainWindow(lDialog->SelectedKD);

@@ -9,12 +9,14 @@ void CJSONManager::saveJson(const QJsonDocument *jDoc, QString filename)
     QFile jFile(filename);
     jFile.open(QFile::WriteOnly);
     jFile.write(jDoc->toJson());
-    // TODO: нужен close?
+    jFile.close();
 }
 
 QJsonDocument CJSONManager::loadJson(QString filename)
 {
     QFile jFile(filename);
     jFile.open(QFile::ReadOnly);
-    return QJsonDocument().fromJson(jFile.readAll());
+    auto result = QJsonDocument().fromJson(jFile.readAll());
+    jFile.close();
+    return result;
 }
