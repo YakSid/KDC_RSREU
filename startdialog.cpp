@@ -9,6 +9,7 @@
 // TODO: [later] сделать автосохранение?
 
 //! TODO: [ПРАВКИ] Добавить проверку подключения к БД и указание пути к БД!
+//! TODO: [later] Заменить размещение кнопок - сделать в groupBox'ы с подписями
 
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {

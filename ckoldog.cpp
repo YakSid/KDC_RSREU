@@ -161,6 +161,20 @@ QJsonDocument *CKolDog::packKolDogToJson()
     return jDoc;
 }
 
+float CKolDog::calculateKzn()
+{
+    qint32 Npsp = 0;
+    for (auto frag : fragments) {
+        if (frag->isViDoSv() && frag->getRazdel() == "ПСП")
+            Npsp++;
+    }
+    //кзн=(ктр+ксц+кгдп+Nпсп)/M*100% (M-число всех пунктов КД,Nпсп-колвоПСПпунктов с vidosv)
+    qint32 tmp = (ktr + ksc + kgdp + Npsp) * 1000
+            / fragments.size(); // 1000, а не 100, чтобы потом посчитать знак после запятой
+    this->znachimost = tmp / 10 + (tmp % 10 * 0.1);
+    return znachimost;
+}
+
 void CKolDog::_resetKeffs()
 {
     //Основные
@@ -175,8 +189,8 @@ void CKolDog::_resetKeffs()
     kvo = 0;
     kzp = 0;
     kot = 0;
-    // WARNING: ОшибкаКэф нужно пройтись по проекту, добавить везде kpr, приравнять к одному kots и kmol
-    //Пр существует! мол = отс
+    // WARNING: СПРОСИТЬ: ОшибкаКэф нужно пройтись по проекту, добавить везде kpr, приравнять к одному kots и kmol
+    //Пр существует! ток = мол = отс ???
     kots = 0;
     // kpr = 0;
     kmol = 0;

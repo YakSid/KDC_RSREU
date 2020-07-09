@@ -83,6 +83,8 @@ public:
     qint32 getMySize() const { return (sizeof(name) + 90); }
     //! Сформировать json документ из КД для сохранения
     QJsonDocument *packKolDogToJson();
+    //! Высчитать значимость кзн
+    float calculateKzn();
 
 private:
     //! Обнулить коэффициенты

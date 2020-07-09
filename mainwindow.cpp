@@ -684,8 +684,6 @@ void MainWindow::on_pb_deleteFrag_clicked()
     QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
-    // TODO: [ПРАВКИ] [min] kzn рассчитать везде: кзн=(ктр+ксц+кгдп+Nпсп)/M*100% (M-число всех пунктов КД,
-    // Nпсп-колвоПСПпунктов с vidosv)
 
     //Изменение дополнительных кэффов
 
@@ -835,10 +833,12 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 void MainWindow::on_Effekt_po_razd_clicked()
 {
     // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)и заполнение в кд!
+    currentKolDog->calculateKzn();
     kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
                                currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
                                currentKolDog->getKmol());
+    qDebug() << QString::number(currentKolDog->calculateKzn()) + "%";
     kefDialog->setModal(true);
     kefDialog->exec();
 }
@@ -924,6 +924,10 @@ void MainWindow::on_actionMakeDoc_triggered()
 
 void MainWindow::on_actionStartAnotherKD_triggered()
 {
+    bool answer = _showQuestion("Вы сохранили проект и хотите выбрать другой?");
+    if (!answer) {
+        return;
+    }
     //Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;
@@ -975,6 +979,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
 void MainWindow::on_actionSaveProject_triggered()
 {
     currentKolDog->setName(ui->DogName->text());
+    currentKolDog->calculateKzn();
     auto jDocPtr = currentKolDog->packKolDogToJson();
     QString jName = QFileDialog::getSaveFileName(this, "Сохранить проект", "", "*.json");
     m_jsonManager->saveJson(jDocPtr, jName);
