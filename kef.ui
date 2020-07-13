@@ -183,7 +183,7 @@
        </widget>
       </item>
       <item row="1" column="16">
-       <widget class="QLineEdit" name="kmolStart">
+       <widget class="QLineEdit" name="ktokStart">
         <property name="minimumSize">
          <size>
           <width>51</width>
@@ -326,7 +326,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Кзн</string>
+         <string>Кзн %</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -447,7 +447,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Кмол</string>
+         <string>Кток</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -565,7 +565,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Кэф</string>
+         <string>Ктр</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -657,7 +657,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLineEdit" name="kefStart">
+       <widget class="QLineEdit" name="ktrStart">
         <property name="minimumSize">
          <size>
           <width>51</width>
@@ -686,7 +686,7 @@
       <item row="1" column="17">
        <widget class="QLabel" name="label_19">
         <property name="text">
-         <string>  </string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -712,7 +712,7 @@
        </widget>
       </item>
       <item row="2" column="16">
-       <widget class="QLineEdit" name="kmol">
+       <widget class="QLineEdit" name="ktok">
         <property name="minimumSize">
          <size>
           <width>51</width>
@@ -795,7 +795,7 @@
       <item row="2" column="17">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>  </string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -827,7 +827,7 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLineEdit" name="kef_2">
+       <widget class="QLineEdit" name="ktr">
         <property name="minimumSize">
          <size>
           <width>51</width>
@@ -1120,7 +1120,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Кэф</string>
+         <string>Ктр</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1300,7 +1300,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Кмол</string>
+         <string>Кток</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1330,7 +1330,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Кзн</string>
+         <string>Кзн %</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

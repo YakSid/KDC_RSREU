@@ -24,6 +24,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
 
+// TODO: Сказать, что Kpr и Ktok в базе нет, но я сам их высчитываю (МОЛ - это вопрос)
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
  * вообще какая-то странная) [dev: если утвердят, то later можно сделать индексацию вопроса не по abr, а по id]
@@ -215,8 +216,7 @@ void MainWindow::_prepareMainWindow(QString docId)
                 in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
                 in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
                 in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
-                in1_query.value(26).toInt(), in1_query.value(28).toInt(), in1_query.value(27).toInt(),
-                in1_query.value(30).toFloat());
+                in1_query.value(26).toInt(), 0, 0, in1_query.value(27).toInt(), in1_query.value(30).toFloat());
     }
     //Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
@@ -259,11 +259,16 @@ void MainWindow::_prepareMainWindow(QString docId)
         currentKolDog->fragments.append(frag);
         // NOTE: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
     }
+    //Высчитывание Кпр и Кток т.к. их нет в базе
+    qint32 calculatedKpr = 0, calculatedKtok = 0;
+    currentKolDog->calculateKprAndKtok(calculatedKpr, calculatedKtok);
+    currentKolDog->setKpr(calculatedKpr);
+    currentKolDog->setKtok(calculatedKtok);
     //Заполнение окна кэф начальными данными
-    kefDialog->setStartKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+    kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                              currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                             currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
-                             currentKolDog->getKmol());
+                             currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
+                             currentKolDog->getKtsp());
     //Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
     _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
@@ -306,7 +311,8 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     currentKolDog->setKzp(mainSettings["kzp"].toInt());
     currentKolDog->setKot(mainSettings["kot"].toInt());
     currentKolDog->setKtsp(mainSettings["ktsp"].toInt());
-    currentKolDog->setKots(mainSettings["kots"].toInt());
+    currentKolDog->setKpr(mainSettings["kpr"].toInt());
+    currentKolDog->setKtok(mainSettings["ktok"].toInt());
     currentKolDog->setKmol(mainSettings["kmol"].toInt());
     currentKolDog->setSum(mainSettings["sum"].toDouble());
     //Заполнение фрагментов текущего КД из сохранённого json документа
@@ -343,10 +349,10 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     //Заполнение окна кэф начальными данными
-    kefDialog->setStartKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+    kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                              currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                             currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
-                             currentKolDog->getKmol());
+                             currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
+                             currentKolDog->getKtsp());
     //Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
     _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
@@ -650,9 +656,6 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         if (SelectedFragment == -1) {
             qDebug() << "Сейчас всё навернётся";
         }
-        qDebug() << "ID " + QString::number(SelectedFragment)
-                        + " Начало: " + QString::number(currentKolDog->fragments[SelectedFragment]->getPositionFirst())
-                        + " Конец: " + QString::number(currentKolDog->fragments[SelectedFragment]->getPositionLast());
         _setSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
                                currentKolDog->fragments[SelectedFragment]->getPositionLast());
     }
@@ -834,11 +837,10 @@ void MainWindow::on_Effekt_po_razd_clicked()
 {
     // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)и заполнение в кд!
     currentKolDog->calculateKzn();
-    kefDialog->setCurrentKeffs(currentKolDog->getKef(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
+    kefDialog->setCurrentKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                               currentKolDog->getKot(), currentKolDog->getKots(), currentKolDog->getKtsp(),
-                               currentKolDog->getKmol());
-    qDebug() << QString::number(currentKolDog->calculateKzn()) + "%";
+                               currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
+                               currentKolDog->getKtsp());
     kefDialog->setModal(true);
     kefDialog->exec();
 }

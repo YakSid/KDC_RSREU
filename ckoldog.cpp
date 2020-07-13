@@ -21,7 +21,7 @@ CKolDog::~CKolDog()
 
 void CKolDog::setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
                                 float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp,
-                                int kot, int ktsp, int kots, int kmol, float sum)
+                                int kot, int ktsp, int kpr, int ktok, int kmol, float sum)
 {
     this->id = id;
     this->date = date;
@@ -29,7 +29,6 @@ void CKolDog::setMainParameters(QString id, QDate date, int validity, bool compl
     this->complWithReq = complWithReq;
     this->znachimost = znachimost;
     this->ktr = ktr;
-    this->kef = kef;
     this->kpsp = kpsp;
     this->kgdp = kgdp;
     this->ksc = ksc;
@@ -40,9 +39,26 @@ void CKolDog::setMainParameters(QString id, QDate date, int validity, bool compl
     this->kzp = kzp;
     this->kot = kot;
     this->ktsp = ktsp;
-    this->kots = kots;
+    this->kpr = kpr;
+    this->ktok = ktok;
     this->kmol = kmol;
     this->sum = sum;
+}
+
+void CKolDog::calculateKprAndKtok(qint32 &kpr, qint32 &ktok)
+{
+    qint32 pr = 0, tok = 0;
+    for (auto frag : fragments) {
+        if (frag->isViDoSv()) {
+            if (frag->getRazdel() == "ПР") {
+                pr++;
+            } else if (frag->getRazdel() == "ТОК") {
+                tok++;
+            }
+        }
+    }
+    kpr = pr;
+    ktok = tok;
 }
 
 QVariantList CKolDog::getFiveCurrentKeffs()
@@ -92,10 +108,10 @@ void CKolDog::calculateCurrentKeffs()
             } else if (razdel == "СЦ") {
                 ksc++;
             } else if (razdel == "ТОК") {
-                kmol++;
+                ktok++;
                 ktr++;
             } else if (razdel == "ПР") {
-                kots++;
+                kpr++;
                 ktr++;
             }
             kef++;
@@ -134,7 +150,8 @@ QJsonDocument *CKolDog::packKolDogToJson()
     mainSettings.insert("kzp", kzp);
     mainSettings.insert("kot", kot);
     mainSettings.insert("ktsp", ktsp);
-    mainSettings.insert("kots", kots);
+    mainSettings.insert("kpr", kpr);
+    mainSettings.insert("ktok", ktok);
     mainSettings.insert("kmol", kmol);
     mainSettings.insert("sum", sum);
     jObjInsideDoc["mainSettings"] = mainSettings;
@@ -169,9 +186,9 @@ float CKolDog::calculateKzn()
             Npsp++;
     }
     //кзн=(ктр+ксц+кгдп+Nпсп)/M*100% (M-число всех пунктов КД,Nпсп-колвоПСПпунктов с vidosv)
-    qint32 tmp = (ktr + ksc + kgdp + Npsp) * 1000
+    qint32 tmp = (ktr + ksc + kgdp + Npsp) * 10000
             / fragments.size(); // 1000, а не 100, чтобы потом посчитать знак после запятой
-    this->znachimost = tmp / 10 + (tmp % 10 * 0.1);
+    this->znachimost = tmp / 100 + (tmp % 100 * 0.01);
     return znachimost;
 }
 
@@ -189,10 +206,8 @@ void CKolDog::_resetKeffs()
     kvo = 0;
     kzp = 0;
     kot = 0;
-    // WARNING: СПРОСИТЬ: ОшибкаКэф нужно пройтись по проекту, добавить везде kpr, приравнять к одному kots и kmol
-    //Пр существует! ток = мол = отс ???
-    kots = 0;
-    // kpr = 0;
+    kpr = 0;
+    ktok = 0;
     kmol = 0;
     ktsp = 0;
 }

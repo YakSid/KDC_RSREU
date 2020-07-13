@@ -14,10 +14,10 @@ class kef : public QDialog
 public:
     explicit kef(QWidget *parent = nullptr);
     ~kef();
-    void setStartKeffs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
-                       int kmol);
-    void setCurrentKeffs(float kef, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kots, int ktsp,
-                         int kmol);
+    void setStartKeffs(int ktr, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kpr, int ktok,
+                       int ktsp);
+    void setCurrentKeffs(int ktr, float znahimost, int kdog, int krv, int kzp, int kvo, int kot, int kpr, int ktok,
+                         int ktsp);
 
 private:
     //! Сравнить текущие коэффициенты с начальными и раскрасить

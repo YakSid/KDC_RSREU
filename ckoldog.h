@@ -39,12 +39,16 @@ public:
     int getKzp() const { return kzp; }
     int getKot() const { return kot; }
     int getKtsp() const { return ktsp; }
-    int getKots() const { return kots; }
+    int getKpr() const { return kpr; }
+    int getKtok() const { return ktok; }
     int getKmol() const { return kmol; }
     float getSum() const { return sum; }
     void setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
                            float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp, int kot,
-                           int ktsp, int kots, int kmol, float sum);
+                           int ktsp, int kpr, int ktok, int kmol, float sum);
+    //!Кпр и Кток нет в базе, поэтому высчитываю их сам и записываю в адреса
+    void calculateKprAndKtok(qint32 &kpr, qint32 &ktok);
+
     void setId(QString newId) { id = newId; }
     void setName(QString newName) { name = newName; }
     void setDate(QDate newDate) { date = newDate; }
@@ -68,7 +72,8 @@ public:
     void setKzp(int newKzp) { kzp = newKzp; }
     void setKot(int newKot) { kot = newKot; }
     void setKtsp(int newKtsp) { ktsp = newKtsp; }
-    void setKots(int newKots) { kots = newKots; }
+    void setKpr(int newKpr) { kpr = newKpr; }
+    void setKtok(int newKtok) { ktok = newKtok; }
     void setKmol(int newKmol) { kmol = newKmol; }
     void setSum(float newSum) { sum = newSum; }
     //! Получить выводимую пятёрку коэффициентов списком (Ктр, Ксц, Кгдп, Кпсп, Кэф)
@@ -115,7 +120,8 @@ private:
     int kzp;
     int kot;
     int ktsp;
-    int kots;
+    int kpr;
+    int ktok;
     int kmol;
     float sum;
     //Начальные параметры (не меняются после первого присвоения)

@@ -171,7 +171,7 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 void knowledgebase::_select()
 {
     // TODO: [ПРАВКИ] реализовать в select'е подбор по всем параметрам запроса (4 параметра)
-    // TODO: m_allActs тут должно использоваться и накладывать фильтр. m_allActs устновить везде где нужно
+    // m_allActs тут должно использоваться и накладывать фильтр. m_allActs устновить везде где нужно
     fragmentsForShow.clear();
     for (auto order : ordersForShow) {
         delete order;
