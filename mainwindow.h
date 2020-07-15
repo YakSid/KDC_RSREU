@@ -82,6 +82,8 @@ private slots:
     void on_actionMakeDoc_triggered();
     void on_actionStartAnotherKD_triggered();
     void on_actionSaveProject_triggered();
+    //
+    void on_pb_cancel_clicked();
 
 private:
     //! Подготовка документа и главного окна
@@ -112,12 +114,13 @@ private:
     void _showMessage(QString text, QString title = "Master KDA");
     bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
 
-    //! Заполнить поля текущих коэффициентов
+    //! Заполнить поля текущих главных коэффициентов
     void _fillCurrentKeffs(QVariantList keffs);
-    //! Посчитать новые значения коэффициентов применив дельту
+    //! Посчитать новые значения главных коэффициентов применив дельту
     QVariantList _calculateKeffsWithDelta(QVariantList delta);
-    //! Узнать изменились ли коэффициенты проверив каждую дельту на отличие от нуля
+    //! Узнать изменились ли главные коэффициенты проверив каждую дельту на отличие от нуля
     bool _isKeffsChanged(QVariantList delta);
+
     //! Подготовить правое поле с параметрами к вставке пункта
     void _prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality, QString fragQuestionABR);
 

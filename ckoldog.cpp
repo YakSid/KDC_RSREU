@@ -192,6 +192,48 @@ float CKolDog::calculateKzn()
     return znachimost;
 }
 
+void CKolDog::incrementMinorKeff(QString razdAbr)
+{
+    if (razdAbr == "ДОГ") {
+        kdog++;
+    } else if (razdAbr == "РВ") {
+        krv++;
+    } else if (razdAbr == "ВО") {
+        kvo++;
+    } else if (razdAbr == "ЗП") {
+        kzp++;
+    } else if (razdAbr == "ОТ") {
+        kot++;
+    } else if (razdAbr == "ТСП") {
+        ktsp++;
+    } else if (razdAbr == "ПР") {
+        kpr++;
+    } else if (razdAbr == "ТОК") {
+        ktok++;
+    }
+}
+
+void CKolDog::decrementMinorKeff(QString razdAbr)
+{
+    if (razdAbr == "ДОГ") {
+        kdog--;
+    } else if (razdAbr == "РВ") {
+        krv--;
+    } else if (razdAbr == "ВО") {
+        kvo--;
+    } else if (razdAbr == "ЗП") {
+        kzp--;
+    } else if (razdAbr == "ОТ") {
+        kot--;
+    } else if (razdAbr == "ТСП") {
+        ktsp--;
+    } else if (razdAbr == "ПР") {
+        kpr--;
+    } else if (razdAbr == "ТОК") {
+        ktok--;
+    }
+}
+
 void CKolDog::_resetKeffs()
 {
     //Основные

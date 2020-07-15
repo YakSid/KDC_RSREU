@@ -28,27 +28,17 @@ public slots:
 
 private slots:
     void on_pb_unlock_clicked();
-
     void on_rb_law_fragments_toggled(bool checked);
-
     void on_rb_typical_fragments_kd_toggled(bool checked);
-
     void on_rb_all_fragments_kd_toggled(bool checked);
-
     void on_ch_all_acts_toggled(bool checked);
     //! Делает выборку по заданным параметрам из базы данных, вызывается в каждом изменении аргументов
     void _select();
-
     void on_pb_insert_into_kd_clicked();
-
     void on_pb_next_clicked();
-
     void on_pb_prev_clicked();
-
     void on_pb_showList_clicked();
-
     void on_cmb_razdel_currentTextChanged(const QString &arg1);
-
     void on_pb_insert_into_file_clicked();
 
 private:

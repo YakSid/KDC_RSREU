@@ -145,6 +145,17 @@ QVariantList fragment::getKeffsDeltaToZero()
     return delta;
 }
 
+QString fragment::getAffectsOnMinorKeffs()
+{
+    if (isViDoSv()) {
+        if (razdel == "ДОГ" || razdel == "РВ" || razdel == "ВО" || razdel == "ЗП" || razdel == "ОТ" || razdel == "ТСП"
+            || razdel == "ПР" || razdel == "ТОК") {
+            return razdel;
+        }
+    }
+    return "";
+}
+
 void fragment::updateFlagsViDoSvUt()
 {
     if (kachestvo == "Вы" || kachestvo == "До" || kachestvo == "Св") {

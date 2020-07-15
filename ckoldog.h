@@ -90,6 +90,10 @@ public:
     QJsonDocument *packKolDogToJson();
     //! Высчитать значимость кзн
     float calculateKzn();
+    //! Увеличить минорный кэф этого раздела
+    void incrementMinorKeff(QString razdAbr);
+    //! Уменьшить минорный кэф этого раздела
+    void decrementMinorKeff(QString razdAbr);
 
 private:
     //! Обнулить коэффициенты
@@ -122,7 +126,7 @@ private:
     int ktsp;
     int kpr;
     int ktok;
-    int kmol;
+    int kmol; // Коэффициент вопроса, а не раздела
     float sum;
     //Начальные параметры (не меняются после первого присвоения)
     int startKtr;

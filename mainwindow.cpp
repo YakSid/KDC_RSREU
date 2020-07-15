@@ -25,6 +25,11 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //!
 
 // TODO: Сказать, что Kpr и Ktok в базе нет, но я сам их высчитываю (МОЛ - это вопрос)
+// TODO: Сказать, что сделал по правкам ограничение, чтобы не добавлял новый пункт при добавлении из БЗ если поле текста
+// пустое, тогда программа поймёт, что вставляется пункт из БЗ и этот пустой не нужно добавлять. А если текст есть, то
+// чтобы он не пропал он добавляется. Вторую правку понял, внесу.
+// TODO: устанавливать индексы нового по индексам выбранного (устанавливать индексы сразщу при выборе, показывать)
+
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
  * вообще какая-то странная) [dev: если утвердят, то later можно сделать индексацию вопроса не по abr, а по id]
@@ -99,6 +104,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->GoLeft->setEnabled(false);
         ui->groupBox->setEnabled(false);
         ui->tw_navigator->setEnabled(true);
+        ui->pb_cancel->setEnabled(false);
         ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
         SelectedFragment = -1;
         break;
@@ -115,6 +121,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
             ui->groupBox->setEnabled(false);
             ui->tw_navigator->setEnabled(true);
             ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
+            ui->pb_cancel->setEnabled(false);
         }
         break;
     case eRightFrameMode:
@@ -128,6 +135,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->groupBox->setEnabled(true);
         ui->tw_navigator->setEnabled(false);
         ui->btn_showFullText->setEnabled(false);
+        ui->pb_cancel->setEnabled(true);
         break;
     }
     m_currentWorkMode = newMode;
@@ -144,7 +152,8 @@ void MainWindow::insertFragFromKB(fragment *frag)
                                  currentKolDog->fragments[SelectedFragment]->getPositionLast());
         break;
     case eRightFrameMode:
-        on_GoLeft_clicked();
+        if (!ui->TextRight->toPlainText().isEmpty())
+            on_GoLeft_clicked();
         break;
     }
     setWorkMode(eRightFrameMode);
@@ -276,6 +285,7 @@ void MainWindow::_prepareMainWindow(QString docId)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
+    ui->pb_cancel->setVisible(false); // TODO: [later] удалить строчку и пофиксить кнопку
 }
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
@@ -359,6 +369,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
+    ui->pb_cancel->setVisible(false); // TODO: [later] удалить строчку и пофиксить кнопку
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -687,10 +698,13 @@ void MainWindow::on_pb_deleteFrag_clicked()
     QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
-
     //Изменение дополнительных кэффов
-
+    QString razdAbr = currentKolDog->fragments[SelectedFragment]->getAffectsOnMinorKeffs();
+    if (!razdAbr.isEmpty()) {
+        currentKolDog->decrementMinorKeff(razdAbr);
+    }
     _deleteSelectedFrag();
+    currentKolDog->calculateKzn();
 }
 
 void MainWindow::on_GoRight_clicked()
@@ -711,6 +725,7 @@ void MainWindow::on_GoRight_clicked()
 void MainWindow::on_GoLeft_clicked()
 {
     // TODO: [ДЕМО] !Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
+    // ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции окраски?
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
@@ -747,10 +762,14 @@ void MainWindow::on_GoLeft_clicked()
         cursor.insertText(frag->getText() + ArgLine + "\n\n");
         frag->setPositionFirst(posPrevFragLast);
         frag->setPositionLast(frag->getPositionFirst() + frag->getSize());
-        //Изменение кэффов
+        //Изменение главных кэффов
         QVariantList deltaKeffs = frag->getKeffsDeltaFromZero();
         QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
         _fillCurrentKeffs(newKeffs);
+        //Изменение минорных кэффов
+        QString razdAbr = frag->getAffectsOnMinorKeffs();
+        currentKolDog->incrementMinorKeff(razdAbr);
+        currentKolDog->calculateKzn();
         //Убираем выделение старого и нового фрагмента
         _clearSelectionInCentral(posPrevFragFirst, frag->getPositionLast());
         //
@@ -794,7 +813,7 @@ void MainWindow::on_GoLeft_clicked()
             _recountPositions(SelectedFragment, deltaTextSize);
         }
         currentFrag->Resize();
-        //Изменение кэффов и узнаём изменился ли фрагмент
+        //Изменение главных кэффов и узнаём изменился ли фрагмент
         QVariantList deltaKeffs = currentFrag->getKeffsDelta(&fragBeforeChange);
         if (_isKeffsChanged(deltaKeffs)) {
             QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
@@ -804,6 +823,15 @@ void MainWindow::on_GoLeft_clicked()
             if (deltaTextSize != 0)
                 currentFrag->setChanged(true);
             //! TODO: [later] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет
+        }
+        QString razdAbr = currentFrag->getAffectsOnMinorKeffs();
+        QString razdAbrBefore = fragBeforeChange.getAffectsOnMinorKeffs();
+        if (razdAbr != razdAbrBefore) {
+            currentKolDog->decrementMinorKeff(razdAbrBefore);
+            currentKolDog->incrementMinorKeff(razdAbr);
+            currentKolDog->calculateKzn();
+            if (!currentFrag->isChanged())
+                currentFrag->setChanged(true);
         }
 
         //Убираем выделение изменённого фрагмента
@@ -835,7 +863,6 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 
 void MainWindow::on_Effekt_po_razd_clicked()
 {
-    // TODO: [ДЕМО] сделать перерасчёт доп кэфов после изменений (1.изменение 2.добавление 3.удаление)и заполнение в кд!
     currentKolDog->calculateKzn();
     kefDialog->setCurrentKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                                currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
@@ -985,4 +1012,21 @@ void MainWindow::on_actionSaveProject_triggered()
     auto jDocPtr = currentKolDog->packKolDogToJson();
     QString jName = QFileDialog::getSaveFileName(this, "Сохранить проект", "", "*.json");
     m_jsonManager->saveJson(jDocPtr, jName);
+}
+
+void MainWindow::on_pb_cancel_clicked()
+{
+    //Удаление данных
+    ui->TextRight->clear();
+    TextCenterIsBlocked = false;
+    ui->Act->clear();
+    ui->Razd->blockSignals(true);
+    ui->Razd->clear();
+    ui->Razd->blockSignals(false);
+    ui->Quality->clear();
+    ui->Question->clear();
+
+    _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
+                             currentKolDog->fragments[SelectedFragment]->getPositionLast());
+    setWorkMode(eBasicMode);
 }

@@ -13,14 +13,18 @@ public:
     void Resize();
     //! Вычислить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса
     qint32 getVoprosNumber();
+    //! Обновить состояние флагов isViDoSv и isUt
+    void updateFlagsViDoSvUt();
+    //Главные коэффициенты
     //! Вычислить как изменятся кэффы текущего фрагмента после изменений фрагмента в сравнении с его версией до изменений
     QVariantList getKeffsDelta(const fragment *pastFrag);
     //! Вычислить как изменятся кэффы если этот фрагмент новый
     QVariantList getKeffsDeltaFromZero();
     //! Вычислить как изменятся кэффы если этот фрагмент удалить
     QVariantList getKeffsDeltaToZero();
-    //! Обновить состояние флагов isViDoSv и isUt
-    void updateFlagsViDoSvUt();
+    //Минорные кэффы
+    //! Узнать на какой минорный кэф влияет фрагмент
+    QString getAffectsOnMinorKeffs();
 
     void setText(QString newText) { text = newText; }
     void setKachestvo(QString newKachestvo) { kachestvo = newKachestvo; }
