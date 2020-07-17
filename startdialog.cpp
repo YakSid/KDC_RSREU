@@ -5,10 +5,10 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QDebug>
 // TODO: [later] указывать имя выбранного к продолжению кд?
 // TODO: [later] сделать автосохранение?
 
-//! TODO: [ПРАВКИ] Добавить проверку подключения к БД и указание пути к БД!
 //! TODO: [later] Заменить размещение кнопок - сделать в groupBox'ы с подписями
 
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
@@ -17,6 +17,9 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
     this->setWindowFlag(Qt::WindowMinimizeButtonHint);
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
     this->resize(this->width(), 200);
+
+    ui->pb_dbManage->setVisible(false);
+    ui->ln_db->setVisible(false);
 
     QFile logfile("LoginInfo.ini");
     if (!logfile.exists()) {
@@ -164,8 +167,15 @@ void StartDialog::on_stackedWidget_currentChanged(int arg1)
 
 void StartDialog::on_pb_startNew_clicked()
 {
-    StartMode = EStartMode::startNew;
-    ui->stackedWidget->setCurrentWidget(ui->page_start);
+    if (dbLocal) {
+        StartMode = EStartMode::startNew;
+        ui->stackedWidget->setCurrentWidget(ui->page_start);
+    } else if (dbPath.isEmpty()) {
+        _showMessage("Выберите базу данных");
+    } else {
+        StartMode = EStartMode::startNew;
+        ui->stackedWidget->setCurrentWidget(ui->page_start);
+    }
 }
 
 void StartDialog::on_pb_continueSaved_clicked()
@@ -178,4 +188,18 @@ void StartDialog::on_pb_loadFile_clicked()
 {
     jFilename = QFileDialog::getOpenFileName(this, "Выберите проект", QString(), tr("JSON (*.json)"));
     ui->pb_continueSaved->setEnabled(true);
+}
+
+// TODO: [later] сделать сохранение пути к БД в тот же файл, что и логи с помощью qsettingsini
+void StartDialog::on_pb_dbManage_clicked()
+{
+    dbPath = QFileDialog::getOpenFileName(this, "Выберите базу данных", QString(), tr("Microsoft Access (*.mdb)"));
+    ui->ln_db->setText(dbPath);
+}
+
+void StartDialog::on_ch_dbLocal_toggled(bool checked)
+{
+    ui->pb_dbManage->setVisible(!checked);
+    ui->ln_db->setVisible(!checked);
+    dbLocal = checked;
 }

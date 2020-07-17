@@ -1,13 +1,13 @@
 #include "listkd.h"
 #include "ui_listkd.h"
 
-ListKD::ListKD(QWidget *parent) : QDialog(parent), ui(new Ui::ListKD)
+ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::ListKD)
 {
     ui->setupUi(this);
     this->setWindowFlag(Qt::WindowMinimizeButtonHint);
     ui->SelectKD->setEnabled(false);
     ui->cmb_search->setCurrentIndex(1);
-    m_db = new CDatabaseManager();
+    m_db = new CDatabaseManager(dbName);
 
     _prepareView(eStandardView);
 }

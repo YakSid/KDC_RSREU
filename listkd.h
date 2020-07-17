@@ -36,7 +36,7 @@ class ListKD : public QDialog
     Q_OBJECT
 
 public:
-    explicit ListKD(QWidget *parent = nullptr);
+    explicit ListKD(QWidget *parent = nullptr, QString dbName = "");
     ~ListKD();
 
 public:

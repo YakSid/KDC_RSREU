@@ -21,6 +21,7 @@ public:
     int getValidity() const { return validity; }
     bool getComplWithReq() const { return complWithReq; }
     float getZnachimost() const { return znachimost; }
+    float getStartZnachimost() const { return startZnachimost; }
     //! TODO: [later] стандартизировать везде int float double
     int getStartKtr() const { return startKtr; }
     float getStartKef() const { return startKef; }
@@ -43,6 +44,14 @@ public:
     int getKtok() const { return ktok; }
     int getKmol() const { return kmol; }
     float getSum() const { return sum; }
+    int getStartKdog() const { return startKdog; }
+    int getStartKrv() const { return startKrv; }
+    int getStartKvo() const { return startKvo; }
+    int getStartKzp() const { return startKzp; }
+    int getStartKot() const { return startKot; }
+    int getStartKtsp() const { return startKtsp; }
+    int getStartKpr() const { return startKpr; }
+    int getStartKtok() const { return startKtok; }
     void setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
                            float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp, int kot,
                            int ktsp, int kpr, int ktok, int kmol, float sum);
@@ -55,11 +64,13 @@ public:
     void setValidity(int newValidity) { validity = newValidity; }
     void setComplWithReq(bool newComplWithReq) { complWithReq = newComplWithReq; }
     void setZnachimost(float newZnachimost) { znachimost = newZnachimost; }
+    void setStartZnachimost(float newStartZnachimost) { startZnachimost = newStartZnachimost; }
     void setStartKtr(int newStartKtr) { startKtr = newStartKtr; }
     void setStartKef(float newStartKef) { startKef = newStartKef; }
     void setStartKpsp(float newStartKpsp) { startKpsp = newStartKpsp; }
     void setStartKgdp(int newStartKgdp) { startKgdp = newStartKgdp; }
     void setStartKsc(int newStartKsc) { startKsc = newStartKsc; }
+    void setStartMinorKeffs(int skdog, int skrv, int skvo, int skzp, int skot, int sktsp, int skpr, int sktok);
     void setKtr(int newKtr) { ktr = newKtr; }
     void setKef(float newKef) { kef = newKef; }
     void setKpsp(float newKpsp) { kpsp = newKpsp; }
@@ -104,7 +115,7 @@ public:
     QList<fragment *> fragments;
 
 private:
-    //! Основные параметры
+    // Основные параметры
     QString id;
     QString name;
     QDate date;
@@ -126,14 +137,26 @@ private:
     int ktsp;
     int kpr;
     int ktok;
+
     int kmol; // Коэффициент вопроса, а не раздела
     float sum;
-    //Начальные параметры (не меняются после первого присвоения)
+
+    //Начальные основные коэффициенты (не меняются после первого присвоения)
+    float startZnachimost;
     int startKtr;
     float startKef;
     float startKpsp;
     int startKgdp;
     int startKsc;
+    //Начальные дополнительные коэффициенты
+    int startKdog;
+    int startKrv;
+    int startKvo;
+    int startKzp;
+    int startKot;
+    int startKtsp;
+    int startKpr;
+    int startKtok;
 };
 
 #endif // CKOLDOG_H

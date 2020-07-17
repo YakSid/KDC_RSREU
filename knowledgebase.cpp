@@ -170,7 +170,7 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 
 void knowledgebase::_select()
 {
-    // TODO: [ПРАВКИ] реализовать в select'е подбор по всем параметрам запроса (4 параметра)
+    // TODO: [сейчас] реализовать в select'е подбор по всем параметрам запроса (4 параметра)
     // m_allActs тут должно использоваться и накладывать фильтр. m_allActs устновить везде где нужно
     fragmentsForShow.clear();
     for (auto order : ordersForShow) {
@@ -265,11 +265,14 @@ void knowledgebase::on_pb_next_clicked()
             ui->ln_order->setText("-");
             ui->ln_adoption_date->setText("-");
             ui->ln_change_date->setText("-");
+            ui->ln_order->setToolTip("");
         } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
             ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
             ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
             ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
+            ui->ln_order->setToolTip(ordersForShow[currentFragmentNumber]->name);
         }
+        ui->ln_order->home(false);
     }
 }
 
@@ -299,11 +302,14 @@ void knowledgebase::on_pb_prev_clicked()
             ui->ln_order->setText("-");
             ui->ln_adoption_date->setText("-");
             ui->ln_change_date->setText("-");
+            ui->ln_order->setToolTip("");
         } else {
             ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
             ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
             ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
+            ui->ln_order->setToolTip(ordersForShow[currentFragmentNumber]->name);
         }
+        ui->ln_order->home(false);
     }
 }
 

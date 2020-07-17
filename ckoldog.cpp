@@ -61,6 +61,17 @@ void CKolDog::calculateKprAndKtok(qint32 &kpr, qint32 &ktok)
     ktok = tok;
 }
 
+void CKolDog::setStartMinorKeffs(int skdog, int skrv, int skvo, int skzp, int skot, int sktsp, int skpr, int sktok)
+{
+    startKdog = skdog;
+    startKvo = skvo;
+    startKzp = skzp;
+    startKot = skot;
+    startKtsp = sktsp;
+    startKpr = skpr;
+    startKtok = sktok;
+}
+
 QVariantList CKolDog::getFiveCurrentKeffs()
 {
     return QVariantList({ ktr, ksc, kgdp, kpsp, kef });
@@ -133,6 +144,7 @@ QJsonDocument *CKolDog::packKolDogToJson()
     mainSettings.insert("validity", validity);
     mainSettings.insert("complWithReq", complWithReq);
     mainSettings.insert("znachimost", znachimost);
+    mainSettings.insert("startZnachimost", startZnachimost);
     mainSettings.insert("startKtr", startKtr);
     mainSettings.insert("startKef", startKef);
     mainSettings.insert("startKpsp", startKpsp);
@@ -144,6 +156,14 @@ QJsonDocument *CKolDog::packKolDogToJson()
     mainSettings.insert("kgdp", kgdp);
     mainSettings.insert("ksc", ksc);
     mainSettings.insert("endDateStr", endDate.toString("dd.MM.yyyy"));
+    mainSettings.insert("startKdog", startKdog);
+    mainSettings.insert("startKrv", startKrv);
+    mainSettings.insert("startKvo", startKvo);
+    mainSettings.insert("startKzp", startKzp);
+    mainSettings.insert("startKot", startKot);
+    mainSettings.insert("startKtsp", startKtsp);
+    mainSettings.insert("startKpr", startKpr);
+    mainSettings.insert("startKtok", startKtok);
     mainSettings.insert("kdog", kdog);
     mainSettings.insert("krv", krv);
     mainSettings.insert("kvo", kvo);

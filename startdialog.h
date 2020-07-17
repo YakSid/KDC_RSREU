@@ -20,25 +20,22 @@ public:
     QString authorName;
     bool startClicked { false };
     QString jFilename { "" };
+    // Перменные для работы с БД
+    QString dbPath { "" };
+    bool dbLocal { true };
 
 private slots:
     void on_Start_clicked();
-
     void on_pb_accept_clicked();
-
     void on_pb_addAuthor_clicked();
-
     void on_pb_deleteAuthor_clicked();
-
     void on_pb_changeAuthor_clicked();
-
     void on_stackedWidget_currentChanged(int arg1);
-
     void on_pb_startNew_clicked();
-
     void on_pb_continueSaved_clicked();
-
     void on_pb_loadFile_clicked();
+    void on_pb_dbManage_clicked();
+    void on_ch_dbLocal_toggled(bool checked);
 
 private:
     void _addAuthor(QString name);

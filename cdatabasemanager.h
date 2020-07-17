@@ -9,7 +9,7 @@
 class CDatabaseManager
 {
 public:
-    CDatabaseManager();
+    CDatabaseManager(QString name);
     ~CDatabaseManager();
     QSqlDatabase *getDatabase();
 

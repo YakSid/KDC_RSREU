@@ -2,10 +2,13 @@
 #include <QSqlQuery>
 #include "cconstants.h"
 
-CDatabaseManager::CDatabaseManager()
+// TODO: [later] Переделать по нормальному подключение БД и стартовый диалог
+CDatabaseManager::CDatabaseManager(QString name)
 {
+    if (name.isEmpty())
+        name = QDir::currentPath() + "\\БД МК.mdb";
     QString ACC = "DRIVER={Microsoft Access Driver (*.mdb)}; FIL={MS Access}; DBQ=";
-    QString tmpPath = QDir::currentPath() + "\\БД МК.mdb";
+    QString tmpPath = name;
     while (tmpPath.contains('/'))
         tmpPath.replace(tmpPath.indexOf('/'), 1, '\\');
     ACC += tmpPath;

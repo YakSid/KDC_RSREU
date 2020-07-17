@@ -24,11 +24,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
 
-// TODO: Сказать, что Kpr и Ktok в базе нет, но я сам их высчитываю (МОЛ - это вопрос)
-// TODO: Сказать, что сделал по правкам ограничение, чтобы не добавлял новый пункт при добавлении из БЗ если поле текста
-// пустое, тогда программа поймёт, что вставляется пункт из БЗ и этот пустой не нужно добавлять. А если текст есть, то
-// чтобы он не пропал он добавляется. Вторую правку понял, внесу.
-// TODO: устанавливать индексы нового по индексам выбранного (устанавливать индексы сразщу при выборе, показывать)
+// TODO: [later] добавить файл ресурсов с мета-данными, как для MayProg
 
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
@@ -58,14 +54,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     exit(3);
                 } else {
                     ui->setupUi(this);
-                    m_db = new CDatabaseManager();
+                    m_db = new CDatabaseManager(sDialog->dbPath);
                     //Подготовка договора и mw
                     _prepareMainWindow(lDialog->SelectedKD);
                 }
             } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
                 //Загрузка сохранённого проекта
                 ui->setupUi(this);
-                m_db = new CDatabaseManager();
+                m_db = new CDatabaseManager(sDialog->dbPath);
                 QJsonDocument jDoc = m_jsonManager->loadJson(sDialog->jFilename);
                 _prepareMainWindowFromJson(jDoc);
             } else {
@@ -77,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     } else {
         // DebugMode
         ui->setupUi(this);
-        m_db = new CDatabaseManager();
+        m_db = new CDatabaseManager("");
         _prepareMainWindow("6201");
     }
 }
@@ -273,6 +269,11 @@ void MainWindow::_prepareMainWindow(QString docId)
     currentKolDog->calculateKprAndKtok(calculatedKpr, calculatedKtok);
     currentKolDog->setKpr(calculatedKpr);
     currentKolDog->setKtok(calculatedKtok);
+    //Заполнение стартовых дополнительных кэффов (сейчас они равны обычным)
+    currentKolDog->setStartMinorKeffs(currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKzp(),
+                                      currentKolDog->getKvo(), currentKolDog->getKot(), currentKolDog->getKpr(),
+                                      currentKolDog->getKtok(), currentKolDog->getKtsp());
+    currentKolDog->setStartZnachimost(currentKolDog->getZnachimost());
     //Заполнение окна кэф начальными данными
     kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                              currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
@@ -302,6 +303,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     currentKolDog->setValidity(mainSettings["validity"].toInt());
     currentKolDog->setComplWithReq(mainSettings["validity"].toBool());
     currentKolDog->setZnachimost(mainSettings["znachimost"].toDouble());
+    currentKolDog->setStartZnachimost(mainSettings["startZnachimost"].toDouble());
     currentKolDog->setStartKtr(mainSettings["startKtr"].toInt());
     currentKolDog->setStartKef(mainSettings["startKef"].toDouble());
     currentKolDog->setStartKpsp(mainSettings["startKpsp"].toDouble());
@@ -315,6 +317,10 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     QDate endDate;
     endDate.fromString(mainSettings["endDateStr"].toString(), "dd.MM.yyyy");
     currentKolDog->setEndDate(endDate);
+    currentKolDog->setStartMinorKeffs(mainSettings["startKdog"].toInt(), mainSettings["startKrv"].toInt(),
+                                      mainSettings["startKvo"].toInt(), mainSettings["startKzp"].toInt(),
+                                      mainSettings["startKot"].toInt(), mainSettings["startKtsp"].toInt(),
+                                      mainSettings["startKpr"].toInt(), mainSettings["startKtok"].toInt());
     currentKolDog->setKdog(mainSettings["kdog"].toInt());
     currentKolDog->setKrv(mainSettings["krv"].toInt());
     currentKolDog->setKvo(mainSettings["kvo"].toInt());
@@ -359,10 +365,10 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     //Заполнение окна кэф начальными данными
-    kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
-                             currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                             currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
-                             currentKolDog->getKtsp());
+    kefDialog->setStartKeffs(currentKolDog->getStartKtr(), currentKolDog->getStartZnachimost(),
+                             currentKolDog->getStartKdog(), currentKolDog->getStartKrv(), currentKolDog->getStartKzp(),
+                             currentKolDog->getStartKvo(), currentKolDog->getStartKot(), currentKolDog->getStartKpr(),
+                             currentKolDog->getStartKtok(), currentKolDog->getStartKtsp());
     //Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
     _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
@@ -667,8 +673,9 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         if (SelectedFragment == -1) {
             qDebug() << "Сейчас всё навернётся";
         }
-        _setSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
-                               currentKolDog->fragments[SelectedFragment]->getPositionLast());
+        auto frag = currentKolDog->fragments[SelectedFragment];
+        _prepareSettingsInRight(frag->getAkt(), frag->getRazdel(), frag->getKachestvo(), frag->getVoprosABR());
+        _setSelectionInCentral(frag->getPositionFirst(), frag->getPositionLast());
     }
 }
 
@@ -682,9 +689,6 @@ void MainWindow::on_pb_newFrag_clicked()
     }
     if (m_currentWorkMode != eBasicMode || m_addFirst) {
         setWorkMode(eRightFrameMode);
-        ui->Act->addItems(ListAct);
-        ui->Razd->addItems(ListRazd);
-        ui->Quality->addItems(ListQuality);
         TextCenterIsBlocked = true;
         m_addNewFrag = true;
     }
@@ -705,6 +709,13 @@ void MainWindow::on_pb_deleteFrag_clicked()
     }
     _deleteSelectedFrag();
     currentKolDog->calculateKzn();
+    //Внешний вид ui
+    ui->Act->clear();
+    ui->Razd->blockSignals(true);
+    ui->Razd->clear();
+    ui->Razd->blockSignals(false);
+    ui->Quality->clear();
+    ui->Question->clear();
 }
 
 void MainWindow::on_GoRight_clicked()
@@ -724,8 +735,9 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    // TODO: [ДЕМО] !Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
-    // ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции окраски?
+    // TODO: [сейчас] new Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых
+    // флагов! ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции
+    // окраски?
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
@@ -981,19 +993,19 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     sDialog->exec();
     if (sDialog->startClicked) {
         if (sDialog->StartMode == StartDialog::EStartMode::startNew) {
-            lDialog = new ListKD();
+            lDialog = new ListKD(this, sDialog->dbPath);
             lDialog->setModal(true);
             lDialog->exec();
             if (!lDialog->WantGo) {
                 exit(3);
             } else {
-                m_db = new CDatabaseManager();
+                m_db = new CDatabaseManager(sDialog->dbPath);
                 ui->centralWidget->setHidden(false);
                 _prepareMainWindow(lDialog->SelectedKD);
             }
         } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
             //Загрузка сохранённого проекта
-            m_db = new CDatabaseManager();
+            m_db = new CDatabaseManager(sDialog->dbPath);
             QJsonDocument jDoc = m_jsonManager->loadJson(sDialog->jFilename);
             ui->centralWidget->setHidden(false);
             _prepareMainWindowFromJson(jDoc);
@@ -1007,11 +1019,13 @@ void MainWindow::on_actionStartAnotherKD_triggered()
 
 void MainWindow::on_actionSaveProject_triggered()
 {
-    currentKolDog->setName(ui->DogName->text());
-    currentKolDog->calculateKzn();
-    auto jDocPtr = currentKolDog->packKolDogToJson();
     QString jName = QFileDialog::getSaveFileName(this, "Сохранить проект", "", "*.json");
-    m_jsonManager->saveJson(jDocPtr, jName);
+    if (!jName.isEmpty()) {
+        currentKolDog->setName(ui->DogName->text());
+        currentKolDog->calculateKzn();
+        auto jDocPtr = currentKolDog->packKolDogToJson();
+        m_jsonManager->saveJson(jDocPtr, jName);
+    }
 }
 
 void MainWindow::on_pb_cancel_clicked()
