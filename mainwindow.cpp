@@ -36,7 +36,6 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     sDialog = new StartDialog();
-    lDialog = new ListKD();
     kefDialog = new kef();
     kBase = new knowledgebase();
     connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
@@ -48,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         sDialog->exec();
         if (sDialog->startClicked) {
             if (sDialog->StartMode == StartDialog::EStartMode::startNew) {
+                lDialog = new ListKD(this, sDialog->dbPath);
                 lDialog->setModal(true);
                 lDialog->exec();
                 if (!lDialog->WantGo) {
