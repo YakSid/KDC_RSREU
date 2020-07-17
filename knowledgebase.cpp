@@ -28,13 +28,12 @@ knowledgebase::~knowledgebase()
 
 void knowledgebase::prepareWindowWithoutFrag()
 {
+    // TODO: [later] не отработает, нужно сделать
     _prepareWindow();
     ui->cmb_razdel->setCurrentIndex(0);
     ui->cmb_question->setCurrentIndex(0);
     ui->cmb_act->setCurrentIndex(0);
     ui->cmb_quality->setCurrentIndex(0);
-
-    m_currentVoprosNumber = -1;
 }
 
 void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
@@ -94,6 +93,7 @@ void knowledgebase::getFragment(fragment *frag)
 {
     _prepareWindow();
 
+    m_originalFrag = frag;
     QString fragAkt = frag->getAkt();
     QString fragRazdel = frag->getRazdel();
     QString fragQuality = frag->getKachestvo();
@@ -122,8 +122,6 @@ void knowledgebase::getFragment(fragment *frag)
             break;
         }
     }
-
-    m_currentVoprosNumber = frag->getVoprosNumber();
     ui->te_text->setText(frag->getText());
     originalText = frag->getText();
     _select();
@@ -136,13 +134,23 @@ void knowledgebase::on_pb_unlock_clicked()
         ui->pb_unlock->setText("Применить");
     } else {
         ui->pb_unlock->setText("Разблокировать");
+        m_originalFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
+        m_originalFrag->setVoprosABR(
+                ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
+        m_originalFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
+        m_originalFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
         _select();
     }
     ui->cmb_razdel->setEnabled(m_unlocked);
     ui->cmb_act->setEnabled(m_unlocked);
     ui->cmb_question->setEnabled(m_unlocked);
     ui->cmb_quality->setEnabled(m_unlocked);
+    ui->ch_all_acts->setEnabled(m_unlocked);
     ui->groupBox_2->setEnabled(m_unlocked);
+
+    ui->gb_text->setEnabled(!m_unlocked);
+    ui->pb_prev->setEnabled(!m_unlocked);
+    ui->pb_next->setEnabled(!m_unlocked);
 }
 
 void knowledgebase::on_rb_law_fragments_toggled(bool checked)
@@ -170,19 +178,14 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 
 void knowledgebase::_select()
 {
-    // TODO: [сейчас] реализовать в select'е подбор по всем параметрам запроса (4 параметра)
-    // m_allActs тут должно использоваться и накладывать фильтр. m_allActs устновить везде где нужно
     fragmentsForShow.clear();
     for (auto order : ordersForShow) {
         delete order;
     }
     ordersForShow.clear();
-    // m_currentVoprosNumber только если есть (есть только после getFragment)
-    QString questionKod;
-    if (m_currentVoprosNumber != -1) {
-        questionKod = QString::number(m_currentVoprosNumber);
-    }
+    qint32 questionKod = m_originalFrag->getVoprosNumber();
     QSqlQuery querySelect;
+    // TODO: добавить закону норм поиск используя листВозможность
     switch (m_currentViewMode) {
     case eLaw: {
         querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
@@ -190,10 +193,11 @@ void knowledgebase::_select()
         break;
     }
     case eTypicalKD:
-        querySelect.prepare("SELECT Тексты.Текст FROM Тексты WHERE Тексты.Вопрос = :val1 AND ВклВСправку=true");
+        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт FROM Тексты WHERE Тексты.Вопрос = :val1 "
+                            "AND ВклВСправку=true");
         break;
     case eAllKD:
-        querySelect.prepare("SELECT Тексты.Текст FROM Тексты WHERE Тексты.Вопрос = :val1");
+        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт FROM Тексты WHERE Тексты.Вопрос = :val1");
         break;
     }
 
@@ -203,7 +207,6 @@ void knowledgebase::_select()
     }
     while (querySelect.next()) {
         QString text = querySelect.value(0).toString();
-        fragmentsForShow.append(text);
         if (m_currentViewMode == eLaw) {
             qint32 kodZakona = querySelect.value(1).toInt();
             for (auto order : TOrder) {
@@ -214,6 +217,17 @@ void knowledgebase::_select()
                     zakonInfo->dateChange = order->dateChange;
                     ordersForShow.append(zakonInfo);
                 }
+            }
+            fragmentsForShow.append(text);
+        } else {
+            //типовые и все фрагменты
+            if (m_allActs) {
+                if (m_originalFrag->getKachestvo() == querySelect.value(1).toString())
+                    fragmentsForShow.append(text);
+            } else {
+                if (m_originalFrag->getAkt() == querySelect.value(2).toString()
+                    && m_originalFrag->getKachestvo() == querySelect.value(1).toString())
+                    fragmentsForShow.append(text);
             }
         }
     }

@@ -51,7 +51,8 @@ private:
     EFragmentsViewMode m_currentViewMode { eTypicalKD };
     //! Номер фрагмента из подготовленного списка, -1 - изначальный
     qint32 currentFragmentNumber { -1 };
-    qint32 m_currentVoprosNumber;
+    //! Изначально оригинальный фраг, а после - с параметрами необходимыми для поиска
+    fragment *m_originalFrag { nullptr };
     QString originalText { "" };
     bool m_allActs { false };
     bool m_unlocked { false };
