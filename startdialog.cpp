@@ -14,7 +14,11 @@
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
     ui->setupUi(this);
-    this->setWindowFlag(Qt::WindowMinimizeButtonHint);
+
+    Qt::WindowFlags flags = Qt::WindowMinimizeButtonHint;
+    flags |= Qt::WindowCloseButtonHint;
+    this->setWindowFlags(flags);
+
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
     this->resize(this->width(), 200);
 

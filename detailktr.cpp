@@ -4,7 +4,12 @@
 DetailKTR::DetailKTR(QWidget *parent) : QDialog(parent), ui(new Ui::DetailKTR)
 {
     ui->setupUi(this);
-    this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
+    /* Протестить сначала это
+    Qt::WindowFlags flags = Qt::WindowMinimizeButtonHint;
+    flags |= Qt::WindowMaximizeButtonHint;
+    flags |= Qt::WindowCloseButtonHint;
+    this->setWindowFlags(flags);*/
 }
 
 DetailKTR::~DetailKTR()

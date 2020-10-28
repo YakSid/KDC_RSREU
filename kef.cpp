@@ -4,7 +4,9 @@
 kef::kef(QWidget *parent) : QDialog(parent), ui(new Ui::kef)
 {
     ui->setupUi(this);
-    this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
+    Qt::WindowFlags flags = Qt::WindowCloseButtonHint;
+    this->setWindowFlags(flags);
 }
 
 kef::~kef()

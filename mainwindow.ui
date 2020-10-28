@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1021</width>
-    <height>669</height>
+    <height>681</height>
    </rect>
   </property>
   <property name="font">
@@ -90,44 +90,10 @@
           <number>2</number>
          </property>
          <item>
-          <widget class="QLabel" name="label_19">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="tabletTracking">
-            <bool>true</bool>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Начальная</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_20">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="tabletTracking">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>эффективность</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <string>   Начальная
+эффективность</string>
            </property>
           </widget>
          </item>
@@ -145,44 +111,10 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_21">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="tabletTracking">
-            <bool>true</bool>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Текущая</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_22">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="tabletTracking">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>эффективность</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <string>    Текущая
+эффективность</string>
            </property>
           </widget>
          </item>

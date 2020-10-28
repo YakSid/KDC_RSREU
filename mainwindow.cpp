@@ -413,7 +413,7 @@ void MainWindow::_addFragmentToCentralField(fragment *frag)
     cursor.setCharFormat(format);
     posBegin = cursor.position();
     cursor.insertText(frag->getText());
-    if (frag->getText().right(1) != '\n') {
+    if (frag->getText().right(1) != "\n") {
         cursor.insertBlock();
     }
     QString argLine =
@@ -813,7 +813,7 @@ void MainWindow::on_GoLeft_clicked()
         cursor.setPosition(currentFrag->getPositionFirst(), QTextCursor::MoveAnchor);
         cursor.setPosition(currentFrag->getPositionLast(), QTextCursor::KeepAnchor);
         ArgLine.clear();
-        if (ui->TextRight->toPlainText().right(1) != '\n') {
+        if (ui->TextRight->toPlainText().right(1) != "\n") {
             ArgLine += "\n";
         }
         ArgLine += currentFrag->getRazdel() + "\t" + currentFrag->getVoprosABR() + "\t" + currentFrag->getAkt() + "\t"

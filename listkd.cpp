@@ -4,7 +4,7 @@
 ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::ListKD)
 {
     ui->setupUi(this);
-    this->setWindowFlag(Qt::WindowMinimizeButtonHint);
+
     ui->SelectKD->setEnabled(false);
     ui->cmb_search->setCurrentIndex(1);
     m_db = new CDatabaseManager(dbName);
@@ -41,7 +41,7 @@ void ListKD::on_SelectKD_clicked()
 
 void ListKD::on_tableView_clicked(const QModelIndex &index)
 {
-    SelectedKD = proxyModel->data(index.siblingAtColumn(0), Qt::DisplayRole).toString();
+    SelectedKD = proxyModel->data(index.sibling(index.row(), 0), Qt::DisplayRole).toString();
     ui->SelectKD->setEnabled(true);
 }
 

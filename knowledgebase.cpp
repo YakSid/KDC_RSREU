@@ -10,7 +10,12 @@
 knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::knowledgebase)
 {
     ui->setupUi(this);
-    this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
+    Qt::WindowFlags flags = Qt::WindowMinimizeButtonHint;
+    flags |= Qt::WindowMaximizeButtonHint;
+    flags |= Qt::WindowCloseButtonHint;
+    this->setWindowFlags(flags);
+
     _changeViewMode(eTypicalKD);
 }
 
