@@ -2,7 +2,7 @@
 #include <QSqlQuery>
 #include "cconstants.h"
 
-// TODO: [later] Переделать по нормальному подключение БД и стартовый диалог
+// TODO: [Улучшение] Переделать по нормальному подключение БД и стартовый диалог
 CDatabaseManager::CDatabaseManager(QString name)
 {
     if (name.isEmpty())

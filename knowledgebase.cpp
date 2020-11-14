@@ -190,7 +190,7 @@ void knowledgebase::_select()
     ordersForShow.clear();
     qint32 questionKod = m_originalFrag->getVoprosNumber();
     QSqlQuery querySelect;
-    // TODO: добавить закону норм поиск используя листВозможность
+    // TODO: [сейчас] добавить закону норм поиск используя листВозможность
     switch (m_currentViewMode) {
     case eLaw: {
         querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "

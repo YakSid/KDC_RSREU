@@ -735,9 +735,8 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    // TODO: [сейчас] new Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых
-    // флагов! ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции
-    // окраски?
+    // TODO: [сейчас] Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
+    // ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции окраски?
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
@@ -933,7 +932,7 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionMakeDoc_triggered()
 {
-    // TODO: [later] [1] переделать сохранение файла текста по указанному пути
+    // TODO: переделать сохранение файла текста по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
     currentKolDog->setName(ui->DogName->text()); //учесть имя КД
 

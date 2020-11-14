@@ -9,7 +9,7 @@
 // TODO: [later] указывать имя выбранного к продолжению кд?
 // TODO: [later] сделать автосохранение?
 
-//! TODO: [later] Заменить размещение кнопок - сделать в groupBox'ы с подписями
+//! TODO: Заменить размещение кнопок - сделать в groupBox'ы с подписями
 
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
@@ -22,8 +22,11 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
     this->resize(this->width(), 200);
 
-    ui->pb_dbManage->setVisible(false);
-    ui->ln_db->setVisible(false);
+    // ui->pb_dbManage->setVisible(false);
+    // ui->ln_db->setVisible(false);
+    ui->ln_db->clear();
+    ui->ch_dbLocal->setVisible(false);
+    ui->ln_db->setText(_getPath());
 
     QFile logfile("LoginInfo.ini");
     if (!logfile.exists()) {
@@ -98,6 +101,14 @@ void StartDialog::on_pb_deleteAuthor_clicked()
     }
 }
 
+void StartDialog::_showMessage(QString text)
+{
+    QMessageBox msg;
+    msg.setText(text);
+    msg.setWindowTitle("Пожалуйста");
+    msg.exec();
+}
+
 void StartDialog::_addAuthor(QString name)
 {
     QFile logfile("LoginInfo.ini");
@@ -124,14 +135,6 @@ QStringList StartDialog::_getAllAuthors()
     return result;
 }
 
-void StartDialog::_showMessage(QString text)
-{
-    QMessageBox msg;
-    msg.setText(text);
-    msg.setWindowTitle("Пожалуйста");
-    msg.exec();
-}
-
 void StartDialog::_updateLogfile(QStringList authors)
 {
     QFile logfile("LoginInfo.ini");
@@ -151,6 +154,32 @@ void StartDialog::_clearLogfile()
     QFile logfile("LoginInfo.ini");
     if (logfile.open(QIODevice::WriteOnly | QIODevice::Truncate))
         logfile.close();
+}
+
+void StartDialog::_savePath(QString path)
+{
+    QFile dbPathFile("dbpath.ini");
+    dbPathFile.open(QIODevice::WriteOnly);
+    QTextStream writeStream(&dbPathFile);
+    if (!firstStart)
+        writeStream << endl;
+    writeStream << path;
+    dbPathFile.close();
+}
+
+QString StartDialog::_getPath()
+{
+    QString result;
+
+    QFile dbPathFile("dbpath.ini");
+    dbPathFile.open(QIODevice::ReadOnly);
+    QTextStream in(&dbPathFile);
+    while (!in.atEnd()) {
+        result = in.readAll();
+    }
+    dbPathFile.close();
+
+    return result;
 }
 
 void StartDialog::on_pb_changeAuthor_clicked()
@@ -194,11 +223,11 @@ void StartDialog::on_pb_loadFile_clicked()
     ui->pb_continueSaved->setEnabled(true);
 }
 
-// TODO: [later] сделать сохранение пути к БД в тот же файл, что и логи с помощью qsettingsini
 void StartDialog::on_pb_dbManage_clicked()
 {
     dbPath = QFileDialog::getOpenFileName(this, "Выберите базу данных", QString(), tr("Microsoft Access (*.mdb)"));
     ui->ln_db->setText(dbPath);
+    _savePath(dbPath);
 }
 
 void StartDialog::on_ch_dbLocal_toggled(bool checked)

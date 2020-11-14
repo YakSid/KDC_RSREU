@@ -38,11 +38,15 @@ private slots:
     void on_ch_dbLocal_toggled(bool checked);
 
 private:
+    void _showMessage(QString text);
+    // Работа с файлом авторов
     void _addAuthor(QString name);
     QStringList _getAllAuthors();
-    void _showMessage(QString text);
     void _updateLogfile(QStringList authors);
     void _clearLogfile();
+    // Работа с файлом пути к БД
+    void _savePath(QString path);
+    QString _getPath();
 
 private:
     Ui::StartDialog *ui;
