@@ -64,6 +64,7 @@ void CKolDog::calculateKprAndKtok(qint32 &kpr, qint32 &ktok)
 void CKolDog::setStartMinorKeffs(int skdog, int skrv, int skvo, int skzp, int skot, int sktsp, int skpr, int sktok)
 {
     startKdog = skdog;
+    startKrv = skrv;
     startKvo = skvo;
     startKzp = skzp;
     startKot = skot;

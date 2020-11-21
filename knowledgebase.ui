@@ -353,7 +353,28 @@
     </layout>
    </item>
    <item>
-    <widget class="QFrame" name="frame">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="lbl_kdName">
+       <property name="text">
+        <string>КД:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ln_kdName">
+       <property name="text">
+        <string>-</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="frameLaw">
      <property name="minimumSize">
       <size>
        <width>648</width>

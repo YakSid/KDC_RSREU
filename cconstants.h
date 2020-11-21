@@ -144,7 +144,7 @@ struct structOrder {
     QDate dateAdoptation;
     QDate dateChange;
 };
-// TODO: [later] можно переделать потом это в паттерн синглтон
+// TODO: [Улучшение кода] можно переделать потом это в паттерн синглтон
 extern QList<structOrder *> TOrder;
 
 #endif // CCONSTANTS_H

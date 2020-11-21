@@ -22,7 +22,7 @@ public:
     bool getComplWithReq() const { return complWithReq; }
     float getZnachimost() const { return znachimost; }
     float getStartZnachimost() const { return startZnachimost; }
-    //! TODO: [later] стандартизировать везде int float double
+    //! TODO: [Улучшение кода] стандартизировать везде int float double
     int getStartKtr() const { return startKtr; }
     float getStartKef() const { return startKef; }
     float getStartKpsp() const { return startKpsp; }

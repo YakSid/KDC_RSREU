@@ -33,12 +33,13 @@ knowledgebase::~knowledgebase()
 
 void knowledgebase::prepareWindowWithoutFrag()
 {
-    // TODO: [later] не отработает, нужно сделать
     _prepareWindow();
     ui->cmb_razdel->setCurrentIndex(0);
     ui->cmb_question->setCurrentIndex(0);
     ui->cmb_act->setCurrentIndex(0);
     ui->cmb_quality->setCurrentIndex(0);
+    on_pb_unlock_clicked();
+    m_originalFrag = new fragment();
 }
 
 void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
@@ -49,28 +50,34 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->cmb_quality->clear();
         ui->cmb_quality->addItems(ListVozmojnosti);
         ui->cmb_quality->setCurrentIndex(0);
-        ui->frame->setVisible(true);
+        ui->frameLaw->setVisible(true);
         ui->ch_all_acts->setVisible(false);
+        ui->lbl_kdName->setVisible(false);
+        ui->ln_kdName->setVisible(false);
         break;
     case eTypicalKD:
         ui->lb_quality->setText("Качество:");
-        ui->frame->setVisible(false);
+        ui->frameLaw->setVisible(false);
         if (m_currentViewMode == eLaw) {
             ui->cmb_quality->clear();
             ui->cmb_quality->addItems(ListQuality);
             ui->cmb_quality->setCurrentIndex(0);
         }
         ui->ch_all_acts->setVisible(true);
+        ui->lbl_kdName->setVisible(true);
+        ui->ln_kdName->setVisible(true);
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
-        ui->frame->setVisible(false);
+        ui->frameLaw->setVisible(false);
         if (m_currentViewMode == eLaw) {
             ui->cmb_quality->clear();
             ui->cmb_quality->addItems(ListQuality);
             ui->cmb_quality->setCurrentIndex(0);
         }
         ui->ch_all_acts->setVisible(true);
+        ui->lbl_kdName->setVisible(true);
+        ui->ln_kdName->setVisible(true);
         break;
     }
     m_currentViewMode = newViewMode;
@@ -180,7 +187,7 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 {
     m_allActs = checked;
 }
-
+// TODO: [+ОТЧЁТ4] Добавить поле названия КД для фрагментов КД. Брать из ТУчреждения (столбец Аббр)
 void knowledgebase::_select()
 {
     fragmentsForShow.clear();
@@ -190,7 +197,7 @@ void knowledgebase::_select()
     ordersForShow.clear();
     qint32 questionKod = m_originalFrag->getVoprosNumber();
     QSqlQuery querySelect;
-    // TODO: [сейчас] добавить закону норм поиск используя листВозможность
+    // TODO: [+сейчас] добавить закону норм поиск используя листВозможность
     switch (m_currentViewMode) {
     case eLaw: {
         querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
@@ -309,7 +316,7 @@ void knowledgebase::on_pb_prev_clicked()
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
-    } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
+    } else {
         currentFragmentNumber--;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
@@ -317,12 +324,12 @@ void knowledgebase::on_pb_prev_clicked()
     }
 
     if (m_currentViewMode == eLaw) {
-        if (currentFragmentNumber == -1) {
+        if (currentFragmentNumber < 0 || currentFragmentNumber < 0) {
             ui->ln_order->setText("-");
             ui->ln_adoption_date->setText("-");
             ui->ln_change_date->setText("-");
             ui->ln_order->setToolTip("");
-        } else {
+        } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
             ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
             ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
             ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
@@ -334,7 +341,8 @@ void knowledgebase::on_pb_prev_clicked()
 
 void knowledgebase::on_pb_showList_clicked()
 {
-    // TODO: [?later?] [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при наведении
+    // TODO: [?Улучшение?] [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при
+    // наведении
     // ui->lw_fragments->insertItems(0, fragmentsForShow);
 }
 

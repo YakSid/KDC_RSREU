@@ -24,7 +24,8 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
 
-// TODO: [later] добавить файл ресурсов с мета-данными, как для MayProg
+// TODO: [Улучшение продакшена] добавить файл ресурсов с мета-данными, как для MayProg. Справку, что не работает без
+// word и по-умолч.
 
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
@@ -32,6 +33,10 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  *
  * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  */
+
+// TODO: [Улучшение] сделать автосохранение?
+
+// NOTE тасков: 4 + отмена + посмотреть вопросы тут
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -106,8 +111,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         break;
     case eItemSelectedMode:
         if (m_currentWorkMode != eItemSelectedMode) {
-            ui->BazeKnowledge->setEnabled(false); // NOTE: [later] временно false. Если реализовать добавление
-                                                  // выбранного неперенесённого, то потом можно true
+            ui->BazeKnowledge->setEnabled(true);
             ui->TextRight->setEnabled(false);
             ui->pb_clearField->setEnabled(false);
             ui->pb_deleteFrag->setEnabled(true);
@@ -262,7 +266,7 @@ void MainWindow::_prepareMainWindow(QString docId)
         frag->updateFlagsViDoSvUt();
         frag->setAkt(in2_query.value(5).toString());
         currentKolDog->fragments.append(frag);
-        // NOTE: [later] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
+        // NOTE: [Улучшение] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
     }
     //Высчитывание Кпр и Кток т.к. их нет в базе
     qint32 calculatedKpr = 0, calculatedKtok = 0;
@@ -270,9 +274,9 @@ void MainWindow::_prepareMainWindow(QString docId)
     currentKolDog->setKpr(calculatedKpr);
     currentKolDog->setKtok(calculatedKtok);
     //Заполнение стартовых дополнительных кэффов (сейчас они равны обычным)
-    currentKolDog->setStartMinorKeffs(currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKzp(),
-                                      currentKolDog->getKvo(), currentKolDog->getKot(), currentKolDog->getKpr(),
-                                      currentKolDog->getKtok(), currentKolDog->getKtsp());
+    currentKolDog->setStartMinorKeffs(currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKvo(),
+                                      currentKolDog->getKzp(), currentKolDog->getKot(), currentKolDog->getKtsp(),
+                                      currentKolDog->getKpr(), currentKolDog->getKtok());
     currentKolDog->setStartZnachimost(currentKolDog->getZnachimost());
     //Заполнение окна кэф начальными данными
     kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
@@ -286,7 +290,7 @@ void MainWindow::_prepareMainWindow(QString docId)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
-    ui->pb_cancel->setVisible(false); // TODO: [later] удалить строчку и пофиксить кнопку
+    ui->pb_cancel->setVisible(false); // TODO: [сред] удалить строчку и пофиксить кнопку
 }
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
@@ -375,7 +379,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
-    ui->pb_cancel->setVisible(false); // TODO: [later] удалить строчку и пофиксить кнопку
+    ui->pb_cancel->setVisible(false); // TODO: [сред] удалить строчку и пофиксить кнопку
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -511,7 +515,7 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
 
 void MainWindow::_deleteSelectedFrag()
 {
-    // TODO: [later] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
+    // TODO: [Улучшение] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
     currentKolDog->fragments.removeAt(SelectedFragment);
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
         _fillCentralField(eAllSections);
@@ -556,7 +560,7 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     ui->KPSP->setText(_doubleToFloatString(keffs[3].toDouble()));
     ui->KEF->setText(_doubleToFloatString(keffs[4].toDouble()));
     // Сравнение и раскрашивание
-    // NOTE: [later] потом-потом оптимизировать (типы)
+    // NOTE: [Улучшение] потом-потом оптимизировать (типы)
     QPalette greenPal, redPal, blackPal;
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
@@ -691,6 +695,10 @@ void MainWindow::on_pb_newFrag_clicked()
         setWorkMode(eRightFrameMode);
         TextCenterIsBlocked = true;
         m_addNewFrag = true;
+        if (m_addFirst) {
+            //Поле настроек справа пустое, заполним первыми значениями
+            _prepareSettingsInRight("КЗОТ", "ПСП", "Ан", "ПЛН");
+        }
     }
 }
 
@@ -735,7 +743,8 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    // TODO: [сейчас] Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых флагов!
+    // TODO: [+сейчас] Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых
+    // флагов!
     // ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции окраски?
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
@@ -833,7 +842,7 @@ void MainWindow::on_GoLeft_clicked()
         } else {
             if (deltaTextSize != 0)
                 currentFrag->setChanged(true);
-            //! TODO: [later] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет
+            //! TODO: [Улучшение кода] Подумать сохранять ли текст при переносе вправо, чтобы потом сверить или нет
         }
         QString razdAbr = currentFrag->getAffectsOnMinorKeffs();
         QString razdAbrBefore = fragBeforeChange.getAffectsOnMinorKeffs();
@@ -932,7 +941,7 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionMakeDoc_triggered()
 {
-    // TODO: переделать сохранение файла текста по указанному пути
+    // TODO: [Улучшение] переделать сохранение файла текста по указанному пути
     // QString pathName = QFileDialog::getSaveFileName();
     currentKolDog->setName(ui->DogName->text()); //учесть имя КД
 
@@ -984,7 +993,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     ui->Quality->clear();
     ui->Question->clear();
     setWorkMode(eBasicMode);
-    // TODO: [later] Добавить анимацию загрузки (мб на central widget) тут и в других местах
+    // TODO: [Улучшение] Добавить анимацию загрузки (мб на central widget) тут и в других местах
     ui->centralWidget->setHidden(true);
     //Новый старт
     sDialog = new StartDialog();

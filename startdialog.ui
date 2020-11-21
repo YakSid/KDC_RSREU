@@ -532,6 +532,9 @@
           </property>
           <item row="0" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>6</number>
+            </property>
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -545,22 +548,28 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QLabel" name="lb_author">
-              <property name="text">
-               <string>Сотрудник:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="pb_changeAuthor">
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>176</width>
+                <height>31</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>176</width>
                 <height>31</height>
                </size>
               </property>
               <property name="text">
                <string>Сменить сотрудника</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lb_author">
+              <property name="text">
+               <string>Сотрудник:</string>
               </property>
              </widget>
             </item>
@@ -585,34 +594,17 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QCheckBox" name="ch_dbLocal">
-           <property name="text">
-            <string>БД в папке, имя &quot;БД МК&quot;</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_8">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QPushButton" name="pb_dbManage">
            <property name="minimumSize">
             <size>
              <width>176</width>
-             <height>0</height>
+             <height>31</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>176</width>
+             <height>31</height>
             </size>
            </property>
            <property name="text">

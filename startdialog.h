@@ -22,7 +22,6 @@ public:
     QString jFilename { "" };
     // Перменные для работы с БД
     QString dbPath { "" };
-    bool dbLocal { true };
 
 private slots:
     void on_Start_clicked();
@@ -35,7 +34,6 @@ private slots:
     void on_pb_continueSaved_clicked();
     void on_pb_loadFile_clicked();
     void on_pb_dbManage_clicked();
-    void on_ch_dbLocal_toggled(bool checked);
 
 private:
     void _showMessage(QString text);
