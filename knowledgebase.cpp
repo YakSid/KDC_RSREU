@@ -187,10 +187,13 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
 {
     m_allActs = checked;
 }
-// TODO: [+ОТЧЁТ4] Добавить поле названия КД для фрагментов КД. Брать из ТУчреждения (столбец Аббр)
+
 void knowledgebase::_select()
 {
+    ui->ln_kdName->clear();
     fragmentsForShow.clear();
+    namesForShow.clear();
+    idForNames.clear();
     for (auto order : ordersForShow) {
         delete order;
     }
@@ -205,11 +208,13 @@ void knowledgebase::_select()
         break;
     }
     case eTypicalKD:
-        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт FROM Тексты WHERE Тексты.Вопрос = :val1 "
+        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
+                            "Тексты.Вопрос = :val1 "
                             "AND ВклВСправку=true");
         break;
     case eAllKD:
-        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт FROM Тексты WHERE Тексты.Вопрос = :val1");
+        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
+                            "Тексты.Вопрос = :val1");
         break;
     }
 
@@ -234,12 +239,35 @@ void knowledgebase::_select()
         } else {
             //типовые и все фрагменты
             if (m_allActs) {
-                if (m_originalFrag->getKachestvo() == querySelect.value(1).toString())
+                if (m_originalFrag->getKachestvo() == querySelect.value(1).toString()) {
                     fragmentsForShow.append(text);
+                    idForNames.append(querySelect.value(3).toString());
+                }
             } else {
                 if (m_originalFrag->getAkt() == querySelect.value(2).toString()
-                    && m_originalFrag->getKachestvo() == querySelect.value(1).toString())
+                    && m_originalFrag->getKachestvo() == querySelect.value(1).toString()) {
                     fragmentsForShow.append(text);
+                    idForNames.append(querySelect.value(3).toString());
+                }
+            }
+        }
+    }
+    //Собираем названия ВУЗов КД по id полученным из текстов
+    if (m_currentViewMode != eLaw) {
+        for (auto kdId : idForNames) {
+            QSqlQuery queryName;
+            queryName.prepare("SELECT ТУчреждение.Аббр, ТУчреждение.ИмяУчреждения FROM ТУчреждение WHERE "
+                              "ТУчреждение.КодУчреждения = :val1");
+            queryName.bindValue(":val1", kdId);
+            if (!queryName.exec()) {
+                qDebug() << querySelect.lastError().text();
+            }
+            if (queryName.next()) {
+                if (queryName.value(0).toString().isEmpty()) {
+                    namesForShow.append(queryName.value(1).toString());
+                } else {
+                    namesForShow.append(queryName.value(0).toString());
+                }
             }
         }
     }
@@ -279,11 +307,14 @@ void knowledgebase::on_pb_next_clicked()
         currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
         ui->gb_text->setTitle("Начальный фрагмент");
+        ui->ln_kdName->setText("-");
     } else {
         currentFragmentNumber++;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
+        if (currentFragmentNumber < namesForShow.count() - 1)
+            ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     }
 
     if (m_currentViewMode == eLaw) {
@@ -299,6 +330,8 @@ void knowledgebase::on_pb_next_clicked()
             ui->ln_order->setToolTip(ordersForShow[currentFragmentNumber]->name);
         }
         ui->ln_order->home(false);
+    } else {
+        ui->ln_kdName->home(false);
     }
 }
 
@@ -311,16 +344,19 @@ void knowledgebase::on_pb_prev_clicked()
         currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
         ui->gb_text->setTitle("Начальный фрагмент");
+        ui->ln_kdName->setText("-");
     } else if (currentFragmentNumber == -1) {
         currentFragmentNumber = fragmentsForShow.size() - 1;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
+        ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     } else {
         currentFragmentNumber--;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()));
+        ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     }
 
     if (m_currentViewMode == eLaw) {
@@ -336,6 +372,8 @@ void knowledgebase::on_pb_prev_clicked()
             ui->ln_order->setToolTip(ordersForShow[currentFragmentNumber]->name);
         }
         ui->ln_order->home(false);
+    } else {
+        ui->ln_kdName->home(false);
     }
 }
 
