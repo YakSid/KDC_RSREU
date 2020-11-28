@@ -23,7 +23,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 //! Что писать в поле АКТ, когда выбраны "Все фрагменты" в БЗ? (ведь поле Акт скрывается(МОЖЕТ ЕГО БЛОКИРОВАТЬ, А НЕ СКРЫВАТЬ?))
 //! ОТВЕТ: Да, делать disabled, а не скрывать поле (показывать все фрагменты не обращяя внимания на поле АКТ)
 //!
-
+// TODO: [Улучшение] сделать автосохранение?
 // TODO: [Улучшение продакшена] добавить файл ресурсов с мета-данными, как для MayProg. Справку, что не работает без
 // word и по-умолч.
 
@@ -38,9 +38,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 4. Не тормозит ли когда-нибудь сильно?
  */
 
-// TODO: [Улучшение] сделать автосохранение?
-
-// NOTE тасков: 4 + отмена + посмотреть вопросы тут
+// NOTE тасков: 2 + отмена + посмотреть вопросы тут
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -484,7 +482,7 @@ void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
     //Убираем выделение
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
-    cursor.mergeCharFormat(format);
+    cursor.setCharFormat(format);
 }
 
 void MainWindow::_clearSelectionInCentral()
@@ -494,7 +492,7 @@ void MainWindow::_clearSelectionInCentral()
     format.setFontWeight(QFont::Normal);
     cursor.setPosition(0, QTextCursor::MoveAnchor);
     cursor.setPosition(ui->te_textCenter->toPlainText().length(), QTextCursor::KeepAnchor);
-    cursor.mergeCharFormat(format);
+    cursor.setCharFormat(format);
 }
 
 void MainWindow::_markAsChanged(qint32 posStart, qint32 posEnd)
@@ -504,7 +502,8 @@ void MainWindow::_markAsChanged(qint32 posStart, qint32 posEnd)
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
     auto format = cursor.charFormat();
     format.setForeground(Qt::darkMagenta);
-    cursor.mergeCharFormat(format);
+    format.setBackground(Qt::white);
+    cursor.setCharFormat(format);
 }
 
 void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
@@ -513,8 +512,20 @@ void MainWindow::_markAsNewAdded(qint32 posStart, qint32 posEnd)
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
     auto format = cursor.charFormat();
+    format.setForeground(Qt::black);
     format.setBackground(Qt::yellow);
-    cursor.mergeCharFormat(format);
+    cursor.setCharFormat(format);
+}
+
+void MainWindow::_markAsChangedAndNewAdded(qint32 posStart, qint32 posEnd)
+{
+    QTextCursor cursor(ui->te_textCenter->document());
+    cursor.setPosition(posStart, QTextCursor::MoveAnchor);
+    cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
+    auto format = cursor.charFormat();
+    format.setForeground(Qt::darkMagenta);
+    format.setBackground(Qt::yellow);
+    cursor.setCharFormat(format);
 }
 
 void MainWindow::_deleteSelectedFrag()
@@ -747,12 +758,6 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
-    // TODO: [+сейчас] Проверить конкретно для всех вариантов появление фрагментов и изменение с изменением любых
-    // флагов!
-    // ...возможно перекрашивается временно, когда добавили новый, а потом его изменили, возможно баг в функции окраски?
-    //^ если новый изменить, то убирается окраска нового.
-    //^ если добавить первым, но до этого первый был иземнённым, то первый будет новым+изменённым почему-то
-    //^ возвращаемый пункт окрашивается в цвет предыдущего вроде
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
@@ -797,8 +802,18 @@ void MainWindow::on_GoLeft_clicked()
         QString razdAbr = frag->getAffectsOnMinorKeffs();
         currentKolDog->incrementMinorKeff(razdAbr);
         currentKolDog->calculateKzn();
-        //Убираем выделение старого и нового фрагмента
+        //Убираем выделение старого и нового фрагмента, окрашиваем старый если тот был
         _clearSelectionInCentral(posPrevFragFirst, frag->getPositionLast());
+        if (idPrevFrag != -1) {
+            if (currentKolDog->fragments[SelectedFragment]->isChanged()
+                && currentKolDog->fragments[SelectedFragment]->isNewAdded()) {
+                _markAsChangedAndNewAdded(posPrevFragFirst, posPrevFragLast);
+            } else if (currentKolDog->fragments[SelectedFragment]->isChanged()) {
+                _markAsChanged(posPrevFragFirst, posPrevFragLast);
+            } else if (currentKolDog->fragments[SelectedFragment]->isNewAdded()) {
+                _markAsNewAdded(posPrevFragFirst, posPrevFragLast);
+            }
+        }
         //
         if (m_addFirst) {
             currentKolDog->addFragOnFirstPos(frag);
@@ -864,8 +879,13 @@ void MainWindow::on_GoLeft_clicked()
         //Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
         //Окраска в цвет изменённого
-        if (currentFrag->isChanged())
+        if (currentFrag->isChanged() && currentFrag->isNewAdded()) {
+            _markAsChangedAndNewAdded(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
+        } else if (currentFrag->isChanged()) {
             _markAsChanged(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
+        } else if (currentFrag->isNewAdded()) {
+            _markAsNewAdded(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
+        }
     }
     //Удаление данных
     ui->TextRight->clear();

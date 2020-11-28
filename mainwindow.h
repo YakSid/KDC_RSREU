@@ -98,10 +98,10 @@ private:
     //! Убрать выделение выбора из центрального окна
     void _clearSelectionInCentral(qint32 posStart, qint32 posEnd);
     void _clearSelectionInCentral();
-    //! Выделить фрагмент по позициям как изменённый в центральном поле
+    // Выделить фрагмент по позициям в центральном поле
     void _markAsChanged(qint32 posStart, qint32 posEnd);
-    //! Выделить фрагмент по позициям как новодобавленный в центральном поле
     void _markAsNewAdded(qint32 posStart, qint32 posEnd);
+    void _markAsChangedAndNewAdded(qint32 posStart, qint32 posEnd);
     //! Удалить выбранный фрагмент отовсюду
     void _deleteSelectedFrag();
 
