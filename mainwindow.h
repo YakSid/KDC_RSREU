@@ -111,8 +111,9 @@ private:
     float _strDoubleToFloat(QString value);
 
     //! Вывод сообщений на экран
-    void _showMessage(QString text, QString title = "Master KDA");
-    bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
+    void _showMessage(QString text, QString title = "Master KDA - База знаний");
+    bool _showQuestion(QString text, QString title = "Master KDA - База знаний", QString textYes = "Да",
+                       QString textNo = "Нет");
 
     //! Заполнить поля текущих главных коэффициентов
     void _fillCurrentKeffs(QVariantList keffs);

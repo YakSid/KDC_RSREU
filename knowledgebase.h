@@ -46,6 +46,10 @@ private:
     //! Провести начальную подготовку окна, неважно в каком режим с фрагментом или без
     void _prepareWindow();
 
+    //! Вывод сообщений на экран
+    void _showMessage(QString text, QString title = "Master KDA");
+    bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
+
 private:
     Ui::knowledgebase *ui;
     EFragmentsViewMode m_currentViewMode { eTypicalKD };
@@ -64,6 +68,9 @@ private:
     QList<structOrder *> ordersForShow;
     //! Файл для вынесения дополнительных пунктов
     QString fileWithAdd = "";
+
+    //! Показывать ли подсказку
+    bool m_showHelp { true };
 };
 
 #endif // KNOWLEDGEBASE_H

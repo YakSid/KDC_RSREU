@@ -47,7 +47,7 @@ void ListKD::on_tableView_clicked(const QModelIndex &index)
 
 void ListKD::_prepareView(EViewMode mode)
 {
-    // TODO: [+слож] Сделать второй класс модели листа для детализированного показа и разблокировать кнопку
+    // TODO: [старое, нужно?] Сделать второй класс модели листа для детализированного показа и разблокировать кнопку
     // "Детализировать"
     modelForList = new modelList();
     modelForList->setTable("Договор");

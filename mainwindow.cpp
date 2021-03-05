@@ -27,6 +27,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
 // TODO: [Улучшение продакшена] добавить файл ресурсов с мета-данными, как для MayProg. Справку, что не работает без
 // word и по-умолч.
 
+// TODO: Повторить вопросы
 /* Новые вопросы
  * 1. В таблице "вопросы2" код 6 (СДД ПСП Увольнение) и код 39 (СДД ПСП Гарантии), 64,68 одинаковые сокращения (вопросы2
  * вообще какая-то странная) [dev: если утвердят, то later можно сделать индексацию вопроса не по abr, а по id]
@@ -38,7 +39,7 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 4. Не тормозит ли когда-нибудь сильно?
  */
 
-// NOTE тасков: 2 + отмена + посмотреть вопросы тут
+// TODO: Меню бар: убрать лишнее или реализовать
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -293,6 +294,11 @@ void MainWindow::_prepareMainWindow(QString docId)
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
     ui->pb_cancel->setVisible(false); // TODO: [сред] удалить строчку и пофиксить кнопку
+
+    ui->te_textCenter->blockSignals(true);
+    ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
+    ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
+    ui->te_textCenter->blockSignals(false);
 }
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
@@ -382,6 +388,11 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
     ui->pb_cancel->setVisible(false); // TODO: [сред] удалить строчку и пофиксить кнопку
+
+    ui->te_textCenter->blockSignals(true);
+    ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
+    ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
+    ui->te_textCenter->blockSignals(false);
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -758,6 +769,11 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
+    if (ui->TextRight->toPlainText().isEmpty()) {
+        _showMessage("Текст пункта пустой, заполните его перед добавлением");
+        return;
+    }
+
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 

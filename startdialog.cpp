@@ -7,6 +7,9 @@
 #include <QFileDialog>
 #include <QDebug>
 
+const QString TITLE_AUTHORIZATION = "Master KDA - Авторизация";
+const QString TITLE_BEGINNING_OF_WORK = "Master KDA - Начало работы";
+
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
 {
     ui->setupUi(this);
@@ -55,9 +58,9 @@ void StartDialog::on_pb_accept_clicked()
     if (ui->cb_author->currentText() != "") {
         authorName = ui->cb_author->currentText();
         ui->stackedWidget->setCurrentWidget(ui->page_modeSettings);
-        ui->lb_author->setText("Сотрудник: " + authorName);
+        ui->lb_author->setText("Пользователь: " + authorName);
     } else {
-        _showMessage("Выберите сотрудника");
+        _showMessage("Выберите пользователя");
     }
 }
 
@@ -71,7 +74,7 @@ void StartDialog::on_pb_addAuthor_clicked()
         firstStart = false;
         ui->pb_deleteAuthor->setEnabled(true);
     } else {
-        _showMessage("Введите Ф.И.О. сотрудника");
+        _showMessage("Введите имя пользователя");
     }
 }
 
@@ -190,9 +193,12 @@ void StartDialog::on_stackedWidget_currentChanged(int arg1)
 {
     if (arg1 == 0) {
         this->resize(this->width(), 200);
+        this->setWindowTitle(TITLE_AUTHORIZATION);
     } else if (arg1 == 1) {
+        this->setWindowTitle(TITLE_BEGINNING_OF_WORK);
         this->resize(this->width(), 200);
     } else {
+        this->setWindowTitle(TITLE_BEGINNING_OF_WORK);
         this->resize(this->width(), 200);
     }
 }
@@ -216,7 +222,15 @@ void StartDialog::on_pb_continueSaved_clicked()
 void StartDialog::on_pb_loadFile_clicked()
 {
     jFilename = QFileDialog::getOpenFileName(this, "Выберите проект", QString(), tr("JSON (*.json)"));
+
+    if (jFilename.isEmpty())
+        return;
+
+    auto pathList = jFilename.split("/");
+
+    ui->pb_continueSaved->setText("Продолжить " + pathList.last());
     ui->pb_continueSaved->setEnabled(true);
+    ui->pb_continueSaved->setToolTip("Режим: КД ВУЗа - Редактирование");
 }
 
 void StartDialog::on_pb_dbManage_clicked()

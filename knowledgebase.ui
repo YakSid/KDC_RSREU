@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>452</height>
+    <height>466</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -22,7 +22,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>База знаний</string>
+   <string>Master KDA - База знаний</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
@@ -52,7 +52,7 @@
           </font>
          </property>
          <property name="title">
-          <string>Кодовые признаки</string>
+          <string>Значения характеристик</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <property name="topMargin">
@@ -315,6 +315,9 @@
            <pointsize>11</pointsize>
           </font>
          </property>
+         <property name="toolTip">
+          <string>Изменить характеристики или тип показываемых фрагментов</string>
+         </property>
          <property name="text">
           <string>Разблокировать</string>
          </property>
@@ -357,7 +360,7 @@
      <item>
       <widget class="QLabel" name="lbl_kdName">
        <property name="text">
-        <string>КД:</string>
+        <string>КД организации:</string>
        </property>
       </widget>
      </item>
@@ -509,7 +512,7 @@
    <item>
     <widget class="QGroupBox" name="gb_text">
      <property name="title">
-      <string>0 / 0</string>
+      <string>0 / 0 Фрагмент из выбранных</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="spacing">
@@ -551,6 +554,13 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Просмотр фрагментов:</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">

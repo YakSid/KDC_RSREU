@@ -28,7 +28,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Master KDA - Начало работы</string>
+   <string>Master KDA - Авторизация</string>
   </property>
   <property name="windowIcon">
    <iconset resource="res.qrc">
@@ -50,7 +50,7 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_authorization">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -78,146 +78,38 @@
           </size>
          </property>
          <property name="title">
-          <string>Авторизация</string>
+          <string>Список работающих в системе</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <property name="leftMargin">
-           <number>0</number>
+           <number>9</number>
           </property>
           <property name="topMargin">
-           <number>0</number>
+           <number>9</number>
           </property>
           <property name="rightMargin">
-           <number>0</number>
+           <number>9</number>
           </property>
           <property name="bottomMargin">
-           <number>0</number>
+           <number>9</number>
           </property>
           <property name="horizontalSpacing">
            <number>6</number>
-          </property>
-          <property name="verticalSpacing">
-           <number>4</number>
           </property>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="maximumSize">
              <size>
-              <width>90</width>
+              <width>110</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
-             <string>Сотрудник:</string>
+             <string>Пользователь:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="3">
-           <widget class="QComboBox" name="cb_author">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-             </font>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QLabel" name="label_2">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Добавить сотрудника:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="3">
-           <widget class="QPushButton" name="pb_addAuthor">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>31</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Добавить</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="3">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>396</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="2" colspan="2">
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>263</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="pb_accept">
-            <property name="minimumSize">
-             <size>
-              <width>147</width>
-              <height>31</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Ок</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="3">
-           <widget class="QLineEdit" name="ln_addAuthor">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>31</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="4">
-           <widget class="Line" name="line">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
+          <item row="1" column="0" colspan="2">
            <widget class="QPushButton" name="pb_deleteAuthor">
             <property name="enabled">
              <bool>false</bool>
@@ -236,16 +128,66 @@
             </property>
             <property name="font">
              <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Удалить пользователя</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" colspan="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>396</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="pb_accept">
+            <property name="minimumSize">
+             <size>
+              <width>243</width>
+              <height>31</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Подтвердить пользователя</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="5">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="label_2">
+            <property name="font">
+             <font>
               <pointsize>10</pointsize>
              </font>
             </property>
             <property name="text">
-             <string>Удалить сотрудника</string>
+             <string>Добавить пользователя:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="2" colspan="2">
-           <spacer name="horizontalSpacer_2">
+          <item row="3" column="3" colspan="2">
+           <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -256,6 +198,48 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="4" column="4">
+           <widget class="QPushButton" name="pb_addAuthor">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>31</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Добавить</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="4">
+           <widget class="QComboBox" name="cb_author">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="4">
+           <widget class="QLineEdit" name="ln_addAuthor">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>31</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -562,14 +546,14 @@
                </size>
               </property>
               <property name="text">
-               <string>Сменить сотрудника</string>
+               <string>Сменить пользователя</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lb_author">
               <property name="text">
-               <string>Сотрудник:</string>
+               <string>Пользователь:</string>
               </property>
              </widget>
             </item>
@@ -645,10 +629,10 @@
           <property name="bottomMargin">
            <number>4</number>
           </property>
-          <item row="2" column="0">
-           <widget class="QPushButton" name="pb_startNew">
+          <item row="1" column="2">
+           <widget class="QPushButton" name="pb_loadFile">
             <property name="text">
-             <string>Начать новый проект</string>
+             <string>Выбрать файл проекта...</string>
             </property>
            </widget>
           </item>
@@ -669,10 +653,10 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="pb_loadFile">
+          <item row="2" column="0">
+           <widget class="QPushButton" name="pb_startNew">
             <property name="text">
-             <string>Выбрать файл проекта...</string>
+             <string>Начать новый проект</string>
             </property>
            </widget>
           </item>
@@ -698,6 +682,28 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pb_accept</tabstop>
+  <tabstop>ln_addAuthor</tabstop>
+  <tabstop>pb_addAuthor</tabstop>
+  <tabstop>pb_deleteAuthor</tabstop>
+  <tabstop>cb_author</tabstop>
+  <tabstop>rbSOSH</tabstop>
+  <tabstop>rbRed</tabstop>
+  <tabstop>rbREGSOGL</tabstop>
+  <tabstop>rbVUZ</tabstop>
+  <tabstop>rbRedRazd</tabstop>
+  <tabstop>rbDOU</tabstop>
+  <tabstop>rbCompil</tabstop>
+  <tabstop>rbAuto</tabstop>
+  <tabstop>Start</tabstop>
+  <tabstop>pb_changeAuthor</tabstop>
+  <tabstop>pb_dbManage</tabstop>
+  <tabstop>ln_db</tabstop>
+  <tabstop>pb_startNew</tabstop>
+  <tabstop>pb_continueSaved</tabstop>
+  <tabstop>pb_loadFile</tabstop>
+ </tabstops>
  <resources>
   <include location="res.qrc"/>
  </resources>

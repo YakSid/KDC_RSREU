@@ -7,6 +7,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+const QString STR_START_FRAG = "Начальный фрагмент";
+const QString STR_FRAG_FROM_SELECTED = " Фрагмент из выбранных";
+
 knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::knowledgebase)
 {
     ui->setupUi(this);
@@ -54,6 +57,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->ch_all_acts->setVisible(false);
         ui->lbl_kdName->setVisible(false);
         ui->ln_kdName->setVisible(false);
+        ui->pb_unlock->setToolTip("Показать фрагменты законов");
         break;
     case eTypicalKD:
         ui->lb_quality->setText("Качество:");
@@ -66,6 +70,7 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->ch_all_acts->setVisible(true);
         ui->lbl_kdName->setVisible(true);
         ui->ln_kdName->setVisible(true);
+        ui->pb_unlock->setToolTip("Показать типовые фрагменты");
         break;
     case eAllKD:
         ui->lb_quality->setText("Качество:");
@@ -78,18 +83,19 @@ void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
         ui->ch_all_acts->setVisible(true);
         ui->lbl_kdName->setVisible(true);
         ui->ln_kdName->setVisible(true);
+        ui->pb_unlock->setToolTip("Показать фрагменты всех КД");
         break;
     }
     m_currentViewMode = newViewMode;
     if (ui->cmb_razdel->currentText() != "") {
-        ui->gb_text->setTitle("Начальный фрагмент");
+        ui->gb_text->setTitle(STR_START_FRAG);
         ui->te_text->setText(originalText);
     }
 }
 
 void knowledgebase::_prepareWindow()
 {
-    ui->gb_text->setTitle("Начальный фрагмент");
+    ui->gb_text->setTitle(STR_START_FRAG);
 
     ui->cmb_razdel->clear();
     ui->cmb_question->clear();
@@ -99,6 +105,32 @@ void knowledgebase::_prepareWindow()
     ui->cmb_razdel->addItems(ListRazd);
     ui->cmb_quality->addItems(ListQuality);
     ui->cmb_act->addItems(ListAct);
+
+    if (m_showHelp) {
+        m_showHelp = _showQuestion("Примечание: Если хотите посмтореть фрагменты законов, то их нужно отметить, а "
+                                   "затем нажать \"Применить\"\n\n"
+                                   "Отобразить эту подсказку при следующем входе в Базу знаний?");
+    }
+}
+
+void knowledgebase::_showMessage(QString text, QString title)
+{
+    QMessageBox msg;
+    msg.setText(text);
+    msg.setWindowTitle(title);
+    msg.exec();
+}
+
+bool knowledgebase::_showQuestion(QString text, QString title, QString textYes, QString textNo)
+{
+    bool result = false;
+    QMessageBox msgBox(QMessageBox::Question, title, text, QMessageBox::Yes | QMessageBox::No, this);
+    msgBox.setButtonText(QMessageBox::Yes, textYes);
+    msgBox.setButtonText(QMessageBox::No, textNo);
+    qint32 resMsg = msgBox.exec();
+    if (resMsg == QMessageBox::Yes)
+        result = true;
+    return result;
 }
 
 void knowledgebase::getFragment(fragment *frag)
@@ -139,6 +171,7 @@ void knowledgebase::getFragment(fragment *frag)
     _select();
 }
 
+// TODO: Баг: через раз открывается то в одном режиме, то в другом
 void knowledgebase::on_pb_unlock_clicked()
 {
     m_unlocked = !m_unlocked;
@@ -146,6 +179,7 @@ void knowledgebase::on_pb_unlock_clicked()
         ui->pb_unlock->setText("Применить");
     } else {
         ui->pb_unlock->setText("Разблокировать");
+        ui->pb_unlock->setToolTip("Изменить характеристики или тип показываемых фрагментов");
         m_originalFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
         m_originalFrag->setVoprosABR(
                 ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
@@ -200,7 +234,7 @@ void knowledgebase::_select()
     ordersForShow.clear();
     qint32 questionKod = m_originalFrag->getVoprosNumber();
     QSqlQuery querySelect;
-    // TODO: [+сейчас] добавить закону норм поиск используя листВозможность
+    // TODO: [старое, нужно?] добавить закону норм поиск используя листВозможность
     switch (m_currentViewMode) {
     case eLaw: {
         querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
@@ -306,13 +340,13 @@ void knowledgebase::on_pb_next_clicked()
     if (currentFragmentNumber == fragmentsForShow.size() - 1) {
         currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
-        ui->gb_text->setTitle("Начальный фрагмент");
+        ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
     } else {
         currentFragmentNumber++;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
-                              + QString::number(fragmentsForShow.size()));
+                              + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
         if (currentFragmentNumber < namesForShow.count() - 1)
             ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     }
@@ -343,19 +377,19 @@ void knowledgebase::on_pb_prev_clicked()
     if (currentFragmentNumber == 0) {
         currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
-        ui->gb_text->setTitle("Начальный фрагмент");
+        ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
     } else if (currentFragmentNumber == -1) {
         currentFragmentNumber = fragmentsForShow.size() - 1;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
-                              + QString::number(fragmentsForShow.size()));
+                              + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
         ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     } else {
         currentFragmentNumber--;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
-                              + QString::number(fragmentsForShow.size()));
+                              + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
         ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     }
 
