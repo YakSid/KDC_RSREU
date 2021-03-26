@@ -10,6 +10,10 @@ ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::Li
     m_db = new CDatabaseManager(dbName);
 
     _prepareView(eStandardView);
+
+    this->setStyleSheet("QPushButton:disabled {"
+                        "background-color: darkGrey;"
+                        "border: 2px solid darkGrey;}");
 }
 
 ListKD::~ListKD()

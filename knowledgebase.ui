@@ -578,7 +578,7 @@
       <widget class="QPushButton" name="pb_prev">
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>121</width>
          <height>31</height>
         </size>
        </property>
@@ -596,7 +596,7 @@
       <widget class="QPushButton" name="pb_next">
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>121</width>
          <height>31</height>
         </size>
        </property>

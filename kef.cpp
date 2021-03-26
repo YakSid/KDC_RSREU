@@ -7,6 +7,10 @@ kef::kef(QWidget *parent) : QDialog(parent), ui(new Ui::kef)
 
     Qt::WindowFlags flags = Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
+
+    this->setStyleSheet("QPushButton:disabled {"
+                        "background-color: darkGrey;"
+                        "border: 2px solid darkGrey;}");
 }
 
 kef::~kef()

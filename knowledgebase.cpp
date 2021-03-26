@@ -20,6 +20,10 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
     this->setWindowFlags(flags);
 
     _changeViewMode(eTypicalKD);
+
+    this->setStyleSheet("QPushButton:disabled {"
+                        "background-color: darkGrey;"
+                        "border: 2px solid darkGrey;}");
 }
 
 knowledgebase::~knowledgebase()

@@ -178,7 +178,7 @@
            <widget class="QLabel" name="label_2">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -640,6 +640,12 @@
            <widget class="QPushButton" name="pb_continueSaved">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>27</height>
+             </size>
             </property>
             <property name="text">
              <string>Продолжить сохранённый проект</string>

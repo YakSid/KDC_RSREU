@@ -40,6 +40,10 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
         logfile.close();
         ui->pb_deleteAuthor->setEnabled(true);
     }
+
+    this->setStyleSheet("QPushButton:disabled {"
+                        "background-color: darkGrey;"
+                        "border: 2px solid darkGrey;}");
 }
 
 StartDialog::~StartDialog()

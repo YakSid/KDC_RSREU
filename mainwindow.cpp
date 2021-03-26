@@ -84,6 +84,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         m_db = new CDatabaseManager("");
         _prepareMainWindow("6201");
     }
+
+    this->setStyleSheet("QPushButton:disabled {"
+                        "background-color: darkGrey;"
+                        "border: 2px solid darkGrey;}");
 }
 
 MainWindow::~MainWindow()
