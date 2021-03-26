@@ -18,7 +18,6 @@ class knowledgebase : public QDialog
 public:
     explicit knowledgebase(QWidget *parent = nullptr);
     ~knowledgebase();
-    void prepareWindowWithoutFrag();
 
 signals:
     void startTransportFrag(fragment *frag);

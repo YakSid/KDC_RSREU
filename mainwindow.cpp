@@ -945,7 +945,7 @@ void MainWindow::on_BazeKnowledge_clicked()
     case eBasicMode:
         return;
     case eItemSelectedMode:
-        kBase->prepareWindowWithoutFrag();
+        emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
         break;
     case eRightFrameMode:
         emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);

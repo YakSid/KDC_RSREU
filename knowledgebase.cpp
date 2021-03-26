@@ -38,17 +38,6 @@ knowledgebase::~knowledgebase()
     delete ui;
 }
 
-void knowledgebase::prepareWindowWithoutFrag()
-{
-    _prepareWindow();
-    ui->cmb_razdel->setCurrentIndex(0);
-    ui->cmb_question->setCurrentIndex(0);
-    ui->cmb_act->setCurrentIndex(0);
-    ui->cmb_quality->setCurrentIndex(0);
-    on_pb_unlock_clicked();
-    m_originalFrag = new fragment();
-}
-
 void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
 {
     switch (newViewMode) {
@@ -111,7 +100,7 @@ void knowledgebase::_prepareWindow()
     ui->cmb_act->addItems(ListAct);
 
     if (m_showHelp) {
-        m_showHelp = _showQuestion("Примечание: Если хотите посмтореть фрагменты законов, то их нужно отметить, а "
+        m_showHelp = _showQuestion("Если хотите посмотреть фрагменты законов, то их нужно отметить, а "
                                    "затем нажать \"Применить\"\n\n"
                                    "Отобразить эту подсказку при следующем входе в Базу знаний?");
     }
