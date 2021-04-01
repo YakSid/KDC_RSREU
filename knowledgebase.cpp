@@ -225,6 +225,7 @@ void knowledgebase::_select()
         delete order;
     }
     ordersForShow.clear();
+
     qint32 questionKod = m_originalFrag->getVoprosNumber();
     QSqlQuery querySelect;
     // TODO: [старое, нужно?] добавить закону норм поиск используя листВозможность
@@ -300,6 +301,8 @@ void knowledgebase::_select()
     }
 
     currentFragmentNumber = -1;
+    on_pb_next_clicked();
+    on_pb_prev_clicked();
 }
 
 void knowledgebase::on_pb_insert_into_kd_clicked()
@@ -340,7 +343,7 @@ void knowledgebase::on_pb_next_clicked()
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
-        if (currentFragmentNumber < namesForShow.count() - 1)
+        if ((currentFragmentNumber < namesForShow.count() - 1) && m_currentViewMode != eLaw)
             ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     }
 
@@ -377,13 +380,15 @@ void knowledgebase::on_pb_prev_clicked()
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
-        ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
+        if (m_currentViewMode != eLaw)
+            ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     } else {
         currentFragmentNumber--;
         ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
-        ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
+        if (m_currentViewMode != eLaw)
+            ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
     }
 
     if (m_currentViewMode == eLaw) {
