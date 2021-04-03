@@ -793,6 +793,20 @@ void MainWindow::on_GoLeft_clicked()
             posPrevFragFirst = 0;
             posPrevFragLast = 0;
             idPrevFrag = -1;
+            //Новый режим с добавлением в начало раздела, а не документа
+            auto sectionId = ui->tw_navigator->property(PREVIOUS_SELECTION).toInt();
+            if (sectionId != -1) {
+                auto section = EDisplayedSection(sectionId);
+                if (section != eAllSections) {
+                    auto firstInRazdFragId = currentKolDog->findFirstInRazd(AbbreviationRazd[section]) - 1;
+                    if (firstInRazdFragId != -1) {
+                        SelectedFragment = firstInRazdFragId;
+                        posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
+                        posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
+                        idPrevFrag = firstInRazdFragId;
+                    }
+                }
+            }
         } else {
             posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
             posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
@@ -836,7 +850,8 @@ void MainWindow::on_GoLeft_clicked()
         }
         //
         if (m_addFirst) {
-            currentKolDog->addFragOnFirstPos(frag);
+            // currentKolDog->addFragOnFirstPos(frag);//Новый режим
+            currentKolDog->addFragAfter(idPrevFrag, frag);
         } else {
             currentKolDog->addFragAfter(idPrevFrag, frag);
         }

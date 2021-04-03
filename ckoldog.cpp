@@ -255,6 +255,16 @@ void CKolDog::decrementMinorKeff(QString razdAbr)
     }
 }
 
+qint32 CKolDog::findFirstInRazd(QString razdAbr)
+{
+    for (int i = 0; i < fragments.count(); i++) {
+        if (razdAbr == fragments[i]->getRazdel()) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void CKolDog::_resetKeffs()
 {
     //Основные
