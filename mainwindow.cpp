@@ -218,9 +218,12 @@ void MainWindow::_prepareMainWindow(QString docId)
         ui->startKGDP->setText(in1_query.value(15).toString());
         currentKolDog->setStartKgdp(in1_query.value(15).toInt());
         ui->startKPSP->setText(_doubleToFloatString(in1_query.value(14).toDouble()));
-        currentKolDog->setStartKpsp(in1_query.value(14).toDouble());
-        double doubleKEF = 1.3 * (1.5 * ui->startKTR->text().toDouble() + ui->startKSC->text().toDouble())
-                + ui->startKGDP->text().toDouble() + ui->startKPSP->text().toDouble();
+        currentKolDog->setStartKpsp(in1_query.value(14).toFloat());
+        double doubleKEF = 1.3
+                        * (1.5 * static_cast<double>(currentKolDog->getStartKtr())
+                           + static_cast<double>(currentKolDog->getStartKsc()))
+                + static_cast<double>(currentKolDog->getStartKgdp())
+                + static_cast<double>(currentKolDog->getStartKpsp());
         QString strKEF = _doubleToFloatString(doubleKEF);
         ui->startKEF->setText(strKEF);
         currentKolDog->setStartKef(doubleKEF);
@@ -595,9 +598,8 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
     blackPal.setColor(QPalette::WindowText, Qt::black);
-    QVariantList startKeffs({ ui->startKTR->text().toFloat(), ui->startKSC->text().toFloat(),
-                              ui->startKGDP->text().toFloat(), _strDoubleToFloat(ui->startKPSP->text()),
-                              _strDoubleToFloat(ui->startKEF->text()) });
+    QVariantList startKeffs({ currentKolDog->getStartKtr(), currentKolDog->getStartKsc(), currentKolDog->getStartKgdp(),
+                              currentKolDog->getStartKpsp(), currentKolDog->getStartKef() });
     QList<QLabel *> labels({ ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef });
     for (int i = 0; i < startKeffs.size(); i++) {
 
@@ -634,8 +636,8 @@ QVariantList MainWindow::_calculateKeffsWithDelta(QVariantList delta)
     result[0] = ui->KTR->text().toInt() + delta[0].toInt();
     result[1] = ui->KSC->text().toInt() + delta[1].toInt();
     result[2] = ui->KGDP->text().toInt() + delta[2].toInt();
-    result[3] = static_cast<double>(_strDoubleToFloat(ui->KPSP->text())) + delta[3].toDouble();
-    result[4] = static_cast<double>(_strDoubleToFloat(ui->KEF->text())) + delta[4].toDouble();
+    result[3] = static_cast<double>(currentKolDog->getKpsp()) + delta[3].toDouble();
+    result[4] = static_cast<double>(currentKolDog->getKef()) + delta[4].toDouble();
     return result;
 }
 

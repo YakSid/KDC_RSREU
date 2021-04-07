@@ -126,11 +126,13 @@ void CKolDog::calculateCurrentKeffs()
                 kpr++;
                 ktr++;
             }
-            kef++;
         } else if (frag->isUt()) {
             kpsp += static_cast<float>(0.3);
         }
     }
+
+    kef = 1.3 * (1.5 * static_cast<double>(ktr) + static_cast<double>(ksc)) + static_cast<double>(kgdp)
+            + static_cast<double>(kpsp);
 }
 
 QJsonDocument *CKolDog::packKolDogToJson()

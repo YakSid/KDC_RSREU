@@ -128,6 +128,8 @@ QVariantList fragment::getKeffsDeltaFromZero()
         deltaKGDP += static_cast<int>(unknownRazdDelta);
     } else if (razdel == "ПСП") {
         deltaKPSP += unknownRazdDelta;
+        if (kachestvo == "Ут")
+            deltaKEF += unknownRazdDelta;
     } else {
         deltaKTR += static_cast<int>(unknownRazdDelta);
     }

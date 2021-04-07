@@ -216,6 +216,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>ln_search</tabstop>
+  <tabstop>cmb_search</tabstop>
+  <tabstop>tableView</tabstop>
+  <tabstop>Ref</tabstop>
+  <tabstop>DetailKTR</tabstop>
+  <tabstop>SelectKD</tabstop>
+ </tabstops>
  <resources>
   <include location="res.qrc"/>
  </resources>

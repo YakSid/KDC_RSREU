@@ -29,7 +29,7 @@ public:
     int getStartKgdp() const { return startKgdp; }
     int getStartKsc() const { return startKsc; }
     int getKtr() const { return ktr; }
-    float getKef() const { return kef; }
+    double getKef() const { return kef; }
     float getKpsp() const { return kpsp; }
     int getKgdp() const { return kgdp; }
     int getKsc() const { return ksc; }
@@ -72,7 +72,7 @@ public:
     void setStartKsc(int newStartKsc) { startKsc = newStartKsc; }
     void setStartMinorKeffs(int skdog, int skrv, int skvo, int skzp, int skot, int sktsp, int skpr, int sktok);
     void setKtr(int newKtr) { ktr = newKtr; }
-    void setKef(float newKef) { kef = newKef; }
+    void setKef(double newKef) { kef = newKef; }
     void setKpsp(float newKpsp) { kpsp = newKpsp; }
     void setKgdp(int newKgdp) { kgdp = newKgdp; }
     void setKsc(int newKsc) { ksc = newKsc; }
@@ -125,7 +125,7 @@ private:
     bool complWithReq; // Соответствие требованиям
     float znachimost;
     int ktr;
-    float kef;
+    double kef;
     float kpsp;
     int kgdp;
     int ksc;
