@@ -101,6 +101,8 @@ public:
     QJsonDocument *packKolDogToJson();
     //! Высчитать значимость кзн
     float calculateKzn();
+    //! Пересчитать КЭФ
+    double calulateKef();
     //! Увеличить минорный кэф этого раздела
     void incrementMinorKeff(QString razdAbr);
     //! Уменьшить минорный кэф этого раздела

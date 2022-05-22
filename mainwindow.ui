@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>768</height>
+    <width>1033</width>
+    <height>830</height>
    </rect>
   </property>
   <property name="font">
@@ -1003,13 +1003,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="5" column="2" colspan="2">
-       <widget class="QPushButton" name="pb_cancel">
-        <property name="text">
-         <string>Отмена</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
@@ -1019,7 +1012,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1033</width>
      <height>20</height>
     </rect>
    </property>

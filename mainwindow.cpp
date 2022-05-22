@@ -112,7 +112,6 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->GoLeft->setEnabled(false);
         ui->groupBox->setEnabled(false);
         ui->tw_navigator->setEnabled(true);
-        ui->pb_cancel->setEnabled(false);
         ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
         SelectedFragment = -1;
         break;
@@ -128,7 +127,6 @@ void MainWindow::setWorkMode(EWorkMode newMode)
             ui->groupBox->setEnabled(false);
             ui->tw_navigator->setEnabled(true);
             ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
-            ui->pb_cancel->setEnabled(false);
         }
         break;
     case eRightFrameMode:
@@ -142,7 +140,6 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->groupBox->setEnabled(true);
         ui->tw_navigator->setEnabled(false);
         ui->btn_showFullText->setEnabled(false);
-        ui->pb_cancel->setEnabled(true);
         break;
     }
     m_currentWorkMode = newMode;
@@ -192,6 +189,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::_prepareMainWindow(QString docId)
 {
+    //Центрируем окно по центру экрана
+    QDesktopWidget desktop;
+    QRect rect = desktop.availableGeometry(this);
+    QPoint center = rect.center();
+    int x = center.x() - (width() / 2);
+    int y = center.y() - (height() / 2);
+    center.setX(x);
+    center.setY(y);
+    move(center);
     //Настройка навигатора
     ui->tw_navigator->setColumnWidth(0, 211);
     for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
@@ -300,7 +306,6 @@ void MainWindow::_prepareMainWindow(QString docId)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
-    ui->pb_cancel->setVisible(false); // TODO: [сред] удалить строчку и пофиксить кнопку
 
     ui->te_textCenter->blockSignals(true);
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
@@ -310,6 +315,16 @@ void MainWindow::_prepareMainWindow(QString docId)
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 {
+    //Центрируем окно по центру экрана
+    QDesktopWidget desktop;
+    QRect rect = desktop.availableGeometry(this);
+    QPoint center = rect.center();
+    int x = center.x() - (width() / 2);
+    int y = center.y() - (height() / 2);
+    center.setX(x);
+    center.setY(y);
+    move(center);
+
     QJsonObject jObjInsideDoc = jDoc.object();
     QJsonObject mainSettings = jObjInsideDoc["mainSettings"].toObject();
     //Заполнение текущего КД из сохранённого json документа
@@ -394,7 +409,6 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 
     _fillCentralField(eAllSections);
     TextCenterIsBlocked = false;
-    ui->pb_cancel->setVisible(false); // TODO: [сред] удалить строчку и пофиксить кнопку
 
     ui->te_textCenter->blockSignals(true);
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
@@ -546,18 +560,6 @@ void MainWindow::_markAsChangedAndNewAdded(qint32 posStart, qint32 posEnd)
     cursor.setCharFormat(format);
 }
 
-void MainWindow::_deleteSelectedFrag()
-{
-    // TODO: [Улучшение] переделать функцию, по типу добавления, чтобы без _fillCentralField было и перемотки вверх
-    currentKolDog->fragments.removeAt(SelectedFragment);
-    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
-        _fillCentralField(eAllSections);
-    } else {
-        _fillCentralField(EDisplayedSection(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt()));
-    }
-    SelectedFragment = -1;
-}
-
 void MainWindow::_showMessage(QString text, QString title)
 {
     QMessageBox msg;
@@ -593,7 +595,7 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     ui->KPSP->setText(_doubleToFloatString(keffs[3].toDouble()));
     ui->KEF->setText(_doubleToFloatString(keffs[4].toDouble()));
     // Сравнение и раскрашивание
-    // NOTE: [Улучшение] потом-потом оптимизировать (типы)
+    // NOTE: [Улучшение] потом-потом оптимизировать (типы) (для KEFOnly тоже)
     QPalette greenPal, redPal, blackPal;
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
@@ -627,6 +629,28 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
                 labels[i]->setPalette(blackPal);
             }
         }
+    }
+}
+
+void MainWindow::_fillCurrentKEFOnly(double kef)
+{
+    ui->KEF->setText(_doubleToFloatString(kef));
+    //Сравнение и окраска
+    QPalette greenPal, redPal, blackPal;
+    greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
+    redPal.setColor(QPalette::WindowText, Qt::darkRed);
+    blackPal.setColor(QPalette::WindowText, Qt::black);
+
+    QString currentKString = QString::number(kef, 'f', 2);
+    QString startKString = ui->startKEF->text();
+    double currentK = currentKString.toDouble();
+    double startK = startKString.toDouble();
+    if (currentK > startK) {
+        ui->KEF->setPalette(greenPal);
+    } else if (currentK < startK) {
+        ui->KEF->setPalette(redPal);
+    } else {
+        ui->KEF->setPalette(blackPal);
     }
 }
 
@@ -751,17 +775,30 @@ void MainWindow::on_pb_deleteFrag_clicked()
 {
     if (SelectedFragment == -1)
         return;
-    //Изменение основных кэффов
+
+    //Изменение кэффов //TODO: [улучш.] Убрать кэф из перерасчёта (ещё в создании нового и изменении старого)
     QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
+    QString razdAbr = currentKolDog->fragments[SelectedFragment]->getAffectsOnMinorKeffs();
+    currentKolDog->fragments.removeAt(SelectedFragment);
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
+    //! КЭФ отдельно пересчитываем т.к. она меняется нелинейно
+    _fillCurrentKEFOnly(currentKolDog->calulateKef());
     //Изменение дополнительных кэффов
-    QString razdAbr = currentKolDog->fragments[SelectedFragment]->getAffectsOnMinorKeffs();
     if (!razdAbr.isEmpty()) {
         currentKolDog->decrementMinorKeff(razdAbr);
     }
-    _deleteSelectedFrag();
+
+    // TODO: [Улучшение] убрать _fillCentralField по типу функции добавления, чтобы без перемотки вверх было
+    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() == -1) {
+        _fillCentralField(eAllSections);
+    } else {
+        _fillCentralField(EDisplayedSection(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt()));
+    }
+    SelectedFragment = -1;
+
     currentKolDog->calculateKzn();
+
     //Внешний вид ui
     ui->Act->clear();
     ui->Razd->blockSignals(true);
@@ -852,7 +889,7 @@ void MainWindow::on_GoLeft_clicked()
         //Изменение главных кэффов
         QVariantList deltaKeffs = frag->getKeffsDeltaFromZero();
         QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
-        _fillCurrentKeffs(newKeffs);
+        _fillCurrentKeffs(newKeffs); // NOTE: КЭФ посчитается  идобавиться после добавления фрага!
         //Изменение минорных кэффов
         QString razdAbr = frag->getAffectsOnMinorKeffs();
         currentKolDog->incrementMinorKeff(razdAbr);
@@ -876,6 +913,11 @@ void MainWindow::on_GoLeft_clicked()
         } else {
             currentKolDog->addFragAfter(idPrevFrag, frag);
         }
+        //Перерасчёт кэф после вставки фрагмента
+        auto fiveKeffs = currentKolDog->getFiveCurrentKeffs();
+        fiveKeffs[4] = currentKolDog->calulateKef();
+        _fillCurrentKeffs(fiveKeffs);
+        //
         qint32 idFragAfterInserted = idPrevFrag + 2;
         _recountPositions(idFragAfterInserted, frag->getSize(), true);
         //Окраска в цвет изменённого
@@ -915,7 +957,7 @@ void MainWindow::on_GoLeft_clicked()
         QVariantList deltaKeffs = currentFrag->getKeffsDelta(&fragBeforeChange);
         if (_isKeffsChanged(deltaKeffs)) {
             QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
-            _fillCurrentKeffs(newKeffs);
+            _fillCurrentKeffs(newKeffs); // NOTE: пересчёт КЭФ идёт далее отдельно
             currentFrag->setChanged(true);
         } else {
             if (deltaTextSize != 0)
@@ -931,6 +973,10 @@ void MainWindow::on_GoLeft_clicked()
             if (!currentFrag->isChanged())
                 currentFrag->setChanged(true);
         }
+        //Пересчёт КЭФ
+        auto fiveKeffs = currentKolDog->getFiveCurrentKeffs();
+        fiveKeffs[4] = currentKolDog->calulateKef();
+        _fillCurrentKeffs(fiveKeffs);
 
         //Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
@@ -1141,21 +1187,4 @@ void MainWindow::on_actionSaveProject_triggered()
         auto jDocPtr = currentKolDog->packKolDogToJson();
         m_jsonManager->saveJson(jDocPtr, jName);
     }
-}
-
-void MainWindow::on_pb_cancel_clicked()
-{
-    //Удаление данных
-    ui->TextRight->clear();
-    TextCenterIsBlocked = false;
-    ui->Act->clear();
-    ui->Razd->blockSignals(true);
-    ui->Razd->clear();
-    ui->Razd->blockSignals(false);
-    ui->Quality->clear();
-    ui->Question->clear();
-
-    _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
-                             currentKolDog->fragments[SelectedFragment]->getPositionLast());
-    setWorkMode(eBasicMode);
 }

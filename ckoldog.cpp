@@ -130,9 +130,8 @@ void CKolDog::calculateCurrentKeffs()
             kpsp += static_cast<float>(0.3);
         }
     }
-
-    kef = 1.3 * (1.5 * static_cast<double>(ktr) + static_cast<double>(ksc)) + static_cast<double>(kgdp)
-            + static_cast<double>(kpsp);
+    //Пересчитать КЭФ
+    calulateKef();
 }
 
 QJsonDocument *CKolDog::packKolDogToJson()
@@ -213,6 +212,13 @@ float CKolDog::calculateKzn()
             / fragments.size(); // 1000, а не 100, чтобы потом посчитать знак после запятой
     this->znachimost = tmp / 100 + (tmp % 100 * 0.01);
     return znachimost;
+}
+
+double CKolDog::calulateKef()
+{
+    kef = 1.3 * (1.5 * static_cast<double>(ktr) + static_cast<double>(ksc)) + static_cast<double>(kgdp)
+            + static_cast<double>(kpsp);
+    return kef;
 }
 
 void CKolDog::incrementMinorKeff(QString razdAbr)

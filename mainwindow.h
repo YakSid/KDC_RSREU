@@ -16,6 +16,8 @@
 
 //! TODO: [Улучшение] Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
 
+// TODO: Система перерасчёта кэффов требует рефакторинга, сделана некрасиво
+
 //! Тип отображаемого раздела в центральном окне
 enum EDisplayedSection {
     ePSPSection,
@@ -82,8 +84,6 @@ private slots:
     void on_actionMakeDoc_triggered();
     void on_actionStartAnotherKD_triggered();
     void on_actionSaveProject_triggered();
-    //
-    void on_pb_cancel_clicked();
 
 private:
     //! Подготовка документа и главного окна
@@ -102,8 +102,6 @@ private:
     void _markAsChanged(qint32 posStart, qint32 posEnd);
     void _markAsNewAdded(qint32 posStart, qint32 posEnd);
     void _markAsChangedAndNewAdded(qint32 posStart, qint32 posEnd);
-    //! Удалить выбранный фрагмент отовсюду
-    void _deleteSelectedFrag();
 
     //! Заменить точку на запятую и округлить до 1 знака после запятой
     QString _doubleToFloatString(double value);
@@ -117,6 +115,8 @@ private:
 
     //! Заполнить поля текущих главных коэффициентов
     void _fillCurrentKeffs(QVariantList keffs);
+    //! Заполнить только коэффицент КЭФ
+    void _fillCurrentKEFOnly(double kef);
     //! Посчитать новые значения главных коэффициентов применив дельту
     QVariantList _calculateKeffsWithDelta(QVariantList delta);
     //! Узнать изменились ли главные коэффициенты проверив каждую дельту на отличие от нуля
