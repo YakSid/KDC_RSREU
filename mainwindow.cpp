@@ -694,9 +694,21 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         setWorkMode(eItemSelectedMode);
 
         if (SelectedFragment != -1) {
-            _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
-                                     currentKolDog->fragments[SelectedFragment]->getPositionLast());
+            // Узнаём сначала какой цвет был у фрагмента и его возвращаем после выделения жирным
+            auto curFrag = currentKolDog->fragments[SelectedFragment];
+            auto posFirst = curFrag->getPositionFirst();
+            auto posLast = curFrag->getPositionLast();
+            if (curFrag->isChanged() && curFrag->isNewAdded()) {
+                _markAsChangedAndNewAdded(posFirst, posLast);
+            } else if (curFrag->isChanged()) {
+                _markAsChanged(posFirst, posLast);
+            } else if (curFrag->isNewAdded()) {
+                _markAsNewAdded(posFirst, posLast);
+            } else {
+                _clearSelectionInCentral(posFirst, posLast);
+            }
         }
+
         //Поиск id выделенного фрагмента
         qint32 cursorPos = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
@@ -708,6 +720,7 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         }
         if (SelectedFragment == -1) {
             qDebug() << "Сейчас всё навернётся";
+            return;
         }
         auto frag = currentKolDog->fragments[SelectedFragment];
         _prepareSettingsInRight(frag->getAkt(), frag->getRazdel(), frag->getKachestvo(), frag->getVoprosABR());
@@ -775,15 +788,21 @@ void MainWindow::on_GoRight_clicked()
 
 void MainWindow::on_GoLeft_clicked()
 {
+    bool cancel = false;
     if (ui->TextRight->toPlainText().isEmpty()) {
-        _showMessage("Текст пункта пустой, заполните его перед добавлением");
-        return;
+        if (m_addNewFrag) {
+            cancel = _showQuestion("Текст пункта пустой, отменить добавление?", "Master KDA", "Да, отменить",
+                                   "Нет, добавить пустой");
+        } else {
+            _showMessage("Текст пункта пустой, заполните его перед добавлением");
+            return;
+        }
     }
 
     TextCenterIsBlocked = true;
     QTextCursor cursor(ui->te_textCenter->document());
 
-    if (m_addNewFrag) {
+    if (m_addNewFrag && !cancel) {
         //Подготовка позиции для размещения фрагмента на первое место или любое другое
         //! Первая позиция предыдущего фрагмента
         qint32 posPrevFragFirst;
@@ -865,7 +884,7 @@ void MainWindow::on_GoLeft_clicked()
         if (m_addFirst)
             m_addFirst = false;
         m_addNewFrag = false;
-    } else {
+    } else if (!cancel) {
         //Изменение старого фрагмента
         //Обновление текста и параметров в памяти
         auto fragBeforeChange = *currentKolDog->fragments[SelectedFragment];
@@ -923,7 +942,28 @@ void MainWindow::on_GoLeft_clicked()
         } else if (currentFrag->isNewAdded()) {
             _markAsNewAdded(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
         }
+    } else {
+        //Отмена добавления нового пустого пункта
+        if (m_addFirst) {
+            m_addFirst = false;
+        } else {
+            //Окраска выбранного пункта в исходные цвета
+            auto curFrag = currentKolDog->fragments[SelectedFragment];
+            auto posFirst = curFrag->getPositionFirst();
+            auto posLast = curFrag->getPositionLast();
+            if (curFrag->isChanged() && curFrag->isNewAdded()) {
+                _markAsChangedAndNewAdded(posFirst, posLast);
+            } else if (curFrag->isChanged()) {
+                _markAsChanged(posFirst, posLast);
+            } else if (curFrag->isNewAdded()) {
+                _markAsNewAdded(posFirst, posLast);
+            } else {
+                _clearSelectionInCentral(posFirst, posLast);
+            }
+        }
+        m_addNewFrag = false;
     }
+
     //Удаление данных
     ui->TextRight->clear();
     TextCenterIsBlocked = false;
