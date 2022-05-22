@@ -99,12 +99,6 @@ void knowledgebase::_prepareWindow()
     ui->cmb_razdel->addItems(ListRazd);
     ui->cmb_quality->addItems(ListQuality);
     ui->cmb_act->addItems(ListAct);
-
-    if (m_showHelp) {
-        m_showHelp = _showQuestion("Если хотите посмотреть фрагменты законов, то их нужно отметить, а "
-                                   "затем нажать \"Применить\"\n\n"
-                                   "Отобразить эту подсказку при следующем входе в Базу знаний?");
-    }
 }
 
 void knowledgebase::_showMessage(QString text, QString title)
@@ -127,7 +121,7 @@ bool knowledgebase::_showQuestion(QString text, QString title, QString textYes, 
     QRect rect = desktop.availableGeometry(this);
     QPoint center = rect.center();
     int x = center.x() - (width() / 2);
-    int y = center.y() - (height() / 2);
+    int y = center.y() - (height() / 2) + 20; //Смещение 20, чтобы было видно кнопки управления
     center.setX(x);
     center.setY(y);
     move(center);
@@ -174,6 +168,22 @@ void knowledgebase::getFragment(fragment *frag)
     ui->te_text->setText(frag->getText());
     originalText = frag->getText();
     _select();
+}
+
+void knowledgebase::open()
+{
+    QDialog::open();
+    if (m_showHelp) {
+        QString info = "При первом входе будет представлен раздел БЗ «Все фрагменты из КД», и фрагменты со значениями "
+                       "характеристик «Раздел», «Вопрос», «Качество», как в выделенном фрагменте в тексте проекта. Для "
+                       "их просмотра нажмите «Следующий».\n\n"
+                       "Для просмотра других разделов БЗ или фрагментов с другими значениями характеристик «Раздел», "
+                       "«Вопрос», «Качество» нажмите «Разблокировать», отметьте нужные значения и нажмите «Применить». "
+                       "Управление просмотром - кнопки «Следующий», «Предыдущий».";
+        // TODO: В будущем реализовать кнопку справка для БЗ
+        //" Для повторного просмотра сообщения нажмите «Справка».";
+        m_showHelp = _showQuestion(info + "\n\nОтобразить эту подсказку при следующем входе в Базу знаний?");
+    }
 }
 
 // TODO: Баг: через раз открывается то в одном режиме, то в другом

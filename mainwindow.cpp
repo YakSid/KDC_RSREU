@@ -824,10 +824,10 @@ void MainWindow::on_GoLeft_clicked()
         frag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
         frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
         frag->updateFlagsViDoSvUt();
-        ArgLine = "\n" + frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t"
+        QString argLine = "\n" + frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t"
                 + frag->getKachestvo();
-        frag->setSize(ArgLine.size() + frag->getText().size() + 2);
-        cursor.insertText(frag->getText() + ArgLine + "\n\n");
+        frag->setSize(argLine.size() + frag->getText().size() + 2);
+        cursor.insertText(frag->getText() + argLine + "\n\n");
         frag->setPositionFirst(posPrevFragLast);
         frag->setPositionLast(frag->getPositionFirst() + frag->getSize());
         //Изменение главных кэффов
@@ -879,15 +879,15 @@ void MainWindow::on_GoLeft_clicked()
         //Обновление данных в центральном поле
         cursor.setPosition(currentFrag->getPositionFirst(), QTextCursor::MoveAnchor);
         cursor.setPosition(currentFrag->getPositionLast(), QTextCursor::KeepAnchor);
-        ArgLine.clear();
+        QString argLine;
         if (ui->TextRight->toPlainText().right(1) != "\n") {
-            ArgLine += "\n";
+            argLine += "\n";
         }
-        ArgLine += currentFrag->getRazdel() + "\t" + currentFrag->getVoprosABR() + "\t" + currentFrag->getAkt() + "\t"
+        argLine += currentFrag->getRazdel() + "\t" + currentFrag->getVoprosABR() + "\t" + currentFrag->getAkt() + "\t"
                 + currentFrag->getKachestvo();
-        cursor.insertText(currentFrag->getText() + ArgLine + "\n\n");
+        cursor.insertText(currentFrag->getText() + argLine + "\n\n");
         //Вычисление нового размера
-        qint32 deltaTextSize = ui->TextRight->toPlainText().size() + ArgLine.size() + 2 - currentFrag->getSize();
+        qint32 deltaTextSize = ui->TextRight->toPlainText().size() + argLine.size() + 2 - currentFrag->getSize();
         if (deltaTextSize != 0) {
             _recountPositions(SelectedFragment, deltaTextSize);
         }
@@ -969,7 +969,7 @@ void MainWindow::on_BazeKnowledge_clicked()
         break;
     }
     kBase->setModal(true);
-    kBase->exec();
+    kBase->open();
 }
 
 void MainWindow::on_pb_clearField_clicked()
@@ -1028,8 +1028,11 @@ void MainWindow::on_actionMakeDoc_triggered()
     Font->setProperty("Name", "Times New Roman");
     // Вставка данных
     QString output = "";
+    QString argLine;
     for (auto frag : currentKolDog->fragments) {
-        output += frag->getText() + '\n';
+        argLine = frag->getRazdel() + " \t" + frag->getVoprosABR() + " \t" + frag->getAkt() + " \t"
+                + frag->getKachestvo() + "\n\n";
+        output += frag->getText() + argLine;
     }
     range->dynamicCall("SetRange(int, int)", 0, 1);
     range->setProperty("Text", output);

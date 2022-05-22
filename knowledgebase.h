@@ -24,6 +24,7 @@ signals:
 
 public slots:
     void getFragment(fragment *frag);
+    void open() override;
 
 private slots:
     void on_pb_unlock_clicked();

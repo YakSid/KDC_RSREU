@@ -143,8 +143,6 @@ private:
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
-    //!Строчка параметров фрагмента
-    QString ArgLine;
 };
 
 #endif // MAINWINDOW_H
