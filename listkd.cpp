@@ -1,6 +1,8 @@
 #include "listkd.h"
 #include "ui_listkd.h"
 
+#include <QDesktopWidget>
+
 ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::ListKD)
 {
     ui->setupUi(this);
@@ -14,6 +16,16 @@ ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::Li
     this->setStyleSheet("QPushButton:disabled {"
                         "background-color: darkGrey;"
                         "border: 2px solid darkGrey;}");
+
+    //Центрируем окно по центру экрана
+    QDesktopWidget desktop;
+    QRect rect = desktop.availableGeometry(this);
+    QPoint center = rect.center();
+    int x = center.x() - (width() / 2);
+    int y = center.y() - (height() / 2);
+    center.setX(x);
+    center.setY(y);
+    move(center);
 }
 
 ListKD::~ListKD()

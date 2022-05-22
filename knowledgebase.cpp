@@ -6,6 +6,7 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QDesktopWidget>
 
 const QString STR_START_FRAG = "Начальный фрагмент";
 const QString STR_FRAG_FROM_SELECTED = " Фрагмент из выбранных";
@@ -120,6 +121,17 @@ bool knowledgebase::_showQuestion(QString text, QString title, QString textYes, 
     QMessageBox msgBox(QMessageBox::Question, title, text, QMessageBox::Yes | QMessageBox::No, this);
     msgBox.setButtonText(QMessageBox::Yes, textYes);
     msgBox.setButtonText(QMessageBox::No, textNo);
+
+    //Центрируем окно по центру экрана
+    QDesktopWidget desktop;
+    QRect rect = desktop.availableGeometry(this);
+    QPoint center = rect.center();
+    int x = center.x() - (width() / 2);
+    int y = center.y() - (height() / 2);
+    center.setX(x);
+    center.setY(y);
+    move(center);
+
     qint32 resMsg = msgBox.exec();
     if (resMsg == QMessageBox::Yes)
         result = true;

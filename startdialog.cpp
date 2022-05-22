@@ -234,6 +234,7 @@ void StartDialog::on_pb_loadFile_clicked()
 
     ui->pb_continueSaved->setText("Продолжить " + pathList.last());
     ui->pb_continueSaved->setEnabled(true);
+    ui->pb_continueSaved->setStyleSheet("background-color: yellow; font: bold 14px times;");
     ui->pb_continueSaved->setToolTip("Режим: КД ВУЗа - Редактирование");
 }
 
