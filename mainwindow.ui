@@ -1024,6 +1024,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="separator"/>
     <addaction name="actionStartAnotherKD"/>
     <addaction name="actionSaveProject"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditFormulas"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -1052,6 +1054,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionSaveProject">
    <property name="text">
     <string>Сохранить проект...</string>
+   </property>
+  </action>
+  <action name="actionEditFormulas">
+   <property name="text">
+    <string>Изменить формулы...</string>
    </property>
   </action>
  </widget>

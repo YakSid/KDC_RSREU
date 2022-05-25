@@ -39,7 +39,10 @@ void ListKD::on_Ref_clicked() {}
 
 void ListKD::on_DetailKTR_clicked()
 {
-    modelForList->clear();
+    if (modelForList)
+        modelForList->clear();
+    if (modelForSecond)
+        modelForSecond->clear();
     if (viewMode == eStandardView) {
         _prepareView(eDetailView);
         viewMode = eDetailView;
@@ -63,44 +66,33 @@ void ListKD::on_tableView_clicked(const QModelIndex &index)
 
 void ListKD::_prepareView(EViewMode mode)
 {
-    // TODO: [старое, нужно?] Сделать второй класс модели листа для детализированного показа и разблокировать кнопку
-    // "Детализировать"
-    modelForList = new modelList();
-    modelForList->setTable("Договор");
+    setCursor(Qt::WaitCursor);
 
     if (mode == eStandardView) {
+        modelForList = new modelList();
+        modelForList->setTable("Договор");
         modelForList->removeColumns(3, 2);
         modelForList->removeColumns(6, 6);
         modelForList->removeColumns(9, 10);
         modelForList->removeColumns(9, 7);
-    } else {
-        modelForList->removeColumns(27, 6);
-        modelForList->removeColumns(16, 5);
-        modelForList->removeColumns(8, 5);
-        modelForList->removeColumns(5, 2);
-        modelForList->removeColumn(3);
-        modelForList->removeColumn(2);
-        modelForList->removeColumn(13);
         modelForList->removeColumn(1);
-    }
-    modelForList->removeColumn(1);
 
-    modelForList->select();
-    modelForList->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(modelForList);
-    ui->tableView->setModel(proxyModel);
-    ui->tableView->sortByColumn(1, Qt::AscendingOrder);
+        modelForList->select();
+        modelForList->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(modelForList);
+        ui->tableView->setModel(proxyModel);
+        ui->tableView->sortByColumn(1, Qt::AscendingOrder);
 
-    modelForList->insertColumns(1, 2);
-    modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
-    modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));
-    modelForList->setHeaderData(2, Qt::Horizontal, tr("Ктсц"));
-    modelForList->setHeaderData(3, Qt::Horizontal, tr("Дата заключения"));
-    modelForList->setHeaderData(4, Qt::Horizontal, tr("Кзн"));
-    modelForList->setHeaderData(5, Qt::Horizontal, tr("Эффективн.Кэф"));
+        modelForList->insertColumns(1, 2);
 
-    if (mode == eStandardView) {
+        modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
+        modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));
+        modelForList->setHeaderData(2, Qt::Horizontal, tr("Ктсц"));
+        modelForList->setHeaderData(3, Qt::Horizontal, tr("Дата заключения"));
+        modelForList->setHeaderData(4, Qt::Horizontal, tr("Кзн"));
+        modelForList->setHeaderData(5, Qt::Horizontal, tr("Эффективн.Кэф"));
+
         // меняем столбцы для стандартного вида
         ui->tableView->horizontalHeader()->swapSections(4, 8);
         ui->tableView->horizontalHeader()->swapSections(5, 9);
@@ -109,10 +101,45 @@ void ListKD::_prepareView(EViewMode mode)
         ui->tableView->horizontalHeader()->swapSections(4, 5);
         ui->tableView->horizontalHeader()->swapSections(5, 6);
     } else {
+        modelForSecond = new modelSecond();
+        modelForSecond->setTable("Договор");
+        modelForSecond->removeColumns(27, 6);
+        modelForSecond->removeColumns(16, 5);
+        modelForSecond->removeColumns(8, 5);
+        modelForSecond->removeColumns(5, 2);
+        modelForSecond->removeColumn(3);
+        modelForSecond->removeColumn(2);
+        modelForSecond->removeColumn(13);
+        modelForSecond->removeColumn(1);
+        modelForSecond->removeColumn(1);
+        modelForSecond->removeColumns(2, 3);
+
+        modelForSecond->select();
+        modelForSecond->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(modelForSecond);
+        ui->tableView->setModel(proxyModel);
+        ui->tableView->sortByColumn(1, Qt::AscendingOrder);
+
+        modelForSecond->insertColumn(1);
+
+        modelForSecond->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
+        modelForSecond->setHeaderData(1, Qt::Horizontal, tr("Название"));
+        modelForSecond->setHeaderData(2, Qt::Horizontal, tr("Ктр"));
+        modelForSecond->setHeaderData(3, Qt::Horizontal, tr("ДОГ"));
+        modelForSecond->setHeaderData(4, Qt::Horizontal, tr("РВ"));
+        modelForSecond->setHeaderData(5, Qt::Horizontal, tr("ВО"));
+        modelForSecond->setHeaderData(6, Qt::Horizontal, tr("ЗП"));
+        modelForSecond->setHeaderData(7, Qt::Horizontal, tr("ОТ"));
+        modelForSecond->setHeaderData(8, Qt::Horizontal, tr("ТСП"));
+
         // меняем столбцы для детализированного вида
     }
+
     ui->tableView->resizeColumnsToContents();
     ui->tableView->horizontalHeader()->resizeSection(1, 369);
+
+    setCursor(Qt::ArrowCursor);
 }
 
 void ListKD::_search(ESearchState state, QString text)

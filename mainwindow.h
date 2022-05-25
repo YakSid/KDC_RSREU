@@ -63,6 +63,7 @@ signals:
 
 public slots:
     void insertFragFromKB(fragment *frag);
+    void setParameters();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -84,6 +85,7 @@ private slots:
     void on_actionMakeDoc_triggered();
     void on_actionStartAnotherKD_triggered();
     void on_actionSaveProject_triggered();
+    void on_actionEditFormulas_triggered();
 
 private:
     //! Подготовка документа и главного окна
@@ -143,6 +145,9 @@ private:
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
+    // Параметры для формулы КЭФ
+    double m_paramA { 1.5 };
+    double m_paramB { 1.3 };
 };
 
 #endif // MAINWINDOW_H

@@ -1,7 +1,7 @@
 #include "ckoldog.h"
 #include <QDebug>
 
-CKolDog::CKolDog() {}
+CKolDog::CKolDog(double paramA, double paramB) : m_paramA(paramA), m_paramB(paramB) {}
 
 CKolDog::~CKolDog()
 {
@@ -17,6 +17,13 @@ CKolDog::~CKolDog()
     for (auto frag : fragments)
         delete frag;
     fragments.clear();
+}
+
+void CKolDog::setParameters(double paramA, double paramB)
+{
+    m_paramA = paramA;
+    m_paramB = paramB;
+    calculateKef();
 }
 
 void CKolDog::setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
@@ -131,7 +138,7 @@ void CKolDog::calculateCurrentKeffs()
         }
     }
     //Пересчитать КЭФ
-    calulateKef();
+    calculateKef();
 }
 
 QJsonDocument *CKolDog::packKolDogToJson()
@@ -214,9 +221,9 @@ float CKolDog::calculateKzn()
     return znachimost;
 }
 
-double CKolDog::calulateKef()
+double CKolDog::calculateKef()
 {
-    kef = 1.3 * (1.5 * static_cast<double>(ktr) + static_cast<double>(ksc)) + static_cast<double>(kgdp)
+    kef = m_paramB * (m_paramA * static_cast<double>(ktr) + static_cast<double>(ksc)) + static_cast<double>(kgdp)
             + static_cast<double>(kpsp);
     return kef;
 }

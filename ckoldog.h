@@ -13,8 +13,10 @@
 class CKolDog
 {
 public:
-    CKolDog();
+    CKolDog(double paramA, double paramB);
     ~CKolDog();
+    //! Установка параметров для формулы КЭФ
+    void setParameters(double paramA, double paramB);
     QString getId() const { return id; }
     QString getName() const { return name; }
     QDate getDate() const { return date; }
@@ -102,7 +104,7 @@ public:
     //! Высчитать значимость кзн
     float calculateKzn();
     //! Пересчитать КЭФ
-    double calulateKef();
+    double calculateKef();
     //! Увеличить минорный кэф этого раздела
     void incrementMinorKeff(QString razdAbr);
     //! Уменьшить минорный кэф этого раздела
@@ -161,6 +163,10 @@ private:
     int startKtsp;
     int startKpr;
     int startKtok;
+
+    // Параметры для формулы КЭФ
+    double m_paramA { 1.5 };
+    double m_paramB { 1.3 };
 };
 
 #endif // CKOLDOG_H

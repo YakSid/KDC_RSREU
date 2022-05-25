@@ -32,6 +32,7 @@ SOURCES += \
     knowledgebase.cpp \
         main.cpp \
         mainwindow.cpp \
+    modelsecond.cpp \
     startdialog.cpp \
     listkd.cpp \
     modellist.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     ckoldog.h \
     knowledgebase.h \
         mainwindow.h \
+    modelsecond.h \
     startdialog.h \
     listkd.h \
     modellist.h \

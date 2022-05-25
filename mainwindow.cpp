@@ -171,6 +171,33 @@ void MainWindow::insertFragFromKB(fragment *frag)
     SelectedFragment = prevSelectedFragId;
 }
 
+void MainWindow::setParameters()
+{
+    for (auto obj : sender()->parent()->children()) {
+        if (obj->metaObject()->className() == QLineEdit::staticMetaObject.className()) {
+            auto line = static_cast<QLineEdit *>(obj);
+            if (obj->objectName() == "lineA") {
+                m_paramA = line->text().toDouble();
+            } else if (obj->objectName() == "lineB") {
+                m_paramB = line->text().toDouble();
+            }
+        }
+    }
+
+    //Перерасчитываем стартовый КЭФ
+    double doubleKEF = m_paramB
+                    * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
+                       + static_cast<double>(currentKolDog->getStartKsc()))
+            + static_cast<double>(currentKolDog->getStartKgdp()) + static_cast<double>(currentKolDog->getStartKpsp());
+    QString strKEF = _doubleToFloatString(doubleKEF);
+    ui->startKEF->setText(strKEF);
+
+    currentKolDog->setParameters(m_paramA, m_paramB);
+
+    //Заполняем новые значения КЭФ
+    _fillCurrentKEFOnly(currentKolDog->getKef());
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     bool needToAsk = false;
@@ -208,7 +235,7 @@ void MainWindow::_prepareMainWindow(QString docId)
     //Здесь производится заполнение данных
     //Заполнение коэффициентов
     SelectedKD = docId;
-    currentKolDog = new CKolDog();
+    currentKolDog = new CKolDog(m_paramA, m_paramB);
     QSqlQuery in1_query, in2_query, in3_query, in4_query;
     in1_query.prepare("SELECT * FROM Договор WHERE Договор.[#Дог] = :val1");
     in1_query.bindValue(":val1", SelectedKD);
@@ -225,8 +252,8 @@ void MainWindow::_prepareMainWindow(QString docId)
         currentKolDog->setStartKgdp(in1_query.value(15).toInt());
         ui->startKPSP->setText(_doubleToFloatString(in1_query.value(14).toDouble()));
         currentKolDog->setStartKpsp(in1_query.value(14).toFloat());
-        double doubleKEF = 1.3
-                        * (1.5 * static_cast<double>(currentKolDog->getStartKtr())
+        double doubleKEF = m_paramB
+                        * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
                            + static_cast<double>(currentKolDog->getStartKsc()))
                 + static_cast<double>(currentKolDog->getStartKgdp())
                 + static_cast<double>(currentKolDog->getStartKpsp());
@@ -311,6 +338,10 @@ void MainWindow::_prepareMainWindow(QString docId)
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
     ui->te_textCenter->blockSignals(false);
+
+    //Сокрытие недоделанных элементов
+    ui->label_16->setVisible(false);
+    ui->QualityWeightSpinBox->setVisible(false);
 }
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
@@ -328,7 +359,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     QJsonObject jObjInsideDoc = jDoc.object();
     QJsonObject mainSettings = jObjInsideDoc["mainSettings"].toObject();
     //Заполнение текущего КД из сохранённого json документа
-    currentKolDog = new CKolDog();
+    currentKolDog = new CKolDog(m_paramA, m_paramB);
     currentKolDog->setId(mainSettings["id"].toString());
     currentKolDog->setName(mainSettings["name"].toString());
     QDate date;
@@ -414,6 +445,10 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
     ui->te_textCenter->blockSignals(false);
+
+    //Сокрытие недоделанных элементов
+    ui->label_16->setVisible(false);
+    ui->QualityWeightSpinBox->setVisible(false);
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -783,7 +818,7 @@ void MainWindow::on_pb_deleteFrag_clicked()
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
     //! КЭФ отдельно пересчитываем т.к. она меняется нелинейно
-    _fillCurrentKEFOnly(currentKolDog->calulateKef());
+    _fillCurrentKEFOnly(currentKolDog->calculateKef());
     //Изменение дополнительных кэффов
     if (!razdAbr.isEmpty()) {
         currentKolDog->decrementMinorKeff(razdAbr);
@@ -915,7 +950,7 @@ void MainWindow::on_GoLeft_clicked()
         }
         //Перерасчёт кэф после вставки фрагмента
         auto fiveKeffs = currentKolDog->getFiveCurrentKeffs();
-        fiveKeffs[4] = currentKolDog->calulateKef();
+        fiveKeffs[4] = currentKolDog->calculateKef();
         _fillCurrentKeffs(fiveKeffs);
         //
         qint32 idFragAfterInserted = idPrevFrag + 2;
@@ -975,7 +1010,7 @@ void MainWindow::on_GoLeft_clicked()
         }
         //Пересчёт КЭФ
         auto fiveKeffs = currentKolDog->getFiveCurrentKeffs();
-        fiveKeffs[4] = currentKolDog->calulateKef();
+        fiveKeffs[4] = currentKolDog->calculateKef();
         _fillCurrentKeffs(fiveKeffs);
 
         //Убираем выделение изменённого фрагмента
@@ -1187,4 +1222,37 @@ void MainWindow::on_actionSaveProject_triggered()
         auto jDocPtr = currentKolDog->packKolDogToJson();
         m_jsonManager->saveJson(jDocPtr, jName);
     }
+}
+
+void MainWindow::on_actionEditFormulas_triggered()
+{
+    auto dialog = new QDialog(this);
+    dialog->setWindowTitle("Master KDA");
+
+    auto mainLayout = new QVBoxLayout(dialog);
+    mainLayout->setMargin(11);
+    mainLayout->setSpacing(6);
+    auto lblA = new QLabel("Параметр a:", dialog);
+    auto lineA = new QLineEdit(QString::number(m_paramA), dialog);
+    lineA->setObjectName("lineA");
+    auto lblB = new QLabel("Параметр b:", dialog);
+    auto lineB = new QLineEdit(QString::number(m_paramB), dialog);
+    lineB->setObjectName("lineB");
+    auto topLayout = new QHBoxLayout(dialog);
+    topLayout->addWidget(lblA);
+    topLayout->addWidget(lineA);
+    mainLayout->addLayout(topLayout);
+    auto bottomLayout = new QHBoxLayout(dialog);
+    bottomLayout->addWidget(lblB);
+    bottomLayout->addWidget(lineB);
+    mainLayout->addLayout(bottomLayout);
+    auto pb_ok = new QPushButton("Принять", dialog);
+    connect(pb_ok, &QPushButton::clicked, this, &MainWindow::setParameters);
+    connect(pb_ok, &QPushButton::clicked, dialog, &QDialog::close);
+    mainLayout->addWidget(pb_ok);
+    dialog->setLayout(mainLayout);
+
+    dialog->setModal(true);
+    dialog->exec();
+    delete dialog;
 }

@@ -6,6 +6,7 @@
 #include <QDebug>
 #include "QStandardItem"
 #include "modellist.h"
+#include "modelsecond.h"
 #include <QSortFilterProxyModel>
 #include <QDir>
 #include "startdialog.h"
@@ -66,7 +67,8 @@ private:
 private:
     Ui::ListKD *ui;
     CDatabaseManager *m_db;
-    modelList *modelForList;
+    modelList *modelForList { nullptr };
+    modelSecond *modelForSecond { nullptr };
     QSortFilterProxyModel *proxyModel;
     EViewMode viewMode { eStandardView };
     //! Опция выбора
