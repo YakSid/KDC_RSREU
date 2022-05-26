@@ -168,6 +168,11 @@ void knowledgebase::getFragment(fragment *frag)
     ui->te_text->setText(frag->getText());
     originalText = frag->getText();
     _select();
+
+    //Костыль - имитация нажатия и выбора всех КД
+    on_pb_unlock_clicked();
+    ui->rb_all_fragments_kd->toggle();
+    on_pb_unlock_clicked();
 }
 
 void knowledgebase::open()
