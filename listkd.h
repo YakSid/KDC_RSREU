@@ -44,6 +44,9 @@ public:
     QString SelectedKD = "";
     bool WantGo = false;
 
+public slots:
+    void onSliderMoved(int value);
+
 private slots:
     void on_Ref_clicked();
 

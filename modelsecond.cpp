@@ -26,5 +26,13 @@ QVariant modelSecond::data(const QModelIndex &index, int role) const
             return a_query.value(0).toString();
         }
     }
+    if (index.column() == 10) {
+        return QString::number(index.row());
+    }
     return QSqlTableModel::data(index, role);
+}
+
+QVariant modelSecond::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    return QSqlTableModel::headerData(section, orientation, role);
 }

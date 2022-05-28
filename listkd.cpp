@@ -1,6 +1,7 @@
 #include "listkd.h"
 #include "ui_listkd.h"
 
+#include <QScrollBar>
 #include <QDesktopWidget>
 
 ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::ListKD)
@@ -26,6 +27,10 @@ ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::Li
     center.setX(x);
     center.setY(y);
     move(center);
+
+    connect(ui->tableView->verticalScrollBar(), &QScrollBar::valueChanged, this, &ListKD::onSliderMoved);
+    // TODO: переделать номер в таблице покрасиваше, а то неровно
+    ui->tableView->verticalScrollBar()->setVisible(false);
 }
 
 ListKD::~ListKD()
@@ -33,6 +38,12 @@ ListKD::~ListKD()
     qDebug() << "listDialog with db was deleted";
     delete ui;
     delete m_db;
+}
+
+void ListKD::onSliderMoved(int value)
+{
+    // ui->lw_id->verticalScrollBar()->setSliderPosition(value);
+    ui->lw_id->verticalScrollBar()->setValue(value);
 }
 
 void ListKD::on_Ref_clicked() {}
@@ -100,16 +111,17 @@ void ListKD::_prepareView(EViewMode mode)
         ui->tableView->horizontalHeader()->swapSections(3, 6);
         ui->tableView->horizontalHeader()->swapSections(4, 5);
         ui->tableView->horizontalHeader()->swapSections(5, 6);
+
+        // ui->tableView->verticalHeader()->setVisible(false);
     } else {
         modelForSecond = new modelSecond();
         modelForSecond->setTable("Договор");
-        modelForSecond->removeColumns(27, 6);
+        modelForSecond->removeColumns(28, 6);
         modelForSecond->removeColumns(16, 5);
         modelForSecond->removeColumns(8, 5);
         modelForSecond->removeColumns(5, 2);
         modelForSecond->removeColumn(3);
         modelForSecond->removeColumn(2);
-        modelForSecond->removeColumn(13);
         modelForSecond->removeColumn(1);
         modelForSecond->removeColumn(1);
         modelForSecond->removeColumns(2, 3);
@@ -132,8 +144,17 @@ void ListKD::_prepareView(EViewMode mode)
         modelForSecond->setHeaderData(6, Qt::Horizontal, tr("ЗП"));
         modelForSecond->setHeaderData(7, Qt::Horizontal, tr("ОТ"));
         modelForSecond->setHeaderData(8, Qt::Horizontal, tr("ТСП"));
+        modelForSecond->setHeaderData(9, Qt::Horizontal, tr("ТОК(МОЛ)"));
 
-        // меняем столбцы для детализированного вида
+        // ui->tableView->verticalHeader()->setVisible(true);
+        if (!ui->lw_id->count()) {
+            for (int i = 0; i <= modelForSecond->rowCount(); i++) {
+                if (i == 0)
+                    ui->lw_id->addItem(" ");
+                else
+                    ui->lw_id->addItem(QString::number(i));
+            }
+        }
     }
 
     ui->tableView->resizeColumnsToContents();
