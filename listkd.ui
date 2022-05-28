@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1027</width>
+    <width>1072</width>
     <height>574</height>
    </rect>
   </property>
@@ -66,6 +66,9 @@
    </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QListWidget" name="lw_id">
        <property name="maximumSize">
