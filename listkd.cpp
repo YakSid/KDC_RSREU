@@ -112,6 +112,15 @@ void ListKD::_prepareView(EViewMode mode)
         ui->tableView->horizontalHeader()->swapSections(4, 5);
         ui->tableView->horizontalHeader()->swapSections(5, 6);
 
+        if (!ui->lw_id->count()) {
+            for (int i = 0; i <= modelForList->rowCount(); i++) {
+                if (i == 0)
+                    ui->lw_id->addItem(" ");
+                else
+                    ui->lw_id->addItem(QString::number(i));
+            }
+        }
+
         // ui->tableView->verticalHeader()->setVisible(false);
     } else {
         modelForSecond = new modelSecond();
