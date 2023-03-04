@@ -371,6 +371,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pb_showList">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="font">
           <font>
            <pointsize>11</pointsize>

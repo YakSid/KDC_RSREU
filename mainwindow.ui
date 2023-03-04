@@ -1021,25 +1021,14 @@ p, li { white-space: pre-wrap; }
      <string>Проект</string>
     </property>
     <addaction name="actionMakeDoc"/>
+    <addaction name="actionMakeOdt"/>
     <addaction name="separator"/>
     <addaction name="actionStartAnotherKD"/>
     <addaction name="actionSaveProject"/>
     <addaction name="separator"/>
     <addaction name="actionEditFormulas"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
-    <property name="title">
-     <string>Просмотр проекта</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_3">
-    <property name="title">
-     <string>Справка</string>
-    </property>
-   </widget>
    <addaction name="menu"/>
-   <addaction name="menu_2"/>
-   <addaction name="menu_3"/>
   </widget>
   <action name="actionMakeDoc">
    <property name="text">
@@ -1059,6 +1048,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionEditFormulas">
    <property name="text">
     <string>Изменить формулы...</string>
+   </property>
+  </action>
+  <action name="actionMakeOdt">
+   <property name="text">
+    <string>Сформировать в документ .odt</string>
    </property>
   </action>
  </widget>

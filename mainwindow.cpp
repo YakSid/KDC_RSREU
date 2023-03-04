@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QAxObject>
+#include <QTextDocumentWriter>
 #include "cdatabasemanager.h"
 
 const char PREVIOUS_SELECTION[] = "previousSelection";
@@ -34,12 +35,8 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  *
  * 2. Заполнить возможность закона из таблицы ТФрагмент поля КодГрПарам?
  *
- * 3. Может в БЗ при выводе текстов писать не аббревиатуру, а полное название?
- *
- * 4. Не тормозит ли когда-нибудь сильно?
+ * 3. Не тормозит ли когда-нибудь сильно?
  */
-
-// TODO: Меню бар: убрать лишнее или реализовать
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -1157,6 +1154,22 @@ void MainWindow::on_actionMakeDoc_triggered()
     }
     range->dynamicCall("SetRange(int, int)", 0, 1);
     range->setProperty("Text", output);
+}
+
+void MainWindow::on_actionMakeOdt_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), "", tr("Open Document (*.odt)"));
+
+    if (!fileName.isEmpty()) {
+        QTextDocumentWriter *writer = new QTextDocumentWriter(fileName);
+        if (writer->write(ui->te_textCenter->document())) {
+            _showMessage("Договор успешно сохранён в файл:\n" + fileName);
+        } else {
+            _showMessage("Произошла ошибка записи, документ не сохранён");
+        }
+    } else {
+        _showMessage("Документ не сохранён, потому что не выбран каталог сохранения");
+    }
 }
 
 void MainWindow::on_actionStartAnotherKD_triggered()

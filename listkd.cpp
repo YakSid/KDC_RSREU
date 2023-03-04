@@ -29,7 +29,6 @@ ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::Li
     move(center);
 
     connect(ui->tableView->verticalScrollBar(), &QScrollBar::valueChanged, this, &ListKD::onSliderMoved);
-    // TODO: переделать номер в таблице покрасиваше, а то неровно
     ui->tableView->verticalScrollBar()->setVisible(false);
 }
 

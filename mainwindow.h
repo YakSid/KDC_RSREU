@@ -14,8 +14,6 @@
 
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
 
-//! TODO: [Улучшение] Дополнительно в конце: ~переводчик, словарь сокращений. К концу работы. И спросить нужен ли он вообще
-
 // TODO: Система перерасчёта кэффов требует рефакторинга, сделана некрасиво
 
 //! Тип отображаемого раздела в центральном окне
@@ -83,6 +81,7 @@ private slots:
     void on_btn_showFullText_clicked();
     //! Менюбар
     void on_actionMakeDoc_triggered();
+    void on_actionMakeOdt_triggered();
     void on_actionStartAnotherKD_triggered();
     void on_actionSaveProject_triggered();
     void on_actionEditFormulas_triggered();
