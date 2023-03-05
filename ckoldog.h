@@ -109,7 +109,7 @@ public:
     void incrementMinorKeff(QString razdAbr);
     //! Уменьшить минорный кэф этого раздела
     void decrementMinorKeff(QString razdAbr);
-    //! id последнего фрагмента из раздела
+    //! id первого фрагмента из раздела
     qint32 findFirstInRazd(QString razdAbr);
 
 private:

@@ -67,7 +67,7 @@ private:
     QList<QString> namesForShow;
     QList<structOrder *> ordersForShow;
     //! Файл для вынесения дополнительных пунктов
-    QString fileWithAdd = "";
+    QString m_savedFragmentsPath = "";
 
     //! Показывать ли подсказку
     bool m_showHelp { true };

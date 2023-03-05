@@ -452,10 +452,12 @@ void knowledgebase::on_cmb_razdel_currentTextChanged(const QString &arg1)
 
 void knowledgebase::on_pb_insert_into_file_clicked()
 {
-    if (fileWithAdd.isEmpty()) {
-        fileWithAdd = QFileDialog::getSaveFileName(this, "Текстовый файл для дополнительных фрагментов", "", "*.txt");
+    if (m_savedFragmentsPath.isEmpty()) {
+        m_savedFragmentsPath =
+                QFileDialog::getSaveFileName(this, "Текстовый файл для дополнительных фрагментов", "", "*.txt");
+        ui->pb_insert_into_file->setToolTip(m_savedFragmentsPath);
     }
-    QFile file(fileWithAdd);
+    QFile file(m_savedFragmentsPath);
     file.open(QIODevice::Append | QIODevice::Text);
     QTextStream writeStream(&file);
     writeStream << "\n\n" << ui->te_text->toPlainText();

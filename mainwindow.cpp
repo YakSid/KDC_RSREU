@@ -797,8 +797,15 @@ void MainWindow::on_pb_newFrag_clicked()
         TextCenterIsBlocked = true;
         m_addNewFrag = true;
         if (m_addFirst) {
-            //Поле настроек справа пустое, заполним первыми значениями
-            _prepareSettingsInRight("КЗОТ", "ПСП", "Ан", "ПЛН");
+            //Поле справа пустое, заполним его
+            auto sectionId = ui->tw_navigator->property(PREVIOUS_SELECTION).toInt();
+            if (sectionId == -1 || sectionId == 11) {
+                //Отображаются все разделы, заполним первыми значениями
+                _prepareSettingsInRight("КЗОТ", "ПСП", "Ан", "ПЛН");
+            } else {
+                //Выбран фильтр по разделу, заполним его значениями
+                _prepareSettingsInRight("КЗОТ", AbbreviationRazd[sectionId], "Ан", ABRQuestionsAtRazdel[sectionId][1]);
+            }
         }
     }
 }
@@ -889,11 +896,46 @@ void MainWindow::on_GoLeft_clicked()
                 auto section = EDisplayedSection(sectionId);
                 if (section != eAllSections) {
                     auto firstInRazdFragId = currentKolDog->findFirstInRazd(AbbreviationRazd[section]) - 1;
-                    if (firstInRazdFragId != -1) {
+                    if (firstInRazdFragId > -1) {
                         SelectedFragment = firstInRazdFragId;
                         posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
                         posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
                         idPrevFrag = firstInRazdFragId;
+                    } else {
+                        bool insertLast = false;
+                        //Раздел пустой, ищем положение по фрагментам следующих разделов
+                        while (firstInRazdFragId < 0) {
+                            sectionId++;
+                            if (sectionId == 11) {
+                                //Разделов позднее нет - можно ставить фрагмент последним
+                                insertLast = true;
+                                break;
+                            } else {
+                                section = EDisplayedSection(sectionId);
+                                firstInRazdFragId = currentKolDog->findFirstInRazd(AbbreviationRazd[section]) - 1;
+                            }
+                        }
+                        //Вставляем последним
+                        if (insertLast) {
+                            if (currentKolDog->fragments.isEmpty()) {
+                                //Если документ пустой
+                                posPrevFragFirst = 0;
+                                posPrevFragLast = 0;
+                                idPrevFrag = -1;
+                            } else {
+                                //Если есть фрагменты выше
+                                idPrevFrag = currentKolDog->fragments.count() - 1;
+                                posPrevFragFirst = 0;
+                                posPrevFragLast = 0;
+                                SelectedFragment = idPrevFrag;
+                            }
+                        } else {
+                            //Вставляем перед этим фрагментом
+                            SelectedFragment = firstInRazdFragId;
+                            posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
+                            posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
+                            idPrevFrag = firstInRazdFragId;
+                        }
                     }
                 }
             }
