@@ -549,16 +549,6 @@ void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
     cursor.setCharFormat(format);
 }
 
-void MainWindow::_clearSelectionInCentral()
-{
-    QTextCursor cursor(ui->te_textCenter->document());
-    QTextCharFormat format;
-    format.setFontWeight(QFont::Normal);
-    cursor.setPosition(0, QTextCursor::MoveAnchor);
-    cursor.setPosition(ui->te_textCenter->toPlainText().length(), QTextCursor::KeepAnchor);
-    cursor.setCharFormat(format);
-}
-
 void MainWindow::_markAsChanged(qint32 posStart, qint32 posEnd)
 {
     QTextCursor cursor(ui->te_textCenter->document());
@@ -1165,10 +1155,6 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionMakeDoc_triggered()
 {
-    // TODO: [Улучшение] переделать сохранение файла текста по указанному пути
-    // QString pathName = QFileDialog::getSaveFileName();
-    currentKolDog->setName(ui->DogName->text()); //учесть имя КД
-
     // Инициализация переменных для настройки документа
     QAxObject *word = new QAxObject("Word.Application");
     QAxObject *documents = word->querySubObject("Documents");
@@ -1200,7 +1186,20 @@ void MainWindow::on_actionMakeDoc_triggered()
 
 void MainWindow::on_actionMakeOdt_triggered()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), "", tr("Open Document (*.odt)"));
+    //Убираем выделение выбранного фрагмента в тексте, если оно есть
+    if (SelectedFragment > 0) {
+        auto curFrag = currentKolDog->fragments[SelectedFragment];
+        if (curFrag)
+            _clearSelectionInCentral(curFrag->getPositionFirst(), curFrag->getPositionLast());
+    }
+
+    //Ограничениедлинны имени файла в windows - 260 символов
+    QString KDName = currentKolDog->getName();
+    if (KDName.length() > 250) {
+        KDName.chop(-(250 - KDName.length()));
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), KDName, "Open Document (*.odt)");
 
     if (!fileName.isEmpty()) {
         QTextDocumentWriter *writer = new QTextDocumentWriter(fileName);
