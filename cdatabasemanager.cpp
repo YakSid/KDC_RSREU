@@ -2,8 +2,7 @@
 #include <QSqlQuery>
 #include "cconstants.h"
 
-// TODO: [Улучшение] Переделать по нормальному подключение БД и стартовый диалог, указывать имя выбранного к продолжению
-// кд?
+// TODO: [Улучшение] Переделать по нормальному подключение БД и стартовый диалог
 
 CDatabaseManager::CDatabaseManager(QString name)
 {
@@ -39,6 +38,18 @@ CDatabaseManager::CDatabaseManager(QString name)
         order->dateChange = queryLawSelect.value(3).toDate();
         TOrder.append(order);
     }
+
+    //Подготовка соответствия КодКД-ИмяУчреждения
+    if (INSTITUTE_NAMES.size())
+        INSTITUTE_NAMES.clear();
+    QSqlQuery queryNames;
+    queryNames.prepare("SELECT ТУчреждение.КодУчреждения, ТУчреждение.ИмяУчреждения FROM ТУчреждение");
+    if (!queryNames.exec()) {
+        qDebug() << queryNames.lastError().text();
+    }
+    while (queryNames.next()) {
+        INSTITUTE_NAMES.insert(queryNames.value(0).toString(), queryNames.value(1).toString());
+    }
 }
 
 CDatabaseManager::~CDatabaseManager()
@@ -47,6 +58,8 @@ CDatabaseManager::~CDatabaseManager()
         delete order;
     }
     TOrder.clear();
+
+    INSTITUTE_NAMES.clear();
 
     if (m_db.isOpen()) {
         m_db.close();

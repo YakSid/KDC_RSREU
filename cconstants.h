@@ -2,6 +2,7 @@
 #define CCONSTANTS_H
 
 #include <QStringList>
+#include <QMap>
 #include <QDate>
 
 const QStringList ListAct = { "КЗОТ | Решение общетрудовых вопросов", "ОБР | Решение отраслевых вопросов (образования)",
@@ -146,5 +147,7 @@ struct structOrder {
 };
 // TODO: [Улучшение кода] можно переделать потом это в паттерн синглтон
 extern QList<structOrder *> TOrder;
+//!======================================Соответствие КодКД-ИмяУчреждения====================================
+extern QMap<QString, QString> INSTITUTE_NAMES;
 
 #endif // CCONSTANTS_H
