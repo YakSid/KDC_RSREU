@@ -7,9 +7,14 @@
 ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::ListKD)
 {
     ui->setupUi(this);
+    Qt::WindowFlags flags = Qt::WindowMinimizeButtonHint;
+    flags |= Qt::WindowCloseButtonHint;
+    this->setWindowFlags(flags);
 
+    ui->Ref->setVisible(false);
     ui->SelectKD->setEnabled(false);
     ui->cmb_search->setCurrentIndex(1);
+
     m_db = new CDatabaseManager(dbName);
 
     _prepareView(eStandardView);
@@ -41,7 +46,6 @@ ListKD::~ListKD()
 
 void ListKD::onSliderMoved(int value)
 {
-    // ui->lw_id->verticalScrollBar()->setSliderPosition(value);
     ui->lw_id->verticalScrollBar()->setValue(value);
 }
 
@@ -114,7 +118,7 @@ void ListKD::_prepareView(EViewMode mode)
         if (!ui->lw_id->count()) {
             for (int i = 0; i <= modelForList->rowCount(); i++) {
                 if (i == 0)
-                    ui->lw_id->addItem(" ");
+                    ui->lw_id->addItem("№");
                 else
                     ui->lw_id->addItem(QString::number(i));
             }

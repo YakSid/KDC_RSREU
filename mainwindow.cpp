@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         sDialog->exec();
         if (sDialog->startClicked) {
             if (sDialog->StartMode == StartDialog::EStartMode::startNew) {
-                lDialog = new ListKD(this, sDialog->dbPath);
+                lDialog = new ListKD(nullptr, sDialog->dbPath);
                 lDialog->setModal(true);
                 lDialog->exec();
                 if (!lDialog->WantGo) {
@@ -89,7 +89,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+    qDebug() << "main destructor";
     delete ui;
+    delete sDialog;
     delete kBase;
     delete lDialog;
     delete m_db;
@@ -1243,7 +1245,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     sDialog->exec();
     if (sDialog->startClicked) {
         if (sDialog->StartMode == StartDialog::EStartMode::startNew) {
-            lDialog = new ListKD(this, sDialog->dbPath);
+            lDialog = new ListKD(nullptr, sDialog->dbPath);
             lDialog->setModal(true);
             lDialog->exec();
             if (!lDialog->WantGo) {
@@ -1282,6 +1284,7 @@ void MainWindow::on_actionEditFormulas_triggered()
 {
     auto dialog = new QDialog(this);
     dialog->setWindowTitle("Master KDA");
+    qDebug() << dialog->windowFlags();
 
     auto mainLayout = new QVBoxLayout(dialog);
     mainLayout->setMargin(11);
