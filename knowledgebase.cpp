@@ -165,6 +165,7 @@ void knowledgebase::getFragment(fragment *frag)
             break;
         }
     }
+
     ui->te_text->setText(frag->getText());
     originalText = frag->getText();
     _select();

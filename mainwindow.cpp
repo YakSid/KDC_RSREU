@@ -1117,7 +1117,18 @@ void MainWindow::on_BazeKnowledge_clicked()
         emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
         break;
     case eRightFrameMode:
-        emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
+        if (SelectedFragment == -1) {
+            //Кинуть дефолтный фрагмент
+            auto frag = new fragment();
+            frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
+            frag->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
+            frag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
+            frag->setVoprosABR(ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
+            frag->setText(ui->TextRight->toPlainText());
+            emit s_sentFragment(frag);
+        } else {
+            emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
+        }
         break;
     }
     kBase->setModal(true);
