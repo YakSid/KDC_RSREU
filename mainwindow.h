@@ -62,6 +62,7 @@ signals:
 public slots:
     void insertFragFromKB(fragment *frag);
     void setParameters();
+    void slotDbPathEdit();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -85,6 +86,7 @@ private slots:
     void on_actionStartAnotherKD_triggered();
     void on_actionSaveProject_triggered();
     void on_actionEditFormulas_triggered();
+    void on_actionEditDbPath_triggered();
 
 private:
     //! Подготовка документа и главного окна
@@ -146,6 +148,9 @@ private:
     // Параметры для формулы КЭФ
     double m_paramA { 1.5 };
     double m_paramB { 1.3 };
+
+    // TODO: временный параметр, изменив архитектуру удалить его
+    QLineEdit *m_linePointer { nullptr };
 };
 
 #endif // MAINWINDOW_H

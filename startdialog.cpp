@@ -25,6 +25,7 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
     // ui->ln_db->setVisible(false);
     ui->ln_db->clear();
     dbPath = _getPath();
+    bool dbPathExist = !dbPath.isEmpty();
     ui->ln_db->setText(dbPath);
 
     QFile logfile("LoginInfo.ini");
@@ -39,6 +40,8 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
         }
         logfile.close();
         ui->pb_deleteAuthor->setEnabled(true);
+        // Если не первый запуск и путь уже указан - скроем
+        _showDbSettings(!dbPathExist);
     }
 
     this->setStyleSheet("QPushButton:disabled {"
@@ -49,6 +52,11 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
 StartDialog::~StartDialog()
 {
     delete ui;
+}
+
+void StartDialog::saveDbPath(QString path)
+{
+    _savePath(path);
 }
 
 void StartDialog::on_Start_clicked()
@@ -90,7 +98,7 @@ void StartDialog::on_pb_deleteAuthor_clicked()
         for (int i = 0; i < ui->cb_author->count(); i++) {
             doctors.append(ui->cb_author->itemText(i));
         }
-        //Изменение логфайла
+        // Изменение логфайла
         _clearLogfile();
         _updateLogfile(doctors);
 
@@ -186,6 +194,12 @@ QString StartDialog::_getPath()
         result.remove(0, 1);
 
     return result;
+}
+
+void StartDialog::_showDbSettings(bool visible)
+{
+    ui->pb_dbManage->setVisible(visible);
+    ui->ln_db->setVisible(visible);
 }
 
 void StartDialog::on_pb_changeAuthor_clicked()

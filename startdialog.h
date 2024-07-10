@@ -23,6 +23,9 @@ public:
     // Перменные для работы с БД
     QString dbPath { "" };
 
+public:
+    void saveDbPath(QString path);
+
 private slots:
     void on_Start_clicked();
     void on_pb_accept_clicked();
@@ -45,6 +48,8 @@ private:
     // Работа с файлом пути к БД
     void _savePath(QString path);
     QString _getPath();
+
+    void _showDbSettings(bool visible);
 
 private:
     Ui::StartDialog *ui;

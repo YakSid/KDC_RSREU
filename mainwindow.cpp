@@ -60,11 +60,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 } else {
                     ui->setupUi(this);
                     m_db = new CDatabaseManager(sDialog->dbPath);
-                    //Подготовка договора и mw
+                    // Подготовка договора и mw
                     _prepareMainWindow(lDialog->SelectedKD);
                 }
             } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
-                //Загрузка сохранённого проекта
+                // Загрузка сохранённого проекта
                 ui->setupUi(this);
                 m_db = new CDatabaseManager(sDialog->dbPath);
                 QJsonDocument jDoc = m_jsonManager->loadJson(sDialog->jFilename);
@@ -183,7 +183,7 @@ void MainWindow::setParameters()
         }
     }
 
-    //Перерасчитываем стартовый КЭФ
+    // Перерасчитываем стартовый КЭФ
     double doubleKEF = m_paramB
                     * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
                        + static_cast<double>(currentKolDog->getStartKsc()))
@@ -193,8 +193,24 @@ void MainWindow::setParameters()
 
     currentKolDog->setParameters(m_paramA, m_paramB);
 
-    //Заполняем новые значения КЭФ
+    // Заполняем новые значения КЭФ
     _fillCurrentKEFOnly(currentKolDog->getKef());
+}
+
+void MainWindow::slotDbPathEdit()
+{
+    QString newDbPath =
+            QFileDialog::getOpenFileName(this, "Выберите базу данных", QString(), tr("Microsoft Access (*.mdb)"));
+    if (!newDbPath.isEmpty()) {
+        sDialog->dbPath = newDbPath;
+        sDialog->saveDbPath(newDbPath);
+        if (m_linePointer) {
+            m_linePointer->setText(newDbPath);
+        }
+
+        delete m_db;
+        m_db = new CDatabaseManager(newDbPath);
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -215,7 +231,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::_prepareMainWindow(QString docId)
 {
-    //Центрируем окно по центру экрана
+    // Центрируем окно по центру экрана
     QDesktopWidget desktop;
     QRect rect = desktop.availableGeometry(this);
     QPoint center = rect.center();
@@ -224,15 +240,15 @@ void MainWindow::_prepareMainWindow(QString docId)
     center.setX(x);
     center.setY(y);
     move(center);
-    //Настройка навигатора
+    // Настройка навигатора
     ui->tw_navigator->setColumnWidth(0, 211);
     for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
         auto item = ui->tw_navigator->item(row, 0);
         item->setBackgroundColor(Qt::white);
     }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
-    //Здесь производится заполнение данных
-    //Заполнение коэффициентов
+    // Здесь производится заполнение данных
+    // Заполнение коэффициентов
     SelectedKD = docId;
     currentKolDog = new CKolDog(m_paramA, m_paramB);
     QSqlQuery in1_query, in2_query, in3_query, in4_query;
@@ -269,7 +285,7 @@ void MainWindow::_prepareMainWindow(QString docId)
                 in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
                 in1_query.value(26).toInt(), 0, 0, in1_query.value(27).toInt(), in1_query.value(30).toFloat());
     }
-    //Нахождение полного имени учрежд. и запись в шапку
+    // Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
     in4_query.bindValue(":val1", currentKolDog->getId());
     if (!in4_query.exec()) {
@@ -279,7 +295,7 @@ void MainWindow::_prepareMainWindow(QString docId)
         ui->DogName->setText(in4_query.value(0).toString());
         currentKolDog->setName(ui->DogName->text());
     }
-    //Запрос на заполнение центрального поля
+    // Запрос на заполнение центрального поля
     int QuestionNum = 0;
     in2_query.prepare("SELECT * FROM Тексты WHERE Тексты.[#Дог] = :val1 ORDER BY Тексты.[#Текст]");
     in2_query.bindValue(":val1", SelectedKD);
@@ -288,7 +304,7 @@ void MainWindow::_prepareMainWindow(QString docId)
     }
     while (in2_query.next()) {
         fragment *frag = new fragment();
-        //Заполнение данных фрагмента и навигатора
+        // Заполнение данных фрагмента и навигатора
         QuestionNum = in2_query.value(6).toInt();
         in3_query.prepare("SELECT * FROM Вопросы WHERE Вопросы.Код = :val1");
         in3_query.bindValue(":val1", QuestionNum);
@@ -310,22 +326,22 @@ void MainWindow::_prepareMainWindow(QString docId)
         currentKolDog->fragments.append(frag);
         // NOTE: [Улучшение] Решить проблему увеличения длинны фрагментов (а не подгонять костылями)
     }
-    //Высчитывание Кпр и Кток т.к. их нет в базе
+    // Высчитывание Кпр и Кток т.к. их нет в базе
     qint32 calculatedKpr = 0, calculatedKtok = 0;
     currentKolDog->calculateKprAndKtok(calculatedKpr, calculatedKtok);
     currentKolDog->setKpr(calculatedKpr);
     currentKolDog->setKtok(calculatedKtok);
-    //Заполнение стартовых дополнительных кэффов (сейчас они равны обычным)
+    // Заполнение стартовых дополнительных кэффов (сейчас они равны обычным)
     currentKolDog->setStartMinorKeffs(currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKvo(),
                                       currentKolDog->getKzp(), currentKolDog->getKot(), currentKolDog->getKtsp(),
                                       currentKolDog->getKpr(), currentKolDog->getKtok());
     currentKolDog->setStartZnachimost(currentKolDog->getZnachimost());
-    //Заполнение окна кэф начальными данными
+    // Заполнение окна кэф начальными данными
     kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
                              currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
                              currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
                              currentKolDog->getKtsp());
-    //Заполнение текущих коэффициентов
+    // Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
     _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
     // Примечание: Окно кэф заполнится текущими значениями по востребованию, чтобы зря время не тратить
@@ -338,14 +354,14 @@ void MainWindow::_prepareMainWindow(QString docId)
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
     ui->te_textCenter->blockSignals(false);
 
-    //Сокрытие недоделанных элементов
+    // Сокрытие недоделанных элементов
     ui->label_16->setVisible(false);
     ui->QualityWeightSpinBox->setVisible(false);
 }
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 {
-    //Центрируем окно по центру экрана
+    // Центрируем окно по центру экрана
     QDesktopWidget desktop;
     QRect rect = desktop.availableGeometry(this);
     QPoint center = rect.center();
@@ -357,7 +373,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
 
     QJsonObject jObjInsideDoc = jDoc.object();
     QJsonObject mainSettings = jObjInsideDoc["mainSettings"].toObject();
-    //Заполнение текущего КД из сохранённого json документа
+    // Заполнение текущего КД из сохранённого json документа
     currentKolDog = new CKolDog(m_paramA, m_paramB);
     currentKolDog->setId(mainSettings["id"].toString());
     currentKolDog->setName(mainSettings["name"].toString());
@@ -395,7 +411,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     currentKolDog->setKtok(mainSettings["ktok"].toInt());
     currentKolDog->setKmol(mainSettings["kmol"].toInt());
     currentKolDog->setSum(mainSettings["sum"].toDouble());
-    //Заполнение фрагментов текущего КД из сохранённого json документа
+    // Заполнение фрагментов текущего КД из сохранённого json документа
     QJsonArray jArray = jObjInsideDoc["fragments"].toArray();
     for (QJsonValueRef jValueRef : jArray) {
         auto jFrag = jValueRef.toObject();
@@ -413,7 +429,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
         frag->setUt(jFrag["Ut"].toBool());
         currentKolDog->fragments.append(frag);
     }
-    //Заполнение переменных и настройка mw
+    // Заполнение переменных и настройка mw
     SelectedKD = currentKolDog->getId();
     ui->startKTR->setText(QString::number(currentKolDog->getStartKtr()));
     ui->startKSC->setText(QString::number(currentKolDog->getStartKsc()));
@@ -421,19 +437,19 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     ui->startKPSP->setText(_doubleToFloatString(currentKolDog->getStartKpsp()));
     ui->startKEF->setText(_doubleToFloatString(currentKolDog->getStartKef()));
     ui->DogName->setText(currentKolDog->getName());
-    //Настройка навигатора
+    // Настройка навигатора
     ui->tw_navigator->setColumnWidth(0, 211);
     for (int row = 0; row < ui->tw_navigator->rowCount(); row++) {
         auto item = ui->tw_navigator->item(row, 0);
         item->setBackgroundColor(Qt::white);
     }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
-    //Заполнение окна кэф начальными данными
+    // Заполнение окна кэф начальными данными
     kefDialog->setStartKeffs(currentKolDog->getStartKtr(), currentKolDog->getStartZnachimost(),
                              currentKolDog->getStartKdog(), currentKolDog->getStartKrv(), currentKolDog->getStartKzp(),
                              currentKolDog->getStartKvo(), currentKolDog->getStartKot(), currentKolDog->getStartKpr(),
                              currentKolDog->getStartKtok(), currentKolDog->getStartKtsp());
-    //Заполнение текущих коэффициентов
+    // Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
     _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
 
@@ -445,7 +461,7 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     ui->te_textCenter->moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
     ui->te_textCenter->blockSignals(false);
 
-    //Сокрытие недоделанных элементов
+    // Сокрытие недоделанных элементов
     ui->label_16->setVisible(false);
     ui->QualityWeightSpinBox->setVisible(false);
 }
@@ -497,7 +513,7 @@ void MainWindow::_addFragmentToCentralField(fragment *frag)
     frag->SetPositions(
             posBegin,
             posEnd); // NOTE: Размер включает в себя: Текст, Размер СтрокиАргументов и 2-3 символа нового параграфа
-    //Окраска в цвет если изменён
+    // Окраска в цвет если изменён
     if (frag->isChanged())
         _markAsChanged(posBegin, posEnd);
     if (frag->isNewAdded())
@@ -534,7 +550,7 @@ void MainWindow::_setSelectionInCentral(qint32 posStart, qint32 posEnd)
     QTextCursor cursor(ui->te_textCenter->document());
     QTextCharFormat format;
     format.setFontWeight(QFont::Bold);
-    //Выделить
+    // Выделить
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat(format);
@@ -545,7 +561,7 @@ void MainWindow::_clearSelectionInCentral(qint32 posStart, qint32 posEnd)
     QTextCursor cursor(ui->te_textCenter->document());
     QTextCharFormat format;
     format.setFontWeight(QFont::Normal);
-    //Убираем выделение
+    // Убираем выделение
     cursor.setPosition(posStart, QTextCursor::MoveAnchor);
     cursor.setPosition(posEnd, QTextCursor::KeepAnchor);
     cursor.setCharFormat(format);
@@ -606,13 +622,13 @@ bool MainWindow::_showQuestion(QString text, QString title, QString textYes, QSt
 
 void MainWindow::_fillCurrentKeffs(QVariantList keffs)
 {
-    //Изменение кэффов в КД
+    // Изменение кэффов в КД
     currentKolDog->setKtr(keffs[0].toInt());
     currentKolDog->setKsc(keffs[1].toInt());
     currentKolDog->setKgdp(keffs[2].toInt());
     currentKolDog->setKpsp(keffs[3].toDouble());
     currentKolDog->setKef(keffs[4].toDouble());
-    //Изменение кэффов в mw
+    // Изменение кэффов в mw
     ui->KTR->setText(QString::number(keffs[0].toInt()));
     ui->KSC->setText(QString::number(keffs[1].toInt()));
     ui->KGDP->setText(QString::number(keffs[2].toInt()));
@@ -629,7 +645,7 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     QList<QLabel *> labels({ ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef });
     for (int i = 0; i < startKeffs.size(); i++) {
 
-        //Исключение для kpsp и kef т.к. там есть знаки после запятой
+        // Исключение для kpsp и kef т.к. там есть знаки после запятой
         if (i == 3 || i == 4) {
             QString currentKString = QString::number(keffs[i].toDouble(), 'f', 2);
             QString startKString = QString::number(startKeffs[i].toDouble(), 'f', 2);
@@ -659,7 +675,7 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
 void MainWindow::_fillCurrentKEFOnly(double kef)
 {
     ui->KEF->setText(_doubleToFloatString(kef));
-    //Сравнение и окраска
+    // Сравнение и окраска
     QPalette greenPal, redPal, blackPal;
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
@@ -709,7 +725,7 @@ void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QS
     ui->Question->clear();
 
     ui->Act->addItems(ListAct);
-    ui->Razd->addItems(ListRazd); //От этого сработает on_Razd_currentItemChanged и вопросы добавятся сами
+    ui->Razd->addItems(ListRazd); // От этого сработает on_Razd_currentItemChanged и вопросы добавятся сами
     ui->Quality->addItems(ListQuality);
     for (int i = 0; i < ListAct.size(); i++) {
         if (fragAkt == AbbreviationAct[i]) {
@@ -757,7 +773,7 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
             }
         }
 
-        //Поиск id выделенного фрагмента
+        // Поиск id выделенного фрагмента
         qint32 cursorPos = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
             if (currentKolDog->fragments[i]->getPositionFirst() <= cursorPos
@@ -789,13 +805,13 @@ void MainWindow::on_pb_newFrag_clicked()
         TextCenterIsBlocked = true;
         m_addNewFrag = true;
         if (m_addFirst) {
-            //Поле справа пустое, заполним его
+            // Поле справа пустое, заполним его
             auto sectionId = ui->tw_navigator->property(PREVIOUS_SELECTION).toInt();
             if (sectionId == -1 || sectionId == 11) {
-                //Отображаются все разделы, заполним первыми значениями
+                // Отображаются все разделы, заполним первыми значениями
                 _prepareSettingsInRight("КЗОТ", "ПСП", "Ан", "ПЛН");
             } else {
-                //Выбран фильтр по разделу, заполним его значениями
+                // Выбран фильтр по разделу, заполним его значениями
                 _prepareSettingsInRight("КЗОТ", AbbreviationRazd[sectionId], "Ан", ABRQuestionsAtRazdel[sectionId][1]);
             }
         }
@@ -807,7 +823,7 @@ void MainWindow::on_pb_deleteFrag_clicked()
     if (SelectedFragment == -1)
         return;
 
-    //Изменение кэффов //TODO: [улучш.] Убрать кэф из перерасчёта (ещё в создании нового и изменении старого)
+    // Изменение кэффов //TODO: [улучш.] Убрать кэф из перерасчёта (ещё в создании нового и изменении старого)
     QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
     QString razdAbr = currentKolDog->fragments[SelectedFragment]->getAffectsOnMinorKeffs();
     currentKolDog->fragments.removeAt(SelectedFragment);
@@ -815,7 +831,7 @@ void MainWindow::on_pb_deleteFrag_clicked()
     _fillCurrentKeffs(newKeffs);
     //! КЭФ отдельно пересчитываем т.к. она меняется нелинейно
     _fillCurrentKEFOnly(currentKolDog->calculateKef());
-    //Изменение дополнительных кэффов
+    // Изменение дополнительных кэффов
     if (!razdAbr.isEmpty()) {
         currentKolDog->decrementMinorKeff(razdAbr);
     }
@@ -830,7 +846,7 @@ void MainWindow::on_pb_deleteFrag_clicked()
 
     currentKolDog->calculateKzn();
 
-    //Внешний вид ui
+    // Внешний вид ui
     ui->Act->clear();
     ui->Razd->blockSignals(true);
     ui->Razd->clear();
@@ -845,7 +861,7 @@ void MainWindow::on_GoRight_clicked()
 
     ui->TextRight->clear();
     ui->TextRight->setText(currentKolDog->fragments[SelectedFragment]->getText());
-    //Заполнение параметров
+    // Заполнение параметров
     _prepareSettingsInRight(currentKolDog->fragments[SelectedFragment]->getAkt(),
                             currentKolDog->fragments[SelectedFragment]->getRazdel(),
                             currentKolDog->fragments[SelectedFragment]->getKachestvo(),
@@ -871,7 +887,7 @@ void MainWindow::on_GoLeft_clicked()
     QTextCursor cursor(ui->te_textCenter->document());
 
     if (m_addNewFrag && !cancel) {
-        //Подготовка позиции для размещения фрагмента на первое место или любое другое
+        // Подготовка позиции для размещения фрагмента на первое место или любое другое
         //! Первая позиция предыдущего фрагмента
         qint32 posPrevFragFirst;
         //! Последняя позиция предыдущего фрагмента
@@ -882,7 +898,7 @@ void MainWindow::on_GoLeft_clicked()
             posPrevFragFirst = 0;
             posPrevFragLast = 0;
             idPrevFrag = -1;
-            //Новый режим с добавлением в начало раздела, а не документа
+            // Новый режим с добавлением в начало раздела, а не документа
             auto sectionId = ui->tw_navigator->property(PREVIOUS_SELECTION).toInt();
             if (sectionId != -1) {
                 auto section = EDisplayedSection(sectionId);
@@ -895,11 +911,11 @@ void MainWindow::on_GoLeft_clicked()
                         idPrevFrag = firstInRazdFragId;
                     } else {
                         bool insertLast = false;
-                        //Раздел пустой, ищем положение по фрагментам следующих разделов
+                        // Раздел пустой, ищем положение по фрагментам следующих разделов
                         while (firstInRazdFragId < 0) {
                             sectionId++;
                             if (sectionId == 11) {
-                                //Разделов позднее нет - можно ставить фрагмент последним
+                                // Разделов позднее нет - можно ставить фрагмент последним
                                 insertLast = true;
                                 break;
                             } else {
@@ -907,22 +923,22 @@ void MainWindow::on_GoLeft_clicked()
                                 firstInRazdFragId = currentKolDog->findFirstInRazd(AbbreviationRazd[section]) - 1;
                             }
                         }
-                        //Вставляем последним
+                        // Вставляем последним
                         if (insertLast) {
                             if (currentKolDog->fragments.isEmpty()) {
-                                //Если документ пустой
+                                // Если документ пустой
                                 posPrevFragFirst = 0;
                                 posPrevFragLast = 0;
                                 idPrevFrag = -1;
                             } else {
-                                //Если есть фрагменты выше
+                                // Если есть фрагменты выше
                                 idPrevFrag = currentKolDog->fragments.count() - 1;
                                 posPrevFragFirst = 0;
                                 posPrevFragLast = 0;
                                 SelectedFragment = idPrevFrag;
                             }
                         } else {
-                            //Вставляем перед этим фрагментом
+                            // Вставляем перед этим фрагментом
                             SelectedFragment = firstInRazdFragId;
                             posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
                             posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
@@ -936,7 +952,7 @@ void MainWindow::on_GoLeft_clicked()
             posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
             idPrevFrag = SelectedFragment;
         }
-        //Создание нового фрагмента
+        // Создание нового фрагмента
         cursor.setPosition(posPrevFragLast, QTextCursor::MoveAnchor);
         fragment *frag = new fragment();
         frag->setNewAdded(true);
@@ -952,15 +968,15 @@ void MainWindow::on_GoLeft_clicked()
         cursor.insertText(frag->getText() + argLine + "\n\n");
         frag->setPositionFirst(posPrevFragLast);
         frag->setPositionLast(frag->getPositionFirst() + frag->getSize());
-        //Изменение главных кэффов
+        // Изменение главных кэффов
         QVariantList deltaKeffs = frag->getKeffsDeltaFromZero();
         QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
         _fillCurrentKeffs(newKeffs); // NOTE: КЭФ посчитается  идобавиться после добавления фрага!
-        //Изменение минорных кэффов
+        // Изменение минорных кэффов
         QString razdAbr = frag->getAffectsOnMinorKeffs();
         currentKolDog->incrementMinorKeff(razdAbr);
         currentKolDog->calculateKzn();
-        //Убираем выделение старого и нового фрагмента, окрашиваем старый если тот был
+        // Убираем выделение старого и нового фрагмента, окрашиваем старый если тот был
         _clearSelectionInCentral(posPrevFragFirst, frag->getPositionLast());
         if (idPrevFrag != -1) {
             if (currentKolDog->fragments[SelectedFragment]->isChanged()
@@ -979,22 +995,22 @@ void MainWindow::on_GoLeft_clicked()
         } else {
             currentKolDog->addFragAfter(idPrevFrag, frag);
         }
-        //Перерасчёт кэф после вставки фрагмента
+        // Перерасчёт кэф после вставки фрагмента
         auto fiveKeffs = currentKolDog->getFiveCurrentKeffs();
         fiveKeffs[4] = currentKolDog->calculateKef();
         _fillCurrentKeffs(fiveKeffs);
         //
         qint32 idFragAfterInserted = idPrevFrag + 2;
         _recountPositions(idFragAfterInserted, frag->getSize(), true);
-        //Окраска в цвет изменённого
+        // Окраска в цвет изменённого
         _markAsNewAdded(frag->getPositionFirst(), frag->getPositionLast());
-        //Спуск флагов
+        // Спуск флагов
         if (m_addFirst)
             m_addFirst = false;
         m_addNewFrag = false;
     } else if (!cancel) {
-        //Изменение старого фрагмента
-        //Обновление текста и параметров в памяти
+        // Изменение старого фрагмента
+        // Обновление текста и параметров в памяти
         auto fragBeforeChange = *currentKolDog->fragments[SelectedFragment];
         auto currentFrag = currentKolDog->fragments[SelectedFragment];
         currentFrag->setText(ui->TextRight->toPlainText());
@@ -1003,7 +1019,7 @@ void MainWindow::on_GoLeft_clicked()
         currentFrag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
         currentFrag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
         currentFrag->updateFlagsViDoSvUt();
-        //Обновление данных в центральном поле
+        // Обновление данных в центральном поле
         cursor.setPosition(currentFrag->getPositionFirst(), QTextCursor::MoveAnchor);
         cursor.setPosition(currentFrag->getPositionLast(), QTextCursor::KeepAnchor);
         QString argLine;
@@ -1013,13 +1029,13 @@ void MainWindow::on_GoLeft_clicked()
         argLine += currentFrag->getRazdel() + "\t" + currentFrag->getVoprosABR() + "\t" + currentFrag->getAkt() + "\t"
                 + currentFrag->getKachestvo();
         cursor.insertText(currentFrag->getText() + argLine + "\n\n");
-        //Вычисление нового размера
+        // Вычисление нового размера
         qint32 deltaTextSize = ui->TextRight->toPlainText().size() + argLine.size() + 2 - currentFrag->getSize();
         if (deltaTextSize != 0) {
             _recountPositions(SelectedFragment, deltaTextSize);
         }
         currentFrag->Resize();
-        //Изменение главных кэффов и узнаём изменился ли фрагмент
+        // Изменение главных кэффов и узнаём изменился ли фрагмент
         QVariantList deltaKeffs = currentFrag->getKeffsDelta(&fragBeforeChange);
         if (_isKeffsChanged(deltaKeffs)) {
             QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
@@ -1039,14 +1055,14 @@ void MainWindow::on_GoLeft_clicked()
             if (!currentFrag->isChanged())
                 currentFrag->setChanged(true);
         }
-        //Пересчёт КЭФ
+        // Пересчёт КЭФ
         auto fiveKeffs = currentKolDog->getFiveCurrentKeffs();
         fiveKeffs[4] = currentKolDog->calculateKef();
         _fillCurrentKeffs(fiveKeffs);
 
-        //Убираем выделение изменённого фрагмента
+        // Убираем выделение изменённого фрагмента
         _clearSelectionInCentral(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
-        //Окраска в цвет изменённого
+        // Окраска в цвет изменённого
         if (currentFrag->isChanged() && currentFrag->isNewAdded()) {
             _markAsChangedAndNewAdded(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
         } else if (currentFrag->isChanged()) {
@@ -1055,11 +1071,11 @@ void MainWindow::on_GoLeft_clicked()
             _markAsNewAdded(currentFrag->getPositionFirst(), currentFrag->getPositionLast());
         }
     } else {
-        //Отмена добавления нового пустого пункта
+        // Отмена добавления нового пустого пункта
         if (m_addFirst) {
             m_addFirst = false;
         } else {
-            //Окраска выбранного пункта в исходные цвета
+            // Окраска выбранного пункта в исходные цвета
             auto curFrag = currentKolDog->fragments[SelectedFragment];
             auto posFirst = curFrag->getPositionFirst();
             auto posLast = curFrag->getPositionLast();
@@ -1076,7 +1092,7 @@ void MainWindow::on_GoLeft_clicked()
         m_addNewFrag = false;
     }
 
-    //Удаление данных
+    // Удаление данных
     ui->TextRight->clear();
     TextCenterIsBlocked = false;
     ui->Act->clear();
@@ -1085,7 +1101,7 @@ void MainWindow::on_GoLeft_clicked()
     ui->Razd->blockSignals(false);
     ui->Quality->clear();
     ui->Question->clear();
-    //Заполнение текущих коэффициентов
+    // Заполнение текущих коэффициентов
 
     setWorkMode(eBasicMode);
 }
@@ -1118,7 +1134,7 @@ void MainWindow::on_BazeKnowledge_clicked()
         break;
     case eRightFrameMode:
         if (SelectedFragment == -1) {
-            //Кинуть дефолтный фрагмент
+            // Кинуть дефолтный фрагмент
             auto frag = new fragment();
             frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
             frag->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
@@ -1168,8 +1184,16 @@ void MainWindow::on_btn_showFullText_clicked()
 
 void MainWindow::on_actionMakeDoc_triggered()
 {
-    // Инициализация переменных для настройки документа
+    // BUG: падает при сохранении в docx если нет офиса!!!
+    //  Инициализация переменных для настройки документа
     QAxObject *word = new QAxObject("Word.Application");
+
+    if (word->isNull()) {
+        _showMessage("Не удалось сформировать .docx т.к. не найден Microsoft Word");
+        delete word;
+        return;
+    }
+
     QAxObject *documents = word->querySubObject("Documents");
     QAxObject *document = documents->querySubObject("Add()");
     QAxObject *activeDocument = word->querySubObject("ActiveDocument()");
@@ -1178,9 +1202,9 @@ void MainWindow::on_actionMakeDoc_triggered()
     QAxObject *paragraphs = document->querySubObject("Paragraphs");
     QAxObject *paragraph = paragraphs->querySubObject("Item(int)", 1);
 
-    //Подготовка макета страниц
+    // Подготовка макета страниц
     word->setProperty("Visible", true);
-    //Разметка открытого документа
+    // Разметка открытого документа
     paragraph->setProperty("SpaceAfter", 0);
     QAxObject *Font = rangeHead->querySubObject("Font");
     Font->setProperty("Size", 14);
@@ -1199,14 +1223,14 @@ void MainWindow::on_actionMakeDoc_triggered()
 
 void MainWindow::on_actionMakeOdt_triggered()
 {
-    //Убираем выделение выбранного фрагмента в тексте, если оно есть
+    // Убираем выделение выбранного фрагмента в тексте, если оно есть
     if (SelectedFragment > 0) {
         auto curFrag = currentKolDog->fragments[SelectedFragment];
         if (curFrag)
             _clearSelectionInCentral(curFrag->getPositionFirst(), curFrag->getPositionLast());
     }
 
-    //Ограничениедлинны имени файла в windows - 260 символов
+    // Ограничениедлинны имени файла в windows - 260 символов
     QString KDName = currentKolDog->getName();
     if (KDName.length() > 250) {
         KDName.chop(-(250 - KDName.length()));
@@ -1232,7 +1256,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     if (!answer) {
         return;
     }
-    //Очистка предыдущих настроек
+    // Очистка предыдущих настроек
     delete currentKolDog;
     delete m_db;
     if (lDialog != nullptr) {
@@ -1250,7 +1274,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
     setWorkMode(eBasicMode);
     // TODO: [Улучшение] Добавить анимацию загрузки (мб на central widget) тут и в других местах
     ui->centralWidget->setHidden(true);
-    //Новый старт
+    // Новый старт
     sDialog = new StartDialog();
     sDialog->setModal(true);
     sDialog->exec();
@@ -1267,7 +1291,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
                 _prepareMainWindow(lDialog->SelectedKD);
             }
         } else if (sDialog->StartMode == StartDialog::EStartMode::contibueOld) {
-            //Загрузка сохранённого проекта
+            // Загрузка сохранённого проекта
             m_db = new CDatabaseManager(sDialog->dbPath);
             QJsonDocument jDoc = m_jsonManager->loadJson(sDialog->jFilename);
             ui->centralWidget->setHidden(false);
@@ -1295,7 +1319,6 @@ void MainWindow::on_actionEditFormulas_triggered()
 {
     auto dialog = new QDialog(this);
     dialog->setWindowTitle("Master KDA");
-    qDebug() << dialog->windowFlags();
 
     auto mainLayout = new QVBoxLayout(dialog);
     mainLayout->setMargin(11);
@@ -1322,5 +1345,37 @@ void MainWindow::on_actionEditFormulas_triggered()
 
     dialog->setModal(true);
     dialog->exec();
+    delete dialog;
+}
+
+void MainWindow::on_actionEditDbPath_triggered()
+{
+    auto dialog = new QDialog(this);
+    dialog->setWindowTitle("Master KDA");
+
+    auto mainLayout = new QVBoxLayout(dialog);
+    mainLayout->setMargin(11);
+    mainLayout->setSpacing(6);
+    auto lblA = new QLabel("Путь к БД:", dialog);
+    auto lineA = new QLineEdit(sDialog->dbPath, dialog);
+    m_linePointer = lineA;
+    lineA->setObjectName("lineA");
+    auto topLayout = new QHBoxLayout(dialog);
+    topLayout->addWidget(lblA);
+    topLayout->addWidget(lineA);
+    mainLayout->addLayout(topLayout);
+
+    auto pb_edit = new QPushButton("Изменить...", dialog);
+    connect(pb_edit, &QPushButton::clicked, this, &MainWindow::slotDbPathEdit);
+    mainLayout->addWidget(pb_edit);
+
+    auto pb_ok = new QPushButton("Принять", dialog);
+    connect(pb_ok, &QPushButton::clicked, dialog, &QDialog::close);
+    mainLayout->addWidget(pb_ok);
+    dialog->setLayout(mainLayout);
+
+    dialog->setModal(true);
+    dialog->exec();
+    m_linePointer = nullptr;
     delete dialog;
 }

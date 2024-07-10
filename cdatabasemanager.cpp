@@ -17,7 +17,7 @@ CDatabaseManager::CDatabaseManager(QString name)
     m_db.setDatabaseName(ACC);
     m_db.open();
 
-    //Подготовка таблицы ТЗакон локально
+    // Подготовка таблицы ТЗакон локально
     if (TOrder.size()) {
         for (auto order : TOrder) {
             delete order;
@@ -39,7 +39,7 @@ CDatabaseManager::CDatabaseManager(QString name)
         TOrder.append(order);
     }
 
-    //Подготовка соответствия КодКД-ИмяУчреждения
+    // Подготовка соответствия КодКД-ИмяУчреждения
     if (INSTITUTE_NAMES.size())
         INSTITUTE_NAMES.clear();
     QSqlQuery queryNames;

@@ -1013,7 +1013,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1033</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -1026,9 +1026,16 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionStartAnotherKD"/>
     <addaction name="actionSaveProject"/>
     <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <addaction name="actionEditDbPath"/>
     <addaction name="actionEditFormulas"/>
    </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <action name="actionMakeDoc">
    <property name="text">
@@ -1053,6 +1060,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionMakeOdt">
    <property name="text">
     <string>Сформировать в документ .odt</string>
+   </property>
+  </action>
+  <action name="actionEditDbPath">
+   <property name="text">
+    <string>Изменение пути к БД...</string>
    </property>
   </action>
  </widget>
