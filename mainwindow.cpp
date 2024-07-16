@@ -1158,7 +1158,7 @@ void MainWindow::on_pb_clearField_clicked()
 
 void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() != -1) {
         ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)
                 ->setBackgroundColor(Qt::white);
@@ -1223,6 +1223,34 @@ void MainWindow::on_actionMakeDoc_triggered()
 
 void MainWindow::on_actionMakeOdt_triggered()
 {
+    if (m_currentWorkMode == eRightFrameMode) {
+        _showMessage("Нельзя сформировать в .odt, пока идёт редактирование фрагмента в поле справа.", "Master KDA");
+        return;
+    }
+
+    if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() != -1) {
+        // Если выбран какой-либо раздел
+        QString question = "В навигаторе выбран один из разделов, если вы хотите сформировать в .odt только выбранный "
+                           "раздел - нажмите \"Только раздел\".\n"
+                           "Если хотите сформировать в .odt весь текст договора - нажмите \"Полный текст договора\".";
+        QString textYes = "Только раздел";
+        QString textNo = "Полный текст договора";
+        QMessageBox msgBox(QMessageBox::Question, "Master KDA - Формирование в .odt", question,
+                           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this);
+        msgBox.setButtonText(QMessageBox::Yes, textYes);
+        msgBox.setButtonText(QMessageBox::No, textNo);
+        msgBox.setButtonText(QMessageBox::Cancel, "Отмена");
+        qint32 resMsg = msgBox.exec();
+        if (resMsg == QMessageBox::Yes) {
+            // Ничего не делаем т.к. и так фрагмент раздела будет
+        } else if (resMsg == QMessageBox::No) {
+            // Для всего текста - делаем нажатие на кнопку "Полный текст договора"
+            on_btn_showFullText_clicked();
+        } else {
+            return;
+        }
+    }
+
     // Убираем выделение выбранного фрагмента в тексте, если оно есть
     if (SelectedFragment > 0) {
         auto curFrag = currentKolDog->fragments[SelectedFragment];
