@@ -38,6 +38,8 @@ private slots:
     void on_pb_loadFile_clicked();
     void on_pb_dbManage_clicked();
 
+    void on_pb_showChangeDbFields_clicked();
+
 private:
     void _showMessage(QString text);
     // Работа с файлом авторов

@@ -200,6 +200,7 @@ void StartDialog::_showDbSettings(bool visible)
 {
     ui->pb_dbManage->setVisible(visible);
     ui->ln_db->setVisible(visible);
+    ui->pb_showChangeDbFields->setVisible(!visible);
 }
 
 void StartDialog::on_pb_changeAuthor_clicked()
@@ -257,4 +258,9 @@ void StartDialog::on_pb_dbManage_clicked()
     dbPath = QFileDialog::getOpenFileName(this, "Выберите базу данных", QString(), tr("Microsoft Access (*.mdb)"));
     ui->ln_db->setText(dbPath);
     _savePath(dbPath);
+}
+
+void StartDialog::on_pb_showChangeDbFields_clicked()
+{
+    _showDbSettings(true);
 }
