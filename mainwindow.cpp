@@ -1264,7 +1264,8 @@ void MainWindow::on_actionMakeOdt_triggered()
         KDName.chop(-(250 - KDName.length()));
     }
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), QDir::currentPath() + "/" + KDName,
+    const QString &desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), desktopPath + "/" + KDName,
                                                     "Open Document (*.odt)");
 
     if (!fileName.isEmpty()) {
@@ -1335,8 +1336,7 @@ void MainWindow::on_actionStartAnotherKD_triggered()
 
 void MainWindow::on_actionSaveProject_triggered()
 {
-    const QString &desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    QString jName = QFileDialog::getSaveFileName(this, "Сохранить проект", desktopPath, "*.json");
+    QString jName = QFileDialog::getSaveFileName(this, "Сохранить проект", QDir::currentPath(), "*.json");
     if (!jName.isEmpty()) {
         currentKolDog->setName(ui->DogName->text());
         currentKolDog->calculateKzn();
