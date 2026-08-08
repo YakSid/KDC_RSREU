@@ -1147,8 +1147,7 @@ void MainWindow::on_BazeKnowledge_clicked()
         }
         break;
     }
-    kBase->setModal(true);
-    kBase->open();
+    kBase->exec();
 }
 
 void MainWindow::on_pb_clearField_clicked()

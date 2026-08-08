@@ -25,10 +25,10 @@ signals:
 public slots:
     void getFragment(fragment *frag);
     void open() override;
+    int exec() override;
 
 private slots:
     void on_pb_unlock_clicked();
-    void on_rb_law_fragments_toggled(bool checked);
     void on_rb_typical_fragments_kd_toggled(bool checked);
     void on_rb_all_fragments_kd_toggled(bool checked);
     void on_ch_all_acts_toggled(bool checked);
@@ -40,6 +40,9 @@ private slots:
     void on_pb_showList_clicked();
     void on_cmb_razdel_currentTextChanged(const QString &arg1);
     void on_pb_insert_into_file_clicked();
+    // Дополнительное окно законов
+    void on_pb_nextLaw_clicked();
+    void on_pb_prevLaw_clicked();
 
 private:
     void _changeViewMode(EFragmentsViewMode newViewMode);
@@ -50,11 +53,14 @@ private:
     void _showMessage(QString text, QString title = "Master KDA");
     bool _showQuestion(QString text, QString title = "Master KDA", QString textYes = "Да", QString textNo = "Нет");
 
+    //! Закон с данным индексом
+    void _showLaw(qint32 index);
+
 private:
     Ui::knowledgebase *ui;
     EFragmentsViewMode m_currentViewMode { eTypicalKD };
     //! Номер фрагмента из подготовленного списка, -1 - изначальный
-    qint32 currentFragmentNumber { -1 };
+    qint32 m_currentFragmentNumber { -1 };
     //! Изначально оригинальный фраг, а после - с параметрами необходимыми для поиска
     fragment *m_originalFrag { nullptr };
     QString originalText { "" };
@@ -65,7 +71,10 @@ private:
     //! Собранные id КД для поиска и отображения их названий
     QList<QString> idForNames;
     QList<QString> namesForShow;
-    QList<structOrder *> ordersForShow;
+    QList<structOrder *> m_ordersForShow;
+    QStringList m_lawsForShow;
+    //! Текущий порядковый номер отображаемого закона
+    qint32 m_currentLaw { -1 };
     //! Файл для вынесения дополнительных пунктов
     QString m_savedFragmentsPath = "";
 

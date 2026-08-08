@@ -30,11 +30,13 @@ knowledgebase::knowledgebase(QWidget *parent) : QDialog(parent), ui(new Ui::know
 knowledgebase::~knowledgebase()
 {
     qDebug() << "destructor knowledgebase";
-    if (ordersForShow.size() > 0) {
-        for (auto order : ordersForShow) {
-            delete order;
+    if (m_ordersForShow.size() > 0) {
+        for (auto order : m_ordersForShow) {
+            if (order)
+                // BUG: падает при выключении
+                delete order;
         }
-        ordersForShow.clear();
+        m_ordersForShow.clear();
     }
     delete ui;
 }
@@ -116,12 +118,12 @@ bool knowledgebase::_showQuestion(QString text, QString title, QString textYes, 
     msgBox.setButtonText(QMessageBox::Yes, textYes);
     msgBox.setButtonText(QMessageBox::No, textNo);
 
-    //Центрируем окно по центру экрана
+    // Центрируем окно по центру экрана
     QDesktopWidget desktop;
     QRect rect = desktop.availableGeometry(this);
     QPoint center = rect.center();
     int x = center.x() - (width() / 2);
-    int y = center.y() - (height() / 2) + 20; //Смещение 20, чтобы было видно кнопки управления
+    int y = center.y() - (height() / 2) + 20; // Смещение 20, чтобы было видно кнопки управления
     center.setX(x);
     center.setY(y);
     move(center);
@@ -130,6 +132,25 @@ bool knowledgebase::_showQuestion(QString text, QString title, QString textYes, 
     if (resMsg == QMessageBox::Yes)
         result = true;
     return result;
+}
+
+void knowledgebase::_showLaw(qint32 index)
+{
+    if (m_ordersForShow.isEmpty()) {
+        ui->ln_order->setText("-");
+        ui->ln_adoption_date->setText("-");
+        ui->ln_change_date->setText("-");
+        ui->ln_order->setToolTip("");
+    } else {
+        if (0 < index && index < m_ordersForShow.count()) {
+            ui->ln_lawName->setText(m_ordersForShow[index]->name);
+            ui->ln_dt_accept->setText(m_ordersForShow[index]->dateAdoptation.toString("dd.MM.yyyy"));
+            ui->ln_dt_change->setText(m_ordersForShow[index]->dateChange.toString("dd.MM.yyyy"));
+            ui->te_law->setToolTip(m_ordersForShow[index]->name);
+        }
+        if (0 < index && index < m_lawsForShow.count())
+            ui->te_law->setText(m_lawsForShow[index]);
+    }
 }
 
 void knowledgebase::getFragment(fragment *frag)
@@ -170,7 +191,7 @@ void knowledgebase::getFragment(fragment *frag)
     originalText = frag->getText();
     _select();
 
-    //Костыль - имитация нажатия и выбора всех КД
+    // Костыль - имитация нажатия и выбора всех КД
     on_pb_unlock_clicked();
     ui->rb_all_fragments_kd->toggle();
     on_pb_unlock_clicked();
@@ -189,6 +210,21 @@ void knowledgebase::open()
                        "Для повторного просмотра сообщения наведите курсор на поле \"Справка\" в верхнем правом углу.";
         m_showHelp = _showQuestion(info + "\n\nОтобразить эту подсказку при следующем входе в Базу знаний?");
     }
+}
+
+int knowledgebase::exec()
+{
+    if (m_showHelp) {
+        QString info = "При первом входе будет представлен раздел БЗ «Все фрагменты из КД», и фрагменты со значениями "
+                       "характеристик «Раздел», «Вопрос», «Качество», как в выделенном фрагменте в тексте проекта. Для "
+                       "их просмотра нажмите «Следующий».\n\n"
+                       "Для просмотра других разделов БЗ или фрагментов с другими значениями характеристик «Раздел», "
+                       "«Вопрос», «Качество» нажмите «Разблокировать», отметьте нужные значения и нажмите «Применить». "
+                       "Управление просмотром - кнопки «Следующий», «Предыдущий».\n\n"
+                       "Для повторного просмотра сообщения наведите курсор на поле \"Справка\" в верхнем правом углу.";
+        m_showHelp = _showQuestion(info + "\n\nОтобразить эту подсказку при следующем входе в Базу знаний?");
+    }
+    return QDialog::exec();
 }
 
 // BUG: через раз открывается то в одном режиме, то в другом
@@ -219,12 +255,6 @@ void knowledgebase::on_pb_unlock_clicked()
     ui->pb_next->setEnabled(!m_unlocked);
 }
 
-void knowledgebase::on_rb_law_fragments_toggled(bool checked)
-{
-    if (checked)
-        _changeViewMode(eLaw);
-}
-
 void knowledgebase::on_rb_typical_fragments_kd_toggled(bool checked)
 {
     if (checked)
@@ -242,57 +272,57 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
     m_allActs = checked;
 }
 
+// TODO: [старое, нужно?] добавить закону норм поиск используя листВозможность
 void knowledgebase::_select()
 {
     ui->ln_kdName->clear();
     fragmentsForShow.clear();
+    m_lawsForShow.clear();
     namesForShow.clear();
     idForNames.clear();
-    for (auto order : ordersForShow) {
-        delete order;
-    }
-    ordersForShow.clear();
+    m_ordersForShow.clear();
 
     qint32 questionKod = m_originalFrag->getVoprosNumber();
-    QSqlQuery querySelect;
-    // TODO: [старое, нужно?] добавить закону норм поиск используя листВозможность
-    switch (m_currentViewMode) {
-    case eLaw: {
-        querySelect.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
-                            "Тфрагмент.КодВопрос = :val1");
-        break;
+
+    // Заполняем законы
+    QSqlQuery lawQuery;
+    lawQuery.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
+                     "Тфрагмент.КодВопрос = :val1");
+    lawQuery.bindValue(":val1", questionKod);
+    if (!lawQuery.exec()) {
+        qDebug() << lawQuery.lastError().text();
     }
-    case eTypicalKD:
-        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
-                            "Тексты.Вопрос = :val1 "
-                            "AND ВклВСправку=true");
-        break;
-    case eAllKD:
-        querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
-                            "Тексты.Вопрос = :val1");
-        break;
+    while (lawQuery.next()) {
+        QString text = lawQuery.value(0).toString();
+        qint32 kodZakona = lawQuery.value(1).toInt();
+        for (auto order : TOrder) {
+            if (kodZakona == order->id) {
+                m_ordersForShow.append(order);
+            }
+        }
+        m_lawsForShow.append(text);
+        if (m_currentViewMode == eLaw)
+            fragmentsForShow.append(text);
     }
 
-    querySelect.bindValue(":val1", questionKod);
-    if (!querySelect.exec()) {
-        qDebug() << querySelect.lastError().text();
-    }
-    while (querySelect.next()) {
-        QString text = querySelect.value(0).toString();
-        if (m_currentViewMode == eLaw) {
-            qint32 kodZakona = querySelect.value(1).toInt();
-            for (auto order : TOrder) {
-                if (kodZakona == order->id) {
-                    auto zakonInfo = new structOrder();
-                    zakonInfo->name = order->name;
-                    zakonInfo->dateAdoptation = order->dateAdoptation;
-                    zakonInfo->dateChange = order->dateChange;
-                    ordersForShow.append(zakonInfo);
-                }
-            }
-            fragmentsForShow.append(text);
-        } else {
-            //типовые и все фрагменты
+    // Если выбраны не законы, то готовим ещё и КД
+    if (m_currentViewMode != eLaw) {
+        QSqlQuery querySelect;
+        if (m_currentViewMode == eTypicalKD) {
+            querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
+                                "Тексты.Вопрос = :val1 "
+                                "AND ВклВСправку=true");
+        } else if (m_currentViewMode == eAllKD) {
+            querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
+                                "Тексты.Вопрос = :val1");
+        }
+        querySelect.bindValue(":val1", questionKod);
+        if (!querySelect.exec()) {
+            qDebug() << querySelect.lastError().text();
+        }
+        while (querySelect.next()) {
+            QString text = querySelect.value(0).toString();
+            // типовые и все фрагменты
             if (m_allActs) {
                 if (m_originalFrag->getKachestvo() == querySelect.value(1).toString()) {
                     fragmentsForShow.append(text);
@@ -306,9 +336,8 @@ void knowledgebase::_select()
                 }
             }
         }
-    }
-    //Собираем названия ВУЗов КД по id полученным из текстов
-    if (m_currentViewMode != eLaw) {
+
+        // Собираем названия ВУЗов КД по id полученным из текстов
         for (auto kdId : idForNames) {
             QSqlQuery queryName;
             queryName.prepare("SELECT ТУчреждение.Аббр, ТУчреждение.ИмяУчреждения FROM ТУчреждение WHERE "
@@ -327,9 +356,11 @@ void knowledgebase::_select()
         }
     }
 
-    currentFragmentNumber = -1;
+    m_currentFragmentNumber = -1;
     on_pb_next_clicked();
     on_pb_prev_clicked();
+
+    _showLaw(0);
 }
 
 void knowledgebase::on_pb_insert_into_kd_clicked()
@@ -360,31 +391,32 @@ void knowledgebase::on_pb_next_clicked()
     //! Показать следующий фрагмент
     if (fragmentsForShow.isEmpty())
         return;
-    if (currentFragmentNumber == fragmentsForShow.size() - 1) {
-        currentFragmentNumber = -1;
+    if (m_currentFragmentNumber == fragmentsForShow.size() - 1) {
+        m_currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
         ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
     } else {
-        currentFragmentNumber++;
-        ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
-        ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
+        m_currentFragmentNumber++;
+        ui->te_text->setText(fragmentsForShow[m_currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
-        if ((currentFragmentNumber < namesForShow.count() - 1) && m_currentViewMode != eLaw)
-            ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
+        if ((m_currentFragmentNumber < namesForShow.count() - 1) && m_currentViewMode != eLaw)
+            ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
     }
 
     if (m_currentViewMode == eLaw) {
-        if (currentFragmentNumber == -1) {
+        if (m_currentFragmentNumber == -1) {
             ui->ln_order->setText("-");
             ui->ln_adoption_date->setText("-");
             ui->ln_change_date->setText("-");
             ui->ln_order->setToolTip("");
-        } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
-            ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
-            ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
-            ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
-            ui->ln_order->setToolTip(ordersForShow[currentFragmentNumber]->name);
+        } else if (m_ordersForShow.size() != 0 && m_ordersForShow.size() >= m_currentFragmentNumber) {
+            ui->ln_order->setText(m_ordersForShow[m_currentFragmentNumber]->name);
+            ui->ln_adoption_date->setText(
+                    m_ordersForShow[m_currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
+            ui->ln_change_date->setText(m_ordersForShow[m_currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
+            ui->ln_order->setToolTip(m_ordersForShow[m_currentFragmentNumber]->name);
         }
         ui->ln_order->home(false);
     } else {
@@ -397,38 +429,39 @@ void knowledgebase::on_pb_prev_clicked()
     //! Показать предыдущий фрагмент
     if (fragmentsForShow.isEmpty())
         return;
-    if (currentFragmentNumber == 0) {
-        currentFragmentNumber = -1;
+    if (m_currentFragmentNumber == 0) {
+        m_currentFragmentNumber = -1;
         ui->te_text->setText(originalText);
         ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
-    } else if (currentFragmentNumber == -1) {
-        currentFragmentNumber = fragmentsForShow.size() - 1;
-        ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
-        ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
+    } else if (m_currentFragmentNumber == -1) {
+        m_currentFragmentNumber = fragmentsForShow.size() - 1;
+        ui->te_text->setText(fragmentsForShow[m_currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
         if (m_currentViewMode != eLaw)
-            ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
+            ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
     } else {
-        currentFragmentNumber--;
-        ui->te_text->setText(fragmentsForShow[currentFragmentNumber]);
-        ui->gb_text->setTitle(QString::number(currentFragmentNumber + 1) + "/"
+        m_currentFragmentNumber--;
+        ui->te_text->setText(fragmentsForShow[m_currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/"
                               + QString::number(fragmentsForShow.size()) + STR_FRAG_FROM_SELECTED);
         if (m_currentViewMode != eLaw)
-            ui->ln_kdName->setText(namesForShow[currentFragmentNumber]);
+            ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
     }
 
     if (m_currentViewMode == eLaw) {
-        if (currentFragmentNumber < 0 || currentFragmentNumber < 0) {
+        if (m_currentFragmentNumber < 0 || m_currentFragmentNumber < 0) {
             ui->ln_order->setText("-");
             ui->ln_adoption_date->setText("-");
             ui->ln_change_date->setText("-");
             ui->ln_order->setToolTip("");
-        } else if (ordersForShow.size() != 0 && ordersForShow.size() >= currentFragmentNumber) {
-            ui->ln_order->setText(ordersForShow[currentFragmentNumber]->name);
-            ui->ln_adoption_date->setText(ordersForShow[currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
-            ui->ln_change_date->setText(ordersForShow[currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
-            ui->ln_order->setToolTip(ordersForShow[currentFragmentNumber]->name);
+        } else if (m_ordersForShow.size() != 0 && m_ordersForShow.size() >= m_currentFragmentNumber) {
+            ui->ln_order->setText(m_ordersForShow[m_currentFragmentNumber]->name);
+            ui->ln_adoption_date->setText(
+                    m_ordersForShow[m_currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
+            ui->ln_change_date->setText(m_ordersForShow[m_currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
+            ui->ln_order->setToolTip(m_ordersForShow[m_currentFragmentNumber]->name);
         }
         ui->ln_order->home(false);
     } else {
@@ -463,4 +496,22 @@ void knowledgebase::on_pb_insert_into_file_clicked()
     QTextStream writeStream(&file);
     writeStream << "\n\n" << ui->te_text->toPlainText();
     file.close();
+}
+
+void knowledgebase::on_pb_nextLaw_clicked()
+{
+    m_currentLaw++;
+    if (m_currentLaw >= m_ordersForShow.count()) {
+        m_currentLaw = 0;
+    }
+    _showLaw(m_currentLaw);
+}
+
+void knowledgebase::on_pb_prevLaw_clicked()
+{
+    m_currentLaw--;
+    if (m_currentLaw < 0) {
+        m_currentLaw = m_ordersForShow.count() - 1;
+    }
+    _showLaw(m_currentLaw);
 }

@@ -23,7 +23,7 @@ ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::Li
                         "background-color: darkGrey;"
                         "border: 2px solid darkGrey;}");
 
-    //Центрируем окно по центру экрана
+    // Центрируем окно по центру экрана
     QDesktopWidget desktop;
     QRect rect = desktop.availableGeometry(this);
     QPoint center = rect.center();
@@ -49,7 +49,7 @@ void ListKD::onSliderMoved(int value)
     ui->lw_id->verticalScrollBar()->setValue(value);
 }
 
-void ListKD::on_Ref_clicked() {}
+void ListKD::on_Ref_clicked() { }
 
 void ListKD::on_DetailKTR_clicked()
 {
@@ -101,7 +101,7 @@ void ListKD::_prepareView(EViewMode mode)
         modelForList->insertColumns(1, 2);
 
         modelForList->setHeaderData(0, Qt::Horizontal, tr("Код КД"));
-        modelForList->setHeaderData(1, Qt::Horizontal, tr("Учреждение"));
+        modelForList->setHeaderData(1, Qt::Horizontal, tr("Организация"));
         modelForList->setHeaderData(2, Qt::Horizontal, tr("Ктсц"));
         modelForList->setHeaderData(3, Qt::Horizontal, tr("Дата заключения"));
         modelForList->setHeaderData(4, Qt::Horizontal, tr("Кзн"));

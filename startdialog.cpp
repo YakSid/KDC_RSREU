@@ -42,6 +42,7 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDia
         ui->pb_deleteAuthor->setEnabled(true);
         // Если не первый запуск и путь уже указан - скроем
         _showDbSettings(!dbPathExist);
+        // ui->pb_showChangeDbFields->setVisible(!dbPathExist);
     }
 
     this->setStyleSheet("QPushButton:disabled {"
