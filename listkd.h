@@ -66,6 +66,9 @@ private:
     void _search(ESearchState state, QString text);
     //! Отобразить скрытые ключи
     void _showHiddenKeys();
+    //! Освободить SQL-модели и соединение с БД перед закрытием диалога,
+    //! чтобы MainWindow (открывающий то же дефолтное соединение) не удалил его пока модели живы
+    void _releaseDbResources();
 
 private:
     Ui::ListKD *ui;

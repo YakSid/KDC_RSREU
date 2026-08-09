@@ -1,10 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QFileDialog>
-#include <QAxObject>
-#include <QTextDocumentWriter>
 #include "cdatabasemanager.h"
+#include <QAxObject>
+#include <QFileDialog>
+#include <QTextDocumentWriter>
 
 const char PREVIOUS_SELECTION[] = "previousSelection";
 
@@ -38,7 +38,9 @@ const char PREVIOUS_SELECTION[] = "previousSelection";
  * 3. Не тормозит ли когда-нибудь сильно?
  */
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
     sDialog = new StartDialog();
     kefDialog = new kef();
@@ -185,9 +187,9 @@ void MainWindow::setParameters()
 
     // Перерасчитываем стартовый КЭФ
     double doubleKEF = m_paramB
-                    * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
-                       + static_cast<double>(currentKolDog->getStartKsc()))
-            + static_cast<double>(currentKolDog->getStartKgdp()) + static_cast<double>(currentKolDog->getStartKpsp());
+                           * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
+                              + static_cast<double>(currentKolDog->getStartKsc()))
+                       + static_cast<double>(currentKolDog->getStartKgdp()) + static_cast<double>(currentKolDog->getStartKpsp());
     QString strKEF = _doubleToFloatString(doubleKEF);
     ui->startKEF->setText(strKEF);
 
@@ -199,8 +201,7 @@ void MainWindow::setParameters()
 
 void MainWindow::slotDbPathEdit()
 {
-    QString newDbPath =
-            QFileDialog::getOpenFileName(this, "Выберите базу данных", QString(), tr("Microsoft Access (*.mdb)"));
+    QString newDbPath = QFileDialog::getOpenFileName(this, "Выберите базу данных", QString(), tr("Microsoft Access (*.mdb)"));
     if (!newDbPath.isEmpty()) {
         sDialog->dbPath = newDbPath;
         sDialog->saveDbPath(newDbPath);
@@ -268,22 +269,34 @@ void MainWindow::_prepareMainWindow(QString docId)
         ui->startKPSP->setText(_doubleToFloatString(in1_query.value(14).toDouble()));
         currentKolDog->setStartKpsp(in1_query.value(14).toFloat());
         double doubleKEF = m_paramB
-                        * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
-                           + static_cast<double>(currentKolDog->getStartKsc()))
-                + static_cast<double>(currentKolDog->getStartKgdp())
-                + static_cast<double>(currentKolDog->getStartKpsp());
+                               * (m_paramA * static_cast<double>(currentKolDog->getStartKtr())
+                                  + static_cast<double>(currentKolDog->getStartKsc()))
+                           + static_cast<double>(currentKolDog->getStartKgdp()) + static_cast<double>(currentKolDog->getStartKpsp());
         QString strKEF = _doubleToFloatString(doubleKEF);
         ui->startKEF->setText(strKEF);
         currentKolDog->setStartKef(doubleKEF);
         // Заполнение параметров класса договора
         currentKolDog->setKef(doubleKEF);
-        currentKolDog->setMainParameters(
-                in1_query.value(0).toString(), in1_query.value(2).toDate(), in1_query.value(3).toInt(),
-                in1_query.value(4).toBool(), in1_query.value(5).toFloat(), in1_query.value(7).toInt(),
-                in1_query.value(14).toFloat(), in1_query.value(15).toInt(), in1_query.value(16).toInt(),
-                in1_query.value(20).toDate(), in1_query.value(21).toInt(), in1_query.value(22).toInt(),
-                in1_query.value(23).toInt(), in1_query.value(24).toInt(), in1_query.value(25).toInt(),
-                in1_query.value(26).toInt(), 0, 0, in1_query.value(27).toInt(), in1_query.value(30).toFloat());
+        currentKolDog->setMainParameters(in1_query.value(0).toString(),
+                                         in1_query.value(2).toDate(),
+                                         in1_query.value(3).toInt(),
+                                         in1_query.value(4).toBool(),
+                                         in1_query.value(5).toFloat(),
+                                         in1_query.value(7).toInt(),
+                                         in1_query.value(14).toFloat(),
+                                         in1_query.value(15).toInt(),
+                                         in1_query.value(16).toInt(),
+                                         in1_query.value(20).toDate(),
+                                         in1_query.value(21).toInt(),
+                                         in1_query.value(22).toInt(),
+                                         in1_query.value(23).toInt(),
+                                         in1_query.value(24).toInt(),
+                                         in1_query.value(25).toInt(),
+                                         in1_query.value(26).toInt(),
+                                         0,
+                                         0,
+                                         in1_query.value(27).toInt(),
+                                         in1_query.value(30).toFloat());
     }
     // Нахождение полного имени учрежд. и запись в шапку
     in4_query.prepare("SELECT ИмяУчреждения FROM ТУчреждение WHERE ТУчреждение.КодУчреждения = :val1");
@@ -332,14 +345,25 @@ void MainWindow::_prepareMainWindow(QString docId)
     currentKolDog->setKpr(calculatedKpr);
     currentKolDog->setKtok(calculatedKtok);
     // Заполнение стартовых дополнительных кэффов (сейчас они равны обычным)
-    currentKolDog->setStartMinorKeffs(currentKolDog->getKdog(), currentKolDog->getKrv(), currentKolDog->getKvo(),
-                                      currentKolDog->getKzp(), currentKolDog->getKot(), currentKolDog->getKtsp(),
-                                      currentKolDog->getKpr(), currentKolDog->getKtok());
+    currentKolDog->setStartMinorKeffs(currentKolDog->getKdog(),
+                                      currentKolDog->getKrv(),
+                                      currentKolDog->getKvo(),
+                                      currentKolDog->getKzp(),
+                                      currentKolDog->getKot(),
+                                      currentKolDog->getKtsp(),
+                                      currentKolDog->getKpr(),
+                                      currentKolDog->getKtok());
     currentKolDog->setStartZnachimost(currentKolDog->getZnachimost());
     // Заполнение окна кэф начальными данными
-    kefDialog->setStartKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
-                             currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                             currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
+    kefDialog->setStartKeffs(currentKolDog->getKtr(),
+                             currentKolDog->getZnachimost(),
+                             currentKolDog->getKdog(),
+                             currentKolDog->getKrv(),
+                             currentKolDog->getKzp(),
+                             currentKolDog->getKvo(),
+                             currentKolDog->getKot(),
+                             currentKolDog->getKpr(),
+                             currentKolDog->getKtok(),
                              currentKolDog->getKtsp());
     // Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
@@ -397,10 +421,14 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     QDate endDate;
     endDate.fromString(mainSettings["endDateStr"].toString(), "dd.MM.yyyy");
     currentKolDog->setEndDate(endDate);
-    currentKolDog->setStartMinorKeffs(mainSettings["startKdog"].toInt(), mainSettings["startKrv"].toInt(),
-                                      mainSettings["startKvo"].toInt(), mainSettings["startKzp"].toInt(),
-                                      mainSettings["startKot"].toInt(), mainSettings["startKtsp"].toInt(),
-                                      mainSettings["startKpr"].toInt(), mainSettings["startKtok"].toInt());
+    currentKolDog->setStartMinorKeffs(mainSettings["startKdog"].toInt(),
+                                      mainSettings["startKrv"].toInt(),
+                                      mainSettings["startKvo"].toInt(),
+                                      mainSettings["startKzp"].toInt(),
+                                      mainSettings["startKot"].toInt(),
+                                      mainSettings["startKtsp"].toInt(),
+                                      mainSettings["startKpr"].toInt(),
+                                      mainSettings["startKtok"].toInt());
     currentKolDog->setKdog(mainSettings["kdog"].toInt());
     currentKolDog->setKrv(mainSettings["krv"].toInt());
     currentKolDog->setKvo(mainSettings["kvo"].toInt());
@@ -445,10 +473,16 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     // Заполнение окна кэф начальными данными
-    kefDialog->setStartKeffs(currentKolDog->getStartKtr(), currentKolDog->getStartZnachimost(),
-                             currentKolDog->getStartKdog(), currentKolDog->getStartKrv(), currentKolDog->getStartKzp(),
-                             currentKolDog->getStartKvo(), currentKolDog->getStartKot(), currentKolDog->getStartKpr(),
-                             currentKolDog->getStartKtok(), currentKolDog->getStartKtsp());
+    kefDialog->setStartKeffs(currentKolDog->getStartKtr(),
+                             currentKolDog->getStartZnachimost(),
+                             currentKolDog->getStartKdog(),
+                             currentKolDog->getStartKrv(),
+                             currentKolDog->getStartKzp(),
+                             currentKolDog->getStartKvo(),
+                             currentKolDog->getStartKot(),
+                             currentKolDog->getStartKpr(),
+                             currentKolDog->getStartKtok(),
+                             currentKolDog->getStartKtsp());
     // Заполнение текущих коэффициентов
     currentKolDog->calculateCurrentKeffs();
     _fillCurrentKeffs(currentKolDog->getFiveCurrentKeffs());
@@ -504,15 +538,13 @@ void MainWindow::_addFragmentToCentralField(fragment *frag)
     if (frag->getText().right(1) != "\n") {
         cursor.insertBlock();
     }
-    QString argLine =
-            frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t" + frag->getKachestvo();
+    QString argLine = frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t" + frag->getKachestvo();
     cursor.insertText(argLine);
     cursor.insertBlock();
     cursor.insertBlock();
     posEnd = cursor.position();
-    frag->SetPositions(
-            posBegin,
-            posEnd); // NOTE: Размер включает в себя: Текст, Размер СтрокиАргументов и 2-3 символа нового параграфа
+    frag->SetPositions(posBegin,
+                       posEnd); // NOTE: Размер включает в себя: Текст, Размер СтрокиАргументов и 2-3 символа нового параграфа
     // Окраска в цвет если изменён
     if (frag->isChanged())
         _markAsChanged(posBegin, posEnd);
@@ -640,11 +672,13 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
     greenPal.setColor(QPalette::WindowText, Qt::darkGreen);
     redPal.setColor(QPalette::WindowText, Qt::darkRed);
     blackPal.setColor(QPalette::WindowText, Qt::black);
-    QVariantList startKeffs({ currentKolDog->getStartKtr(), currentKolDog->getStartKsc(), currentKolDog->getStartKgdp(),
-                              currentKolDog->getStartKpsp(), currentKolDog->getStartKef() });
-    QList<QLabel *> labels({ ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef });
+    QVariantList startKeffs({currentKolDog->getStartKtr(),
+                             currentKolDog->getStartKsc(),
+                             currentKolDog->getStartKgdp(),
+                             currentKolDog->getStartKpsp(),
+                             currentKolDog->getStartKef()});
+    QList<QLabel *> labels({ui->lb_ktr, ui->lb_ksc, ui->lb_kgdp, ui->lb_kpsp, ui->lb_kef});
     for (int i = 0; i < startKeffs.size(); i++) {
-
         // Исключение для kpsp и kef т.к. там есть знаки после запятой
         if (i == 3 || i == 4) {
             QString currentKString = QString::number(keffs[i].toDouble(), 'f', 2);
@@ -660,7 +694,6 @@ void MainWindow::_fillCurrentKeffs(QVariantList keffs)
             }
 
         } else {
-
             if (keffs[i].toFloat() > startKeffs[i].toFloat()) {
                 labels[i]->setPalette(greenPal);
             } else if (keffs[i].toFloat() < startKeffs[i].toFloat()) {
@@ -696,7 +729,7 @@ void MainWindow::_fillCurrentKEFOnly(double kef)
 
 QVariantList MainWindow::_calculateKeffsWithDelta(QVariantList delta)
 {
-    QVariantList result { 0, 0, 0, 0.0, 0.0 };
+    QVariantList result{0, 0, 0, 0.0, 0.0};
     result[0] = ui->KTR->text().toInt() + delta[0].toInt();
     result[1] = ui->KSC->text().toInt() + delta[1].toInt();
     result[2] = ui->KGDP->text().toInt() + delta[2].toInt();
@@ -714,8 +747,7 @@ bool MainWindow::_isKeffsChanged(QVariantList delta)
     return false;
 }
 
-void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality,
-                                         QString fragQuestionABR)
+void MainWindow::_prepareSettingsInRight(QString fragAkt, QString fragRazdel, QString fragQuality, QString fragQuestionABR)
 {
     ui->Act->clear();
     ui->Razd->blockSignals(true);
@@ -776,8 +808,7 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         // Поиск id выделенного фрагмента
         qint32 cursorPos = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
-            if (currentKolDog->fragments[i]->getPositionFirst() <= cursorPos
-                && currentKolDog->fragments[i]->getPositionLast() > cursorPos) {
+            if (currentKolDog->fragments[i]->getPositionFirst() <= cursorPos && currentKolDog->fragments[i]->getPositionLast() > cursorPos) {
                 SelectedFragment = i;
                 break;
             }
@@ -795,10 +826,11 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
 void MainWindow::on_pb_newFrag_clicked()
 {
     if (m_currentWorkMode == eBasicMode) {
-        m_addFirst =
-                _showQuestion("Если вы хотите добавить пункт на первую позицию - нажмите \"Добавить первым\".\n"
-                              "Если нет, то нажмите \"Отмена\", выберите пункт, после которого добавится новый пункт.",
-                              "Master KDA - Добавление нового пункта", "Добавить первым", "Отмена");
+        m_addFirst = _showQuestion("Если вы хотите добавить пункт на первую позицию - нажмите \"Добавить первым\".\n"
+                                   "Если нет, то нажмите \"Отмена\", выберите пункт, после которого добавится новый пункт.",
+                                   "Master KDA - Добавление нового пункта",
+                                   "Добавить первым",
+                                   "Отмена");
     }
     if (m_currentWorkMode != eBasicMode || m_addFirst) {
         setWorkMode(eRightFrameMode);
@@ -875,8 +907,7 @@ void MainWindow::on_GoLeft_clicked()
     bool cancel = false;
     if (ui->TextRight->toPlainText().isEmpty()) {
         if (m_addNewFrag) {
-            cancel = _showQuestion("Текст пункта пустой, отменить добавление?", "Master KDA", "Да, отменить",
-                                   "Нет, добавить пустой");
+            cancel = _showQuestion("Текст пункта пустой, отменить добавление?", "Master KDA", "Да, отменить", "Нет, добавить пустой");
         } else {
             _showMessage("Текст пункта пустой, заполните его перед добавлением");
             return;
@@ -962,8 +993,7 @@ void MainWindow::on_GoLeft_clicked()
         frag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
         frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
         frag->updateFlagsViDoSvUt();
-        QString argLine = "\n" + frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t"
-                + frag->getKachestvo();
+        QString argLine = "\n" + frag->getRazdel() + "\t" + frag->getVoprosABR() + "\t" + frag->getAkt() + "\t" + frag->getKachestvo();
         frag->setSize(argLine.size() + frag->getText().size() + 2);
         cursor.insertText(frag->getText() + argLine + "\n\n");
         frag->setPositionFirst(posPrevFragLast);
@@ -979,8 +1009,7 @@ void MainWindow::on_GoLeft_clicked()
         // Убираем выделение старого и нового фрагмента, окрашиваем старый если тот был
         _clearSelectionInCentral(posPrevFragFirst, frag->getPositionLast());
         if (idPrevFrag != -1) {
-            if (currentKolDog->fragments[SelectedFragment]->isChanged()
-                && currentKolDog->fragments[SelectedFragment]->isNewAdded()) {
+            if (currentKolDog->fragments[SelectedFragment]->isChanged() && currentKolDog->fragments[SelectedFragment]->isNewAdded()) {
                 _markAsChangedAndNewAdded(posPrevFragFirst, posPrevFragLast);
             } else if (currentKolDog->fragments[SelectedFragment]->isChanged()) {
                 _markAsChanged(posPrevFragFirst, posPrevFragLast);
@@ -1027,7 +1056,7 @@ void MainWindow::on_GoLeft_clicked()
             argLine += "\n";
         }
         argLine += currentFrag->getRazdel() + "\t" + currentFrag->getVoprosABR() + "\t" + currentFrag->getAkt() + "\t"
-                + currentFrag->getKachestvo();
+                   + currentFrag->getKachestvo();
         cursor.insertText(currentFrag->getText() + argLine + "\n\n");
         // Вычисление нового размера
         qint32 deltaTextSize = ui->TextRight->toPlainText().size() + argLine.size() + 2 - currentFrag->getSize();
@@ -1116,9 +1145,15 @@ void MainWindow::on_Razd_currentIndexChanged(int index)
 void MainWindow::on_Effekt_po_razd_clicked()
 {
     currentKolDog->calculateKzn();
-    kefDialog->setCurrentKeffs(currentKolDog->getKtr(), currentKolDog->getZnachimost(), currentKolDog->getKdog(),
-                               currentKolDog->getKrv(), currentKolDog->getKzp(), currentKolDog->getKvo(),
-                               currentKolDog->getKot(), currentKolDog->getKpr(), currentKolDog->getKtok(),
+    kefDialog->setCurrentKeffs(currentKolDog->getKtr(),
+                               currentKolDog->getZnachimost(),
+                               currentKolDog->getKdog(),
+                               currentKolDog->getKrv(),
+                               currentKolDog->getKzp(),
+                               currentKolDog->getKvo(),
+                               currentKolDog->getKot(),
+                               currentKolDog->getKpr(),
+                               currentKolDog->getKtok(),
                                currentKolDog->getKtsp());
     kefDialog->setModal(true);
     kefDialog->exec();
@@ -1159,8 +1194,7 @@ void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 {
     Q_UNUSED(column)
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() != -1) {
-        ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)
-                ->setBackgroundColor(Qt::white);
+        ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)->setBackgroundColor(Qt::white);
     }
     ui->tw_navigator->item(row, 0)->setBackgroundColor(Qt::yellow);
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, row);
@@ -1172,8 +1206,7 @@ void MainWindow::on_tw_navigator_cellClicked(int row, int column)
 void MainWindow::on_btn_showFullText_clicked()
 {
     if (ui->tw_navigator->property(PREVIOUS_SELECTION).toInt() != -1) {
-        ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)
-                ->setBackgroundColor(Qt::white);
+        ui->tw_navigator->item(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt(), 0)->setBackgroundColor(Qt::white);
     }
     ui->tw_navigator->setProperty(PREVIOUS_SELECTION, -1);
     _fillCentralField(eAllSections);
@@ -1212,8 +1245,7 @@ void MainWindow::on_actionMakeDoc_triggered()
     QString output = "";
     QString argLine;
     for (auto frag : currentKolDog->fragments) {
-        argLine = frag->getRazdel() + " \t" + frag->getVoprosABR() + " \t" + frag->getAkt() + " \t"
-                + frag->getKachestvo() + "\n\n";
+        argLine = frag->getRazdel() + " \t" + frag->getVoprosABR() + " \t" + frag->getAkt() + " \t" + frag->getKachestvo() + "\n\n";
         output += frag->getText() + argLine;
     }
     range->dynamicCall("SetRange(int, int)", 0, 1);
@@ -1234,8 +1266,11 @@ void MainWindow::on_actionMakeOdt_triggered()
                            "Если хотите сформировать в .odt весь текст договора - нажмите \"Полный текст договора\".";
         QString textYes = "Только раздел";
         QString textNo = "Полный текст договора";
-        QMessageBox msgBox(QMessageBox::Question, "Master KDA - Формирование в .odt", question,
-                           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this);
+        QMessageBox msgBox(QMessageBox::Question,
+                           "Master KDA - Формирование в .odt",
+                           question,
+                           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                           this);
         msgBox.setButtonText(QMessageBox::Yes, textYes);
         msgBox.setButtonText(QMessageBox::No, textNo);
         msgBox.setButtonText(QMessageBox::Cancel, "Отмена");
@@ -1264,8 +1299,7 @@ void MainWindow::on_actionMakeOdt_triggered()
     }
 
     const QString &desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), desktopPath + "/" + KDName,
-                                                    "Open Document (*.odt)");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить договор"), desktopPath + "/" + KDName, "Open Document (*.odt)");
 
     if (!fileName.isEmpty()) {
         QTextDocumentWriter *writer = new QTextDocumentWriter(fileName);

@@ -40,8 +40,8 @@ ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::Li
 ListKD::~ListKD()
 {
     qDebug() << "listDialog with db was deleted";
+    _releaseDbResources();
     delete ui;
-    delete m_db;
 }
 
 void ListKD::onSliderMoved(int value)
@@ -69,11 +69,16 @@ void ListKD::on_DetailKTR_clicked()
 void ListKD::on_SelectKD_clicked()
 {
     WantGo = true;
+    // Освобождаем соединение и модели ДО закрытия, иначе MainWindow, открывая своё
+    // дефолтное соединение, удалит ещё живую модель этого диалога (use-after-free)
+    _releaseDbResources();
     ListKD::close();
 }
 
 void ListKD::on_tableView_clicked(const QModelIndex &index)
 {
+    if (!proxyModel || !index.isValid())
+        return;
     SelectedKD = proxyModel->data(index.sibling(index.row(), 0), Qt::DisplayRole).toString();
     ui->SelectKD->setEnabled(true);
 }
@@ -194,6 +199,29 @@ void ListKD::_showHiddenKeys()
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         index = proxyModel->index(i, 0);
         ui->tableView->setRowHidden(index.row(), false);
+    }
+}
+
+void ListKD::_releaseDbResources()
+{
+    // Отвязываем модель от таблицы, чтобы убрать ссылки на освобождаемое соединение
+    ui->tableView->setModel(nullptr);
+
+    if (proxyModel) {
+        delete proxyModel;
+        proxyModel = nullptr;
+    }
+    if (modelForList) {
+        delete modelForList;
+        modelForList = nullptr;
+    }
+    if (modelForSecond) {
+        delete modelForSecond;
+        modelForSecond = nullptr;
+    }
+    if (m_db) {
+        delete m_db;
+        m_db = nullptr;
     }
 }
 
