@@ -131,7 +131,7 @@ private:
     Ui::MainWindow *ui;
     CJSONManager *m_jsonManager;
     CDatabaseManager *m_db;
-    knowledgebase *kBase;
+    knowledgebase *m_kBase;
     kef *kefDialog;
     StartDialog *sDialog;
     ListKD *lDialog { nullptr };

@@ -1,8 +1,8 @@
 #ifndef KNOWLEDGEBASE_H
 #define KNOWLEDGEBASE_H
 
-#include "fragment.h"
 #include "cconstants.h"
+#include "fragment.h"
 #include <QDialog>
 
 enum EFragmentsViewMode { eLaw, eTypicalKD, eAllKD };
@@ -58,28 +58,35 @@ private:
 
 private:
     Ui::knowledgebase *ui;
-    EFragmentsViewMode m_currentViewMode { eTypicalKD };
-    //! Номер фрагмента из подготовленного списка, -1 - изначальный
-    qint32 m_currentFragmentNumber { -1 };
+
+    EFragmentsViewMode m_currentViewMode{eTypicalKD};
     //! Изначально оригинальный фраг, а после - с параметрами необходимыми для поиска
-    fragment *m_originalFrag { nullptr };
-    QString originalText { "" };
-    bool m_allActs { false };
-    bool m_unlocked { false };
+    fragment *m_originalFrag{nullptr};
+    //! Номер фрагмента из подготовленного списка, -1 - изначальный
+    qint32 m_currentFragmentNumber{-1};
+
+    QString originalText{""};
+    bool m_allActs{false};
+    bool m_unlocked{false};
+
     // TODO: [Улучшение кода] Переделать эти листы в структуру
     QList<QString> fragmentsForShow;
     //! Собранные id КД для поиска и отображения их названий
     QList<QString> idForNames;
     QList<QString> namesForShow;
-    QList<structOrder *> m_ordersForShow;
+
+    //! Титульная информация закона без самого текста закона
+    QList<structOrder *> m_lawHeadersForShow;
+    //! Сами тексты законов
     QStringList m_lawsForShow;
+
     //! Текущий порядковый номер отображаемого закона
-    qint32 m_currentLaw { -1 };
+    qint32 m_currentLaw{-1};
     //! Файл для вынесения дополнительных пунктов
     QString m_savedFragmentsPath = "";
 
     //! Показывать ли подсказку
-    bool m_showHelp { true };
+    bool m_showHelp{true};
 };
 
 #endif // KNOWLEDGEBASE_H

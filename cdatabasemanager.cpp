@@ -1,6 +1,6 @@
 #include "cdatabasemanager.h"
-#include <QSqlQuery>
 #include "cconstants.h"
+#include <QSqlQuery>
 
 // TODO: [Улучшение] Переделать по нормальному подключение БД и стартовый диалог
 
@@ -25,8 +25,7 @@ CDatabaseManager::CDatabaseManager(QString name)
         TOrder.clear();
     }
     QSqlQuery queryLawSelect;
-    queryLawSelect.prepare(
-            "SELECT ТЗакон.КодЗакона, ТЗакон.НазвЗакона, ТЗакон.ДатаПринятия, ТЗакон.ДатаИзмен FROM ТЗакон");
+    queryLawSelect.prepare("SELECT ТЗакон.КодЗакона, ТЗакон.НазвЗакона, ТЗакон.ДатаПринятия, ТЗакон.ДатаИзмен FROM ТЗакон");
     if (!queryLawSelect.exec()) {
         qDebug() << queryLawSelect.lastError().text();
     }
@@ -54,6 +53,7 @@ CDatabaseManager::CDatabaseManager(QString name)
 
 CDatabaseManager::~CDatabaseManager()
 {
+    qDebug() << "destructor db";
     for (auto order : TOrder) {
         delete order;
     }

@@ -279,21 +279,6 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QRadioButton" name="rb_law_fragments">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Фрагменты законов</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QRadioButton" name="rb_typical_fragments_kd">
             <property name="font">
              <font>
@@ -926,7 +911,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pb_nextLaw">
+         <widget class="QPushButton" name="pb_prevLaw">
           <property name="minimumSize">
            <size>
             <width>121</width>
@@ -944,7 +929,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pb_prevLaw">
+         <widget class="QPushButton" name="pb_nextLaw">
           <property name="minimumSize">
            <size>
             <width>121</width>

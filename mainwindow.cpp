@@ -42,9 +42,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     sDialog = new StartDialog();
     kefDialog = new kef();
-    kBase = new knowledgebase();
-    connect(this, &MainWindow::s_sentFragment, kBase, &knowledgebase::getFragment);
-    connect(kBase, &knowledgebase::startTransportFrag, this, &MainWindow::insertFragFromKB);
+    m_kBase = new knowledgebase();
+    connect(this, &MainWindow::s_sentFragment, m_kBase, &knowledgebase::getFragment);
+    connect(m_kBase, &knowledgebase::startTransportFrag, this, &MainWindow::insertFragFromKB);
 
     bool debugMode = false;
     if (!debugMode) {
@@ -92,7 +92,7 @@ MainWindow::~MainWindow()
     qDebug() << "main destructor";
     delete ui;
     delete sDialog;
-    delete kBase;
+    delete m_kBase;
     delete lDialog;
     delete m_db;
     delete currentKolDog;
@@ -1147,7 +1147,7 @@ void MainWindow::on_BazeKnowledge_clicked()
         }
         break;
     }
-    kBase->exec();
+    m_kBase->exec();
 }
 
 void MainWindow::on_pb_clearField_clicked()
