@@ -270,7 +270,6 @@ void knowledgebase::on_ch_all_acts_toggled(bool checked)
     m_allActs = checked;
 }
 
-// TODO: [старое, нужно?] добавить закону норм поиск используя листВозможность
 void knowledgebase::_select()
 {
     ui->ln_kdName->clear();
@@ -300,9 +299,6 @@ void knowledgebase::_select()
             }
         }
         m_lawsForShow.append(text);
-        // Устаревший вариант:
-        // if (m_currentViewMode == eLaw)
-        //     fragmentsForShow.append(text);
     }
 
     // Если выбраны не законы, то готовим ещё и КД
@@ -322,7 +318,7 @@ void knowledgebase::_select()
         }
         while (querySelect.next()) {
             QString text = querySelect.value(0).toString();
-            // типовые и все фрагменты
+            // Типовые и все фрагменты
             if (m_allActs) {
                 if (m_originalFrag->getKachestvo() == querySelect.value(1).toString()) {
                     fragmentsForShow.append(text);
@@ -410,22 +406,7 @@ void knowledgebase::on_pb_next_clicked()
             ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
     }
 
-    // if (m_currentViewMode == eLaw) {
-    //     if (m_currentFragmentNumber == -1) {
-    //         ui->ln_order->setText("-");
-    //         ui->ln_adoption_date->setText("-");
-    //         ui->ln_change_date->setText("-");
-    //         ui->ln_order->setToolTip("");
-    //     } else if (m_lawHeadersForShow.size() != 0 && m_lawHeadersForShow.size() >= m_currentFragmentNumber) {
-    //         ui->ln_order->setText(m_lawHeadersForShow[m_currentFragmentNumber]->name);
-    //         ui->ln_adoption_date->setText(m_lawHeadersForShow[m_currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
-    //         ui->ln_change_date->setText(m_lawHeadersForShow[m_currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
-    //         ui->ln_order->setToolTip(m_lawHeadersForShow[m_currentFragmentNumber]->name);
-    //     }
-    //     ui->ln_order->home(false);
-    // } else {
     ui->ln_kdName->home(false);
-    //}
 }
 
 void knowledgebase::on_pb_prev_clicked()
@@ -454,22 +435,7 @@ void knowledgebase::on_pb_prev_clicked()
             ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
     }
 
-    // if (m_currentViewMode == eLaw) {
-    //     if (m_currentFragmentNumber < 0 || m_currentFragmentNumber < 0) {
-    //         ui->ln_order->setText("-");
-    //         ui->ln_adoption_date->setText("-");
-    //         ui->ln_change_date->setText("-");
-    //         ui->ln_order->setToolTip("");
-    //     } else if (m_lawHeadersForShow.size() != 0 && m_lawHeadersForShow.size() >= m_currentFragmentNumber) {
-    //         ui->ln_order->setText(m_lawHeadersForShow[m_currentFragmentNumber]->name);
-    //         ui->ln_adoption_date->setText(m_lawHeadersForShow[m_currentFragmentNumber]->dateAdoptation.toString("dd.MM.yyyy"));
-    //         ui->ln_change_date->setText(m_lawHeadersForShow[m_currentFragmentNumber]->dateChange.toString("dd.MM.yyyy"));
-    //         ui->ln_order->setToolTip(m_lawHeadersForShow[m_currentFragmentNumber]->name);
-    //     }
-    //     ui->ln_order->home(false);
-    // } else {
     ui->ln_kdName->home(false);
-    //}
 }
 
 void knowledgebase::on_pb_showList_clicked()

@@ -1,16 +1,18 @@
 #include "startdialog.h"
 #include "ui_startdialog.h"
 
-#include <QFile>
-#include <QTextStream>
-#include <QMessageBox>
-#include <QFileDialog>
 #include <QDebug>
+#include <QFile>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTextStream>
 
 const QString TITLE_AUTHORIZATION = "Master KDA - Авторизация";
 const QString TITLE_BEGINNING_OF_WORK = "Master KDA - Начало работы";
 
-StartDialog::StartDialog(QWidget *parent) : QDialog(parent), ui(new Ui::StartDialog)
+StartDialog::StartDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::StartDialog)
 {
     ui->setupUi(this);
 
@@ -94,14 +96,14 @@ void StartDialog::on_pb_addAuthor_clicked()
 void StartDialog::on_pb_deleteAuthor_clicked()
 {
     ui->cb_author->removeItem(ui->cb_author->currentIndex());
-    QStringList doctors;
+    QStringList authors;
     if (ui->cb_author->count() != 0) {
         for (int i = 0; i < ui->cb_author->count(); i++) {
-            doctors.append(ui->cb_author->itemText(i));
+            authors.append(ui->cb_author->itemText(i));
         }
         // Изменение логфайла
         _clearLogfile();
-        _updateLogfile(doctors);
+        _updateLogfile(authors);
 
         ui->cb_author->clear();
         ui->cb_author->addItems(_getAllAuthors());

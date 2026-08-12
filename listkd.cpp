@@ -1,10 +1,12 @@
 #include "listkd.h"
 #include "ui_listkd.h"
 
-#include <QScrollBar>
 #include <QDesktopWidget>
+#include <QScrollBar>
 
-ListKD::ListKD(QWidget *parent, QString dbName) : QDialog(parent), ui(new Ui::ListKD)
+ListKD::ListKD(QWidget *parent, QString dbName)
+    : QDialog(parent)
+    , ui(new Ui::ListKD)
 {
     ui->setupUi(this);
     Qt::WindowFlags flags = Qt::WindowMinimizeButtonHint;
@@ -49,7 +51,7 @@ void ListKD::onSliderMoved(int value)
     ui->lw_id->verticalScrollBar()->setValue(value);
 }
 
-void ListKD::on_Ref_clicked() { }
+void ListKD::on_Ref_clicked() {}
 
 void ListKD::on_DetailKTR_clicked()
 {
@@ -69,8 +71,6 @@ void ListKD::on_DetailKTR_clicked()
 void ListKD::on_SelectKD_clicked()
 {
     WantGo = true;
-    // Освобождаем соединение и модели ДО закрытия, иначе MainWindow, открывая своё
-    // дефолтное соединение, удалит ещё живую модель этого диалога (use-after-free)
     _releaseDbResources();
     ListKD::close();
 }
@@ -112,7 +112,7 @@ void ListKD::_prepareView(EViewMode mode)
         modelForList->setHeaderData(4, Qt::Horizontal, tr("Кзн"));
         modelForList->setHeaderData(5, Qt::Horizontal, tr("Эффективн.Кэф"));
 
-        // меняем столбцы для стандартного вида
+        // Меняем столбцы для стандартного вида
         ui->tableView->horizontalHeader()->swapSections(4, 8);
         ui->tableView->horizontalHeader()->swapSections(5, 9);
         ui->tableView->horizontalHeader()->swapSections(2, 3);

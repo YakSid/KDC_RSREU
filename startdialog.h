@@ -16,12 +16,12 @@ public:
     ~StartDialog();
 
     enum EStartMode { startNew, contibueOld, exitApp };
-    EStartMode StartMode { EStartMode::exitApp };
+    EStartMode StartMode{EStartMode::exitApp};
     QString authorName;
-    bool startClicked { false };
-    QString jFilename { "" };
+    bool startClicked{false};
+    QString jFilename{""};
     // Перменные для работы с БД
-    QString dbPath { "" };
+    QString dbPath{""};
 
 public:
     void saveDbPath(QString path);
@@ -55,7 +55,7 @@ private:
 
 private:
     Ui::StartDialog *ui;
-    bool firstStart { true };
+    bool firstStart{true};
 };
 
 #endif // STARTDIALOG_H

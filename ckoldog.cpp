@@ -1,19 +1,13 @@
 #include "ckoldog.h"
 #include <QDebug>
 
-CKolDog::CKolDog(double paramA, double paramB) : m_paramA(paramA), m_paramB(paramB) {}
+CKolDog::CKolDog(double paramA, double paramB)
+    : m_paramA(paramA)
+    , m_paramB(paramB)
+{}
 
 CKolDog::~CKolDog()
 {
-    //Узнать размер объекта
-    /*
-    qint32 mySize = getMySize();
-    for (auto frag : fragments) {
-        mySize += frag->getMySize();
-    }
-    qDebug() << "My size was: " << mySize;
-    */
-
     for (auto frag : fragments)
         delete frag;
     fragments.clear();
@@ -26,9 +20,26 @@ void CKolDog::setParameters(double paramA, double paramB)
     calculateKef();
 }
 
-void CKolDog::setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
-                                float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp,
-                                int kot, int ktsp, int kpr, int ktok, int kmol, float sum)
+void CKolDog::setMainParameters(QString id,
+                                QDate date,
+                                int validity,
+                                bool complWithReq,
+                                float znachimost,
+                                int ktr,
+                                float kpsp,
+                                int kgdp,
+                                int ksc,
+                                QDate endDate,
+                                int kdog,
+                                int krv,
+                                int kvo,
+                                int kzp,
+                                int kot,
+                                int ktsp,
+                                int kpr,
+                                int ktok,
+                                int kmol,
+                                float sum)
 {
     this->id = id;
     this->date = date;
@@ -82,7 +93,7 @@ void CKolDog::setStartMinorKeffs(int skdog, int skrv, int skvo, int skzp, int sk
 
 QVariantList CKolDog::getFiveCurrentKeffs()
 {
-    return QVariantList({ ktr, ksc, kgdp, kpsp, kef });
+    return QVariantList({ktr, ksc, kgdp, kpsp, kef});
 }
 
 void CKolDog::addFragAfter(qint32 pos, fragment *frag)
@@ -100,7 +111,7 @@ void CKolDog::calculateCurrentKeffs()
     _resetKeffs();
     for (auto frag : fragments) {
         if (frag->isViDoSv()) {
-            //узнать какой раздел и куда плюсовать и плюсовать
+            // узнать какой раздел и куда плюсовать и плюсовать
             QString razdel = frag->getRazdel();
             if (razdel == "ПСП") {
                 kpsp++;
@@ -137,7 +148,7 @@ void CKolDog::calculateCurrentKeffs()
             kpsp += static_cast<float>(0.3);
         }
     }
-    //Пересчитать КЭФ
+    // Пересчитать КЭФ
     calculateKef();
 }
 
@@ -214,9 +225,8 @@ float CKolDog::calculateKzn()
         if (frag->isViDoSv() && frag->getRazdel() == "ПСП")
             Npsp++;
     }
-    //кзн=(ктр+ксц+кгдп+Nпсп)/M*100% (M-число всех пунктов КД,Nпсп-колвоПСПпунктов с vidosv)
-    qint32 tmp = (ktr + ksc + kgdp + Npsp) * 10000
-            / fragments.size(); // 1000, а не 100, чтобы потом посчитать знак после запятой
+    // кзн=(ктр+ксц+кгдп+Nпсп)/M*100% (M-число всех пунктов КД,Nпсп-колвоПСПпунктов с vidosv)
+    qint32 tmp = (ktr + ksc + kgdp + Npsp) * 10000 / fragments.size(); // 1000, а не 100, чтобы потом посчитать знак после запятой
     this->znachimost = tmp / 100 + (tmp % 100 * 0.01);
     return znachimost;
 }
@@ -224,7 +234,7 @@ float CKolDog::calculateKzn()
 double CKolDog::calculateKef()
 {
     kef = m_paramB * (m_paramA * static_cast<double>(ktr) + static_cast<double>(ksc)) + static_cast<double>(kgdp)
-            + static_cast<double>(kpsp);
+          + static_cast<double>(kpsp);
     return kef;
 }
 
@@ -282,13 +292,13 @@ qint32 CKolDog::findFirstInRazd(QString razdAbr)
 
 void CKolDog::_resetKeffs()
 {
-    //Основные
+    // Основные
     ktr = 0;
     ksc = 0;
     kgdp = 0;
     kpsp = 0;
     kef = 0;
-    //Подробные
+    // Подробные
     kdog = 0;
     krv = 0;
     kvo = 0;

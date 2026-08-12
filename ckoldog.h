@@ -1,14 +1,14 @@
 #ifndef CKOLDOG_H
 #define CKOLDOG_H
 
-#include <QString>
-#include <QDate>
-#include <QVector>
-#include <QVariant>
 #include <fragment.h>
-#include <QJsonDocument>
+#include <QDate>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QString>
+#include <QVariant>
+#include <QVector>
 
 class CKolDog
 {
@@ -24,7 +24,7 @@ public:
     bool getComplWithReq() const { return complWithReq; }
     float getZnachimost() const { return znachimost; }
     float getStartZnachimost() const { return startZnachimost; }
-    //! TODO: [Улучшение кода] стандартизировать везде int float double
+
     int getStartKtr() const { return startKtr; }
     float getStartKef() const { return startKef; }
     float getStartKpsp() const { return startKpsp; }
@@ -54,10 +54,27 @@ public:
     int getStartKtsp() const { return startKtsp; }
     int getStartKpr() const { return startKpr; }
     int getStartKtok() const { return startKtok; }
-    void setMainParameters(QString id, QDate date, int validity, bool complWithReq, float znachimost, int ktr,
-                           float kpsp, int kgdp, int ksc, QDate endDate, int kdog, int krv, int kvo, int kzp, int kot,
-                           int ktsp, int kpr, int ktok, int kmol, float sum);
-    //!Кпр и Кток нет в базе, поэтому высчитываю их сам и записываю в адреса
+    void setMainParameters(QString id,
+                           QDate date,
+                           int validity,
+                           bool complWithReq,
+                           float znachimost,
+                           int ktr,
+                           float kpsp,
+                           int kgdp,
+                           int ksc,
+                           QDate endDate,
+                           int kdog,
+                           int krv,
+                           int kvo,
+                           int kzp,
+                           int kot,
+                           int ktsp,
+                           int kpr,
+                           int ktok,
+                           int kmol,
+                           float sum);
+    //! Кпр и Кток нет в базе, поэтому высчитываю их сам и записываю в адреса
     void calculateKprAndKtok(qint32 &kpr, qint32 &ktok);
 
     void setId(QString newId) { id = newId; }
@@ -147,14 +164,14 @@ private:
     int kmol; // Коэффициент вопроса, а не раздела
     float sum;
 
-    //Начальные основные коэффициенты (не меняются после первого присвоения)
+    // Начальные основные коэффициенты (не меняются после первого присвоения)
     float startZnachimost;
     int startKtr;
     float startKef;
     float startKpsp;
     int startKgdp;
     int startKsc;
-    //Начальные дополнительные коэффициенты
+    // Начальные дополнительные коэффициенты
     int startKdog;
     int startKrv;
     int startKvo;
@@ -165,8 +182,8 @@ private:
     int startKtok;
 
     // Параметры для формулы КЭФ
-    double m_paramA { 1.5 };
-    double m_paramB { 1.3 };
+    double m_paramA{1.5};
+    double m_paramB{1.3};
 };
 
 #endif // CKOLDOG_H

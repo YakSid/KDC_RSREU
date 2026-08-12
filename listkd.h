@@ -1,16 +1,16 @@
 #ifndef LISTKD_H
 #define LISTKD_H
 
-#include <QDialog>
-#include <QMessageBox>
-#include <QDebug>
 #include "QStandardItem"
+#include "cdatabasemanager.h"
 #include "modellist.h"
 #include "modelsecond.h"
-#include <QSortFilterProxyModel>
-#include <QDir>
 #include "startdialog.h"
-#include "cdatabasemanager.h"
+#include <QDebug>
+#include <QDialog>
+#include <QDir>
+#include <QMessageBox>
+#include <QSortFilterProxyModel>
 
 enum EViewMode { eStandardView, eDetailView };
 //! Значение опции выбора
@@ -66,19 +66,19 @@ private:
     void _search(ESearchState state, QString text);
     //! Отобразить скрытые ключи
     void _showHiddenKeys();
-    //! Освободить SQL-модели и соединение с БД перед закрытием диалога,
-    //! чтобы MainWindow (открывающий то же дефолтное соединение) не удалил его пока модели живы
+    //! Освободить SQL-модели и соединение с БД перед закрытием диалога, чтобы MainWindow (открывающий то же дефолтное соединение) не удалил
+    //! его пока модели живы
     void _releaseDbResources();
 
 private:
     Ui::ListKD *ui;
     CDatabaseManager *m_db;
-    modelList *modelForList { nullptr };
-    modelSecond *modelForSecond { nullptr };
+    modelList *modelForList{nullptr};
+    modelSecond *modelForSecond{nullptr};
     QSortFilterProxyModel *proxyModel;
-    EViewMode viewMode { eStandardView };
+    EViewMode viewMode{eStandardView};
     //! Опция выбора
-    ESearchState searchState { eSearchKodKD };
+    ESearchState searchState{eSearchKodKD};
     QString prevSearchRequest;
 };
 

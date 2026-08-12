@@ -69,7 +69,6 @@ private:
     bool m_allActs{false};
     bool m_unlocked{false};
 
-    // TODO: [Улучшение кода] Переделать эти листы в структуру
     QList<QString> fragmentsForShow;
     //! Собранные id КД для поиска и отображения их названий
     QList<QString> idForNames;
