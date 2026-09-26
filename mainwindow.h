@@ -1,16 +1,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QSqlDatabase>
-#include <QDebug>
-#include <QTreeWidgetItem>
-#include <QtWidgets>
+#include "cjsonmanager.h"
+#include "ckoldog.h"
 #include "detailktr.h"
 #include "kef.h"
 #include "knowledgebase.h"
-#include "ckoldog.h"
-#include "cjsonmanager.h"
+#include <QDebug>
+#include <QMainWindow>
+#include <QSqlDatabase>
+#include <QTreeWidgetItem>
+#include <QtWidgets>
 
 //! [min] На странице "Список КД" к слову эффект. добавить "Кэф"
 
@@ -57,7 +57,7 @@ public:
     void setWorkMode(EWorkMode newMode);
 
 signals:
-    void s_sentFragment(fragment *frag);
+    void s_requestPrepareKB(fragment *frag);
 
 public slots:
     void insertFragFromKB(fragment *frag);
@@ -94,7 +94,8 @@ private:
     void _prepareMainWindowFromJson(QJsonDocument jDoc);
     void _fillCentralField(EDisplayedSection selectedSection);
     void _addFragmentToCentralField(fragment *frag);
-    //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже пересчитать)
+    //! Пересчитывает начальную и конечную позицию фрагмента в тексте для всех фрагментов КД (false - без первого в текущем, true - его тоже
+    //! пересчитать)
     void _recountPositions(int idfrag, int delta, bool withFirstOfCurrent = false);
     //! Выделить область в центральном поле
     void _setSelectionInCentral(qint32 posStart, qint32 posEnd);
@@ -112,8 +113,7 @@ private:
 
     //! Вывод сообщений на экран
     void _showMessage(QString text, QString title = "Master KDA - База знаний");
-    bool _showQuestion(QString text, QString title = "Master KDA - База знаний", QString textYes = "Да",
-                       QString textNo = "Нет");
+    bool _showQuestion(QString text, QString title = "Master KDA - База знаний", QString textYes = "Да", QString textNo = "Нет");
 
     //! Заполнить поля текущих главных коэффициентов
     void _fillCurrentKeffs(QVariantList keffs);
@@ -134,7 +134,7 @@ private:
     knowledgebase *m_kBase;
     kef *kefDialog;
     StartDialog *sDialog;
-    ListKD *lDialog { nullptr };
+    ListKD *lDialog{nullptr};
     QSqlRelationalTableModel *model;
     QSqlDatabase Database;
     EWorkMode m_currentWorkMode;
@@ -146,11 +146,11 @@ private:
     bool TextCenterIsBlocked = true;
     int SelectedFragment = -1;
     // Параметры для формулы КЭФ
-    double m_paramA { 1.5 };
-    double m_paramB { 1.3 };
+    double m_paramA{1.5};
+    double m_paramB{1.3};
 
     // TODO: временный параметр, изменив архитектуру удалить его
-    QLineEdit *m_linePointer { nullptr };
+    QLineEdit *m_linePointer{nullptr};
 };
 
 #endif // MAINWINDOW_H

@@ -22,7 +22,9 @@ knowledgebase::knowledgebase(QWidget *parent)
     flags |= Qt::WindowCloseButtonHint;
     setWindowFlags(flags);
 
-    _changeViewMode(eTypicalKD);
+    //_changeViewMode(eTypicalKD);
+
+    ui->frameLaw->setVisible(false);
 
     setStyleSheet("QPushButton:disabled {"
                   "background-color: darkGrey;"
@@ -37,55 +39,7 @@ knowledgebase::~knowledgebase()
     delete ui;
 }
 
-void knowledgebase::_changeViewMode(EFragmentsViewMode newViewMode)
-{
-    switch (newViewMode) {
-    case eLaw:
-        ui->lb_quality->setText("Возможность:");
-        ui->cmb_quality->clear();
-        ui->cmb_quality->addItems(ListVozmojnosti);
-        ui->cmb_quality->setCurrentIndex(0);
-        ui->frameLaw->setVisible(true);
-        ui->ch_all_acts->setVisible(false);
-        ui->lbl_kdName->setVisible(false);
-        ui->ln_kdName->setVisible(false);
-        ui->pb_unlock->setToolTip("Показать фрагменты законов");
-        break;
-    case eTypicalKD:
-        ui->lb_quality->setText("Качество:");
-        ui->frameLaw->setVisible(false);
-        if (m_currentViewMode == eLaw) {
-            ui->cmb_quality->clear();
-            ui->cmb_quality->addItems(ListQuality);
-            ui->cmb_quality->setCurrentIndex(0);
-        }
-        ui->ch_all_acts->setVisible(true);
-        ui->lbl_kdName->setVisible(true);
-        ui->ln_kdName->setVisible(true);
-        ui->pb_unlock->setToolTip("Показать типовые фрагменты");
-        break;
-    case eAllKD:
-        ui->lb_quality->setText("Качество:");
-        ui->frameLaw->setVisible(false);
-        if (m_currentViewMode == eLaw) {
-            ui->cmb_quality->clear();
-            ui->cmb_quality->addItems(ListQuality);
-            ui->cmb_quality->setCurrentIndex(0);
-        }
-        ui->ch_all_acts->setVisible(true);
-        ui->lbl_kdName->setVisible(true);
-        ui->ln_kdName->setVisible(true);
-        ui->pb_unlock->setToolTip("Показать фрагменты всех КД");
-        break;
-    }
-    m_currentViewMode = newViewMode;
-    if (ui->cmb_razdel->currentText() != "") {
-        ui->gb_text->setTitle(STR_START_FRAG);
-        ui->te_text->setText(originalText);
-    }
-}
-
-void knowledgebase::_prepareWindow()
+void knowledgebase::_prepareUi()
 {
     ui->gb_text->setTitle(STR_START_FRAG);
 
@@ -97,6 +51,39 @@ void knowledgebase::_prepareWindow()
     ui->cmb_razdel->addItems(ListRazd);
     ui->cmb_quality->addItems(ListQuality);
     ui->cmb_act->addItems(ListAct);
+
+    // TODO: при открытии БЗ всегда выставляем стандартный выбор. Так оставить?
+    if (ui->rb_typical_fragments_kd->isChecked()) {
+        ui->rb_typical_fragments_kd->setChecked(false);
+        ui->rb_all_fragments_kd->setChecked(true);
+    }
+    ui->ch_all_acts->setChecked(true);
+
+    _lockUi(true);
+}
+
+void knowledgebase::_lockUi(bool lock)
+{
+    ui->cmb_razdel->setDisabled(lock);
+    ui->cmb_act->setDisabled(lock);
+    ui->cmb_question->setDisabled(lock);
+    ui->cmb_quality->setDisabled(lock);
+    ui->ch_all_acts->setDisabled(lock);
+    ui->groupBox_2->setDisabled(lock);
+
+    ui->gb_text->setDisabled(!lock);
+    ui->pb_prev->setDisabled(!lock);
+    ui->pb_next->setDisabled(!lock);
+    ui->pb_prevLaw->setDisabled(!lock);
+    ui->pb_nextLaw->setDisabled(!lock);
+
+    if (lock) {
+        ui->pb_unlock->setText("Разблокировать");
+        ui->pb_unlock->setToolTip("Изменить характеристики или тип показываемых фрагментов");
+    } else {
+        ui->pb_unlock->setText("Применить");
+        ui->pb_unlock->setToolTip("");
+    }
 }
 
 void knowledgebase::_showMessage(QString text, QString title)
@@ -152,9 +139,31 @@ void knowledgebase::_showLaw(qint32 index)
     }
 }
 
-void knowledgebase::getFragment(fragment *frag)
+void knowledgebase::_showFragment(qint32 index)
 {
-    _prepareWindow();
+    if (m_fragmentsForShow.isEmpty() || m_currentFragmentNumber >= m_fragmentsForShow.count())
+        return;
+
+    if (m_currentFragmentNumber == -1) {
+        ui->te_text->setText(m_originalText);
+        ui->gb_text->setTitle(STR_START_FRAG);
+        ui->ln_kdName->setText("-");
+    } else {
+        ui->te_text->setText(m_fragmentsForShow[m_currentFragmentNumber]);
+        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/" + QString::number(m_fragmentsForShow.size())
+                              + STR_FRAG_FROM_SELECTED);
+        if (m_currentFragmentNumber >= m_institutionNames.count() || m_currentFragmentNumber < 0) {
+            ui->ln_kdName->setText("-");
+        } else {
+            ui->ln_kdName->setText(m_institutionNames[m_currentFragmentNumber]);
+        }
+    }
+    ui->ln_kdName->home(false);
+}
+
+void knowledgebase::prepare(fragment *frag)
+{
+    _prepareUi();
 
     m_originalFrag = frag;
     QString fragAkt = frag->getAkt();
@@ -187,13 +196,9 @@ void knowledgebase::getFragment(fragment *frag)
     }
 
     ui->te_text->setText(frag->getText());
-    originalText = frag->getText();
-    _select();
+    m_originalText = frag->getText();
 
-    // Костыль - имитация нажатия и выбора всех КД
-    on_pb_unlock_clicked();
-    ui->rb_all_fragments_kd->toggle();
-    on_pb_unlock_clicked();
+    _select();
 }
 
 void knowledgebase::open()
@@ -226,61 +231,37 @@ int knowledgebase::exec()
     return QDialog::exec();
 }
 
-// BUG: через раз открывается то в одном режиме, то в другом
 void knowledgebase::on_pb_unlock_clicked()
 {
-    m_unlocked = !m_unlocked;
-    if (m_unlocked) {
-        ui->pb_unlock->setText("Применить");
-    } else {
-        ui->pb_unlock->setText("Разблокировать");
-        ui->pb_unlock->setToolTip("Изменить характеристики или тип показываемых фрагментов");
+    ELockState prevState = ui->pb_unlock->text() == "Разблокировать" ? ELockState::locked : ELockState::unlocked;
+    ELockState newState = prevState == ELockState::locked ? ELockState::unlocked : ELockState::locked;
+
+    if (newState == ELockState::locked) {
         m_originalFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
         m_originalFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
         m_originalFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
         m_originalFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+
         _select();
     }
-    ui->cmb_razdel->setEnabled(m_unlocked);
-    ui->cmb_act->setEnabled(m_unlocked);
-    ui->cmb_question->setEnabled(m_unlocked);
-    ui->cmb_quality->setEnabled(m_unlocked);
-    ui->ch_all_acts->setEnabled(m_unlocked);
-    ui->groupBox_2->setEnabled(m_unlocked);
 
-    ui->gb_text->setEnabled(!m_unlocked);
-    ui->pb_prev->setEnabled(!m_unlocked);
-    ui->pb_next->setEnabled(!m_unlocked);
-}
-
-void knowledgebase::on_rb_typical_fragments_kd_toggled(bool checked)
-{
-    if (checked)
-        _changeViewMode(eTypicalKD);
-}
-
-void knowledgebase::on_rb_all_fragments_kd_toggled(bool checked)
-{
-    if (checked)
-        _changeViewMode(eAllKD);
-}
-
-void knowledgebase::on_ch_all_acts_toggled(bool checked)
-{
-    m_allActs = checked;
+    _lockUi(newState == ELockState::locked);
 }
 
 void knowledgebase::_select()
 {
     ui->ln_kdName->clear();
-    fragmentsForShow.clear();
+
+    // Очищаем выбранные данные фрагментов
+    m_fragmentsForShow.clear();
+    m_institutionNames.clear();
+
+    // Очищаем выбранные данные законов
     m_lawHeadersForShow.clear();
     m_lawsForShow.clear();
-    namesForShow.clear();
-    idForNames.clear();
     m_currentLaw = 0;
 
-    qint32 questionKod = m_originalFrag->getVoprosNumber();
+    qint32 questionKod = m_originalFrag->requestQuestionCodeFromDB();
 
     // Заполняем законы
     QSqlQuery lawQuery;
@@ -301,67 +282,65 @@ void knowledgebase::_select()
         m_lawsForShow.append(text);
     }
 
-    // Если выбраны не законы, то готовим ещё и КД
-    if (m_currentViewMode != eLaw) {
-        QSqlQuery querySelect;
-        if (m_currentViewMode == eTypicalKD) {
-            querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
-                                "Тексты.Вопрос = :val1 "
-                                "AND ВклВСправку=true");
-        } else if (m_currentViewMode == eAllKD) {
-            querySelect.prepare("SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE "
-                                "Тексты.Вопрос = :val1");
+    // Готовим фрагменты КД
+    QString strQuery = "SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE Тексты.Вопрос = :val1";
+    if (ui->rb_typical_fragments_kd->isChecked())
+        strQuery += " AND ВклВСправку=true";
+    QSqlQuery querySelect;
+    querySelect.prepare(strQuery);
+    querySelect.bindValue(":val1", questionKod);
+    if (!querySelect.exec()) {
+        qDebug() << querySelect.lastError().text();
+    }
+    //! Коды учреждений
+    QList<QString> vuzCodes;
+    while (querySelect.next()) {
+        QString text = querySelect.value(0).toString();
+        QString kachestvo = querySelect.value(1).toString();
+        QString akt = querySelect.value(2).toString();
+        QString id = querySelect.value(3).toString();
+
+        bool compared = m_originalFrag->getKachestvo() == kachestvo && (ui->ch_all_acts->isChecked() || m_originalFrag->getAkt() == akt);
+
+        if (compared) {
+            m_fragmentsForShow.append(text);
+            vuzCodes.append(id);
         }
-        querySelect.bindValue(":val1", questionKod);
-        if (!querySelect.exec()) {
+    }
+
+    // Собираем названия ВУЗов КД по id полученным из текстов
+    for (const QString &vuzCode : vuzCodes) {
+        QSqlQuery queryName;
+        queryName.prepare("SELECT ТУчреждение.Аббр, ТУчреждение.ИмяУчреждения FROM ТУчреждение WHERE "
+                          "ТУчреждение.КодУчреждения = :val1");
+        queryName.bindValue(":val1", vuzCode);
+        if (!queryName.exec()) {
             qDebug() << querySelect.lastError().text();
         }
-        while (querySelect.next()) {
-            QString text = querySelect.value(0).toString();
-            // Типовые и все фрагменты
-            if (m_allActs) {
-                if (m_originalFrag->getKachestvo() == querySelect.value(1).toString()) {
-                    fragmentsForShow.append(text);
-                    idForNames.append(querySelect.value(3).toString());
-                }
+        if (queryName.next()) {
+            if (queryName.value(0).toString().isEmpty()) {
+                m_institutionNames.append(queryName.value(1).toString());
             } else {
-                if (m_originalFrag->getAkt() == querySelect.value(2).toString()
-                    && m_originalFrag->getKachestvo() == querySelect.value(1).toString()) {
-                    fragmentsForShow.append(text);
-                    idForNames.append(querySelect.value(3).toString());
-                }
-            }
-        }
-
-        // Собираем названия ВУЗов КД по id полученным из текстов
-        for (auto kdId : idForNames) {
-            QSqlQuery queryName;
-            queryName.prepare("SELECT ТУчреждение.Аббр, ТУчреждение.ИмяУчреждения FROM ТУчреждение WHERE "
-                              "ТУчреждение.КодУчреждения = :val1");
-            queryName.bindValue(":val1", kdId);
-            if (!queryName.exec()) {
-                qDebug() << querySelect.lastError().text();
-            }
-            if (queryName.next()) {
-                if (queryName.value(0).toString().isEmpty()) {
-                    namesForShow.append(queryName.value(1).toString());
-                } else {
-                    namesForShow.append(queryName.value(0).toString());
-                }
+                m_institutionNames.append(queryName.value(0).toString());
             }
         }
     }
 
     m_currentFragmentNumber = -1;
-    on_pb_next_clicked();
-    on_pb_prev_clicked();
 
-    //! Нельзя листать фрагменты законов - их меньше двух
+    if (!m_fragmentsForShow.isEmpty())
+        _showFragment(m_currentFragmentNumber);
+
+    //! Нельзя листать фрагменты законов - если их меньше двух
     bool noPrevNextLaw = m_lawHeadersForShow.count() <= 1;
     ui->pb_nextLaw->setDisabled(noPrevNextLaw);
     ui->pb_prevLaw->setDisabled(noPrevNextLaw);
 
     _showLaw(m_currentLaw);
+
+    _lockUi(true);
+
+    ui->lb_look->setText("Просмотр фрагментов: (" + QString::number(m_fragmentsForShow.count()) + ")");
 }
 
 void knowledgebase::on_pb_insert_into_kd_clicked()
@@ -372,77 +351,41 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     auto transportFrag = new fragment();
     transportFrag = new fragment();
     transportFrag->setText(ui->te_text->toPlainText());
-    if (m_currentViewMode == eLaw) {
-        transportFrag->setKachestvo("Ан");
-    } else {
-        transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
-    }
+    transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+
     transportFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
     transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
     transportFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
     transportFrag->setNewAdded(true);
 
-    emit startTransportFrag(transportFrag);
+    emit s_fragmentSentFromKB(transportFrag);
     delete transportFrag;
     close();
 }
 
 void knowledgebase::on_pb_next_clicked()
 {
-    //! Показать следующий фрагмент
-    if (fragmentsForShow.isEmpty())
-        return;
-    if (m_currentFragmentNumber == fragmentsForShow.size() - 1) {
+    m_currentFragmentNumber++;
+    if (m_currentFragmentNumber >= m_fragmentsForShow.size()) {
         m_currentFragmentNumber = -1;
-        ui->te_text->setText(originalText);
-        ui->gb_text->setTitle(STR_START_FRAG);
-        ui->ln_kdName->setText("-");
-    } else {
-        m_currentFragmentNumber++;
-        ui->te_text->setText(fragmentsForShow[m_currentFragmentNumber]);
-        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/" + QString::number(fragmentsForShow.size())
-                              + STR_FRAG_FROM_SELECTED);
-        if ((m_currentFragmentNumber < namesForShow.count() - 1) && m_currentViewMode != eLaw)
-            ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
     }
-
-    ui->ln_kdName->home(false);
+    _showFragment(m_currentFragmentNumber);
 }
 
 void knowledgebase::on_pb_prev_clicked()
 {
-    //! Показать предыдущий фрагмент
-    if (fragmentsForShow.isEmpty())
-        return;
-    if (m_currentFragmentNumber == 0) {
-        m_currentFragmentNumber = -1;
-        ui->te_text->setText(originalText);
-        ui->gb_text->setTitle(STR_START_FRAG);
-        ui->ln_kdName->setText("-");
-    } else if (m_currentFragmentNumber == -1) {
-        m_currentFragmentNumber = fragmentsForShow.size() - 1;
-        ui->te_text->setText(fragmentsForShow[m_currentFragmentNumber]);
-        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/" + QString::number(fragmentsForShow.size())
-                              + STR_FRAG_FROM_SELECTED);
-        if (m_currentViewMode != eLaw)
-            ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
-    } else {
-        m_currentFragmentNumber--;
-        ui->te_text->setText(fragmentsForShow[m_currentFragmentNumber]);
-        ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/" + QString::number(fragmentsForShow.size())
-                              + STR_FRAG_FROM_SELECTED);
-        if (m_currentViewMode != eLaw)
-            ui->ln_kdName->setText(namesForShow[m_currentFragmentNumber]);
+    m_currentFragmentNumber--;
+    if (m_currentFragmentNumber < -1) {
+        m_currentFragmentNumber = m_fragmentsForShow.size() - 1;
     }
-
-    ui->ln_kdName->home(false);
+    _showFragment(m_currentFragmentNumber);
 }
 
 void knowledgebase::on_pb_showList_clicked()
 {
     // TODO: [?Улучшение?] [10] Показать окно со списком всех фрагментов, можно по 100 символов и полностью при
     // наведении
-    // ui->lw_fragments->insertItems(0, fragmentsForShow);
+    // ui->lw_fragments->insertItems(0, m_fragmentsForShow);
 }
 
 void knowledgebase::on_cmb_razdel_currentTextChanged(const QString &arg1)

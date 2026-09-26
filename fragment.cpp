@@ -1,9 +1,9 @@
 #include "fragment.h"
 
 #include <QDebug>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QMessageBox>
+#include <QSqlError>
+#include <QSqlQuery>
 
 fragment::fragment() {}
 
@@ -21,7 +21,8 @@ void fragment::Resize()
     size = lastPos - firstPos;
 }
 
-qint32 fragment::getVoprosNumber()
+// TODO: заменить запрос в БД локальным хранением
+qint32 fragment::requestQuestionCodeFromDB()
 {
     QSqlQuery querySelect;
     querySelect.prepare("SELECT Вопросы.Код FROM Вопросы WHERE Вопросы.вопрос = :val1 AND Вопросы.раздел = :val2");
@@ -46,15 +47,15 @@ QVariantList fragment::getKeffsDelta(const fragment *pastFrag)
     double deltaKPSP = 0.0, deltaKEF = 0.0;
 
     if (pastFrag->razdel != razdel) {
-        //Раздел изменился
-        //Вычитаем прошлые бонусы если были
+        // Раздел изменился
+        // Вычитаем прошлые бонусы если были
         if (pastFrag->isViDoSv()) {
             prevFragUnknownRazdDelta -= 1;
             deltaKEF -= 1.0;
         } else if (pastFrag->isUt()) {
             deltaKPSP -= 0.3;
         }
-        //Вычисляем новые если есть
+        // Вычисляем новые если есть
         if (isViDoSv()) {
             unknownRazdDelta += 1;
             deltaKEF += 1.0;
@@ -62,7 +63,7 @@ QVariantList fragment::getKeffsDelta(const fragment *pastFrag)
             deltaKPSP += 0.3;
         }
     } else {
-        //Раздел не изменился
+        // Раздел не изменился
         if (pastFrag->isViDoSv()) {
             if (!isViDoSv()) {
                 unknownRazdDelta -= 1;
@@ -84,7 +85,7 @@ QVariantList fragment::getKeffsDelta(const fragment *pastFrag)
             }
         }
     }
-    //Определяем какой основной дельтой являются найденные дельты
+    // Определяем какой основной дельтой являются найденные дельты
     QString pastRazd = pastFrag->getRazdel();
     if (pastRazd == "СЦ") {
         deltaKSC += prevFragUnknownRazdDelta;
@@ -105,7 +106,7 @@ QVariantList fragment::getKeffsDelta(const fragment *pastFrag)
         deltaKTR += unknownRazdDelta;
     }
 
-    QVariantList delta = { deltaKTR, deltaKSC, deltaKGDP, deltaKPSP, deltaKEF };
+    QVariantList delta = {deltaKTR, deltaKSC, deltaKGDP, deltaKPSP, deltaKEF};
     return delta;
 }
 
@@ -134,7 +135,7 @@ QVariantList fragment::getKeffsDeltaFromZero()
         deltaKTR += static_cast<int>(unknownRazdDelta);
     }
 
-    QVariantList delta = { deltaKTR, deltaKSC, deltaKGDP, deltaKPSP, deltaKEF };
+    QVariantList delta = {deltaKTR, deltaKSC, deltaKGDP, deltaKPSP, deltaKEF};
     return delta;
 }
 
@@ -142,16 +143,19 @@ QVariantList fragment::getKeffsDeltaToZero()
 {
     auto inverseDelta = getKeffsDeltaFromZero();
 
-    QVariantList delta = { -inverseDelta[0].toInt(), -inverseDelta[1].toInt(), -inverseDelta[2].toInt(),
-                           -inverseDelta[3].toDouble(), -inverseDelta[4].toDouble() };
+    QVariantList delta = {-inverseDelta[0].toInt(),
+                          -inverseDelta[1].toInt(),
+                          -inverseDelta[2].toInt(),
+                          -inverseDelta[3].toDouble(),
+                          -inverseDelta[4].toDouble()};
     return delta;
 }
 
 QString fragment::getAffectsOnMinorKeffs()
 {
     if (isViDoSv()) {
-        if (razdel == "ДОГ" || razdel == "РВ" || razdel == "ВО" || razdel == "ЗП" || razdel == "ОТ" || razdel == "ТСП"
-            || razdel == "ПР" || razdel == "ТОК") {
+        if (razdel == "ДОГ" || razdel == "РВ" || razdel == "ВО" || razdel == "ЗП" || razdel == "ОТ" || razdel == "ТСП" || razdel == "ПР"
+            || razdel == "ТОК") {
             return razdel;
         }
     }

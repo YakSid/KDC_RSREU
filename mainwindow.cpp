@@ -45,8 +45,8 @@ MainWindow::MainWindow(QWidget *parent)
     sDialog = new StartDialog();
     kefDialog = new kef();
     m_kBase = new knowledgebase();
-    connect(this, &MainWindow::s_sentFragment, m_kBase, &knowledgebase::getFragment);
-    connect(m_kBase, &knowledgebase::startTransportFrag, this, &MainWindow::insertFragFromKB);
+    connect(this, &MainWindow::s_requestPrepareKB, m_kBase, &knowledgebase::prepare);
+    connect(m_kBase, &knowledgebase::s_fragmentSentFromKB, this, &MainWindow::insertFragFromKB);
 
     bool debugMode = false;
     if (!debugMode) {
@@ -1165,7 +1165,7 @@ void MainWindow::on_BazeKnowledge_clicked()
     case eBasicMode:
         return;
     case eItemSelectedMode:
-        emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
+        emit s_requestPrepareKB(currentKolDog->fragments[SelectedFragment]);
         break;
     case eRightFrameMode:
         if (SelectedFragment == -1) {
@@ -1176,9 +1176,9 @@ void MainWindow::on_BazeKnowledge_clicked()
             frag->setKachestvo(AbbreviationQuality[ui->Quality->currentIndex()]);
             frag->setVoprosABR(ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
             frag->setText(ui->TextRight->toPlainText());
-            emit s_sentFragment(frag);
+            emit s_requestPrepareKB(frag);
         } else {
-            emit s_sentFragment(currentKolDog->fragments[SelectedFragment]);
+            emit s_requestPrepareKB(currentKolDog->fragments[SelectedFragment]);
         }
         break;
     }

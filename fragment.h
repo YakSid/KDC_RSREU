@@ -12,17 +12,17 @@ public:
     void SetPositions(int posStart, int posEnd);
     void Resize();
     //! Вычислить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса
-    qint32 getVoprosNumber();
+    qint32 requestQuestionCodeFromDB();
     //! Обновить состояние флагов isViDoSv и isUt
     void updateFlagsViDoSvUt();
-    //Главные коэффициенты
+    // Главные коэффициенты
     //! Вычислить как изменятся кэффы текущего фрагмента после изменений фрагмента в сравнении с его версией до изменений
     QVariantList getKeffsDelta(const fragment *pastFrag);
     //! Вычислить как изменятся кэффы если этот фрагмент новый
     QVariantList getKeffsDeltaFromZero();
     //! Вычислить как изменятся кэффы если этот фрагмент удалить
     QVariantList getKeffsDeltaToZero();
-    //Минорные кэффы
+    // Минорные кэффы
     //! Узнать на какой минорный кэф влияет фрагмент
     QString getAffectsOnMinorKeffs();
 
@@ -58,25 +58,25 @@ public:
     qint32 getMySize() const { return (sizeof(text) + sizeof(kachestvo) + sizeof(akt) + sizeof(razdel) + 4); }
 
 private:
-    //Основные параметры фрагмента
+    // Основные параметры фрагмента
     QString text;
     QString kachestvo;
     QString akt;
     QString voprosABR;
     QString razdel;
-    //Временные параметры фрагмента
+    // Временные параметры фрагмента
     qint32 firstPos;
     qint32 lastPos;
-    //Размер фрагмента
+    // Размер фрагмента
     qint32 size;
-    //Состояния фрагмента
-    bool changed { false };
-    bool newAdded { false };
-    bool visible { false };
+    // Состояния фрагмента
+    bool changed{false};
+    bool newAdded{false};
+    bool visible{false};
     //! Имеет качество Вы, До или Св
-    bool ViDoSv { false };
+    bool ViDoSv{false};
     //! Имеет качество Ут
-    bool Ut { false };
+    bool Ut{false};
 };
 
 #endif // FRAGMENT_H
