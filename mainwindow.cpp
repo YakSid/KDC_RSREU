@@ -1437,6 +1437,8 @@ void MainWindow::on_actionEditDbPath_triggered()
     mainLayout->addWidget(pb_ok);
     dialog->setLayout(mainLayout);
 
+    dialog->setMinimumSize(600, 100);
+
     dialog->setModal(true);
     dialog->exec();
     m_linePointer = nullptr;

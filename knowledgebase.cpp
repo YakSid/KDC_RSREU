@@ -29,6 +29,8 @@ knowledgebase::knowledgebase(QWidget *parent)
     setStyleSheet("QPushButton:disabled {"
                   "background-color: darkGrey;"
                   "border: 2px solid darkGrey;}");
+
+    ui->wgt_laws->setStyleSheet("QWidget#wgt_laws { background-color: #87CEEB; }");
 }
 
 knowledgebase::~knowledgebase()
@@ -78,10 +80,10 @@ void knowledgebase::_lockUi(bool lock)
     ui->pb_nextLaw->setDisabled(!lock);
 
     if (lock) {
-        ui->pb_unlock->setText("Разблокировать");
+        ui->pb_unlock->setText("Разблокировать параметры");
         ui->pb_unlock->setToolTip("Изменить характеристики или тип показываемых фрагментов");
     } else {
-        ui->pb_unlock->setText("Применить");
+        ui->pb_unlock->setText("Искать");
         ui->pb_unlock->setToolTip("");
     }
 }
@@ -209,7 +211,7 @@ void knowledgebase::open()
                        "характеристик «Раздел», «Вопрос», «Качество», как в выделенном фрагменте в тексте проекта. Для "
                        "их просмотра нажмите «Следующий».\n\n"
                        "Для просмотра других разделов БЗ или фрагментов с другими значениями характеристик «Раздел», "
-                       "«Вопрос», «Качество» нажмите «Разблокировать», отметьте нужные значения и нажмите «Применить». "
+                       "«Вопрос», «Качество» нажмите «Разблокировать параметры», отметьте нужные значения и нажмите «Искать». "
                        "Управление просмотром - кнопки «Следующий», «Предыдущий».\n\n"
                        "Для повторного просмотра сообщения наведите курсор на поле \"Справка\" в верхнем правом углу.";
         m_showHelp = _showQuestion(info + "\n\nОтобразить эту подсказку при следующем входе в Базу знаний?");
@@ -223,7 +225,7 @@ int knowledgebase::exec()
                        "характеристик «Раздел», «Вопрос», «Качество», как в выделенном фрагменте в тексте проекта. Для "
                        "их просмотра нажмите «Следующий».\n\n"
                        "Для просмотра других разделов БЗ или фрагментов с другими значениями характеристик «Раздел», "
-                       "«Вопрос», «Качество» нажмите «Разблокировать», отметьте нужные значения и нажмите «Применить». "
+                       "«Вопрос», «Качество» нажмите «Разблокировать параметры», отметьте нужные значения и нажмите «Искать». "
                        "Управление просмотром - кнопки «Следующий», «Предыдущий».\n\n"
                        "Для повторного просмотра сообщения наведите курсор на поле \"Справка\" в верхнем правом углу.";
         m_showHelp = _showQuestion(info + "\n\nОтобразить эту подсказку при следующем входе в Базу знаний?");
@@ -233,7 +235,7 @@ int knowledgebase::exec()
 
 void knowledgebase::on_pb_unlock_clicked()
 {
-    ELockState prevState = ui->pb_unlock->text() == "Разблокировать" ? ELockState::locked : ELockState::unlocked;
+    ELockState prevState = ui->pb_unlock->text() == "Разблокировать параметры" ? ELockState::locked : ELockState::unlocked;
     ELockState newState = prevState == ELockState::locked ? ELockState::unlocked : ELockState::locked;
 
     if (newState == ELockState::locked) {
@@ -340,7 +342,7 @@ void knowledgebase::_select()
 
     _lockUi(true);
 
-    ui->lb_look->setText("Просмотр фрагментов: (" + QString::number(m_fragmentsForShow.count()) + ")");
+    ui->lb_look->setText("Найдено фрагментов: " + QString::number(m_fragmentsForShow.count()));
 }
 
 void knowledgebase::on_pb_insert_into_kd_clicked()

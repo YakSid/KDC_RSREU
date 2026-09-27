@@ -18,10 +18,11 @@ StartDialog::StartDialog(QWidget *parent)
 
     Qt::WindowFlags flags = Qt::WindowMinimizeButtonHint;
     flags |= Qt::WindowCloseButtonHint;
-    this->setWindowFlags(flags);
+    setWindowFlags(flags);
 
     ui->stackedWidget->setCurrentWidget(ui->page_authorization);
-    this->resize(this->width(), 200);
+
+    ui->pb_showChangeDbFields->setVisible(false);
 
     // ui->pb_dbManage->setVisible(false);
     // ui->ln_db->setVisible(false);
@@ -44,12 +45,11 @@ StartDialog::StartDialog(QWidget *parent)
         ui->pb_deleteAuthor->setEnabled(true);
         // Если не первый запуск и путь уже указан - скроем
         _showDbSettings(!dbPathExist);
-        // ui->pb_showChangeDbFields->setVisible(!dbPathExist);
     }
 
-    this->setStyleSheet("QPushButton:disabled {"
-                        "background-color: darkGrey;"
-                        "border: 2px solid darkGrey;}");
+    setStyleSheet("QPushButton:disabled {"
+                  "background-color: darkGrey;"
+                  "border: 2px solid darkGrey;}");
 }
 
 StartDialog::~StartDialog()
@@ -203,7 +203,7 @@ void StartDialog::_showDbSettings(bool visible)
 {
     ui->pb_dbManage->setVisible(visible);
     ui->ln_db->setVisible(visible);
-    ui->pb_showChangeDbFields->setVisible(!visible);
+    // ui->pb_showChangeDbFields->setVisible(!visible);
 }
 
 void StartDialog::on_pb_changeAuthor_clicked()
@@ -214,14 +214,11 @@ void StartDialog::on_pb_changeAuthor_clicked()
 void StartDialog::on_stackedWidget_currentChanged(int arg1)
 {
     if (arg1 == 0) {
-        this->resize(this->width(), 200);
-        this->setWindowTitle(TITLE_AUTHORIZATION);
+        setWindowTitle(TITLE_AUTHORIZATION);
     } else if (arg1 == 1) {
-        this->setWindowTitle(TITLE_BEGINNING_OF_WORK);
-        this->resize(this->width(), 200);
+        setWindowTitle(TITLE_BEGINNING_OF_WORK);
     } else {
-        this->setWindowTitle(TITLE_BEGINNING_OF_WORK);
-        this->resize(this->width(), 200);
+        setWindowTitle(TITLE_BEGINNING_OF_WORK);
     }
 }
 
@@ -237,12 +234,21 @@ void StartDialog::on_pb_startNew_clicked()
 
 void StartDialog::on_pb_continueSaved_clicked()
 {
-    StartMode = EStartMode::contibueOld;
-    ui->stackedWidget->setCurrentWidget(ui->page_start);
+    if (dbPath.isEmpty()) {
+        _showMessage("Выберите базу данных");
+    } else {
+        StartMode = EStartMode::contibueOld;
+        ui->stackedWidget->setCurrentWidget(ui->page_start);
+    }
 }
 
 void StartDialog::on_pb_loadFile_clicked()
 {
+    if (dbPath.isEmpty()) {
+        _showMessage("Выберите базу данных");
+        return;
+    }
+
     jFilename = QFileDialog::getOpenFileName(this, "Выберите проект", QString(), tr("JSON (*.json)"));
 
     if (jFilename.isEmpty())
