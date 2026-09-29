@@ -11,6 +11,11 @@
 const QString STR_START_FRAG = "Начальный фрагмент";
 const QString STR_FRAG_FROM_SELECTED = " Фрагмент из выбранных";
 
+const QStringList LAW_GROUPS = {"1 – Неизменяемые параметры (Ан, Ут)",
+                                "2 – Устанавливаемые в КД порядке (До)",
+                                "3 – Повышаемые параметры (Вы)",
+                                "4 - Специфические вопросы (Св)"};
+
 knowledgebase::knowledgebase(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::knowledgebase)
@@ -21,10 +26,6 @@ knowledgebase::knowledgebase(QWidget *parent)
     flags |= Qt::WindowMaximizeButtonHint;
     flags |= Qt::WindowCloseButtonHint;
     setWindowFlags(flags);
-
-    //_changeViewMode(eTypicalKD);
-
-    ui->frameLaw->setVisible(false);
 
     setStyleSheet("QPushButton:disabled {"
                   "background-color: darkGrey;"
@@ -54,12 +55,12 @@ void knowledgebase::_prepareUi()
     ui->cmb_quality->addItems(ListQuality);
     ui->cmb_act->addItems(ListAct);
 
-    // TODO: при открытии БЗ всегда выставляем стандартный выбор. Так оставить?
-    if (ui->rb_typical_fragments_kd->isChecked()) {
-        ui->rb_typical_fragments_kd->setChecked(false);
-        ui->rb_all_fragments_kd->setChecked(true);
-    }
-    ui->ch_all_acts->setChecked(true);
+    // при открытии БЗ всегда выставляем стандартный выбор
+    // if (ui->rb_typical_fragments_kd->isChecked()) {
+    //     ui->rb_typical_fragments_kd->setChecked(false);
+    //     ui->rb_all_fragments_kd->setChecked(true);
+    // }
+    // ui->ch_all_acts->setChecked(true);
 
     _lockUi(true);
 }
@@ -122,11 +123,12 @@ bool knowledgebase::_showQuestion(QString text, QString title, QString textYes, 
 void knowledgebase::_showLaw(qint32 index)
 {
     if (m_lawHeadersForShow.isEmpty()) {
-        ui->ln_order->setText("-");
-        ui->ln_adoption_date->setText("-");
-        ui->ln_change_date->setText("-");
-        ui->ln_order->setToolTip("");
+        ui->ln_lawName->setText("-");
+        ui->ln_dt_accept->setText("-");
+        ui->ln_dt_change->setText("-");
+        ui->te_law->setText("Пробел в праве");
         ui->gb_laws->setTitle("Фрагменты законов");
+        ui->lb_lawParam->setText(LAW_GROUPS[3]);
     } else {
         if (0 <= index && index < m_lawHeadersForShow.count()) {
             ui->ln_lawName->setText(m_lawHeadersForShow[index]->name);
@@ -136,15 +138,27 @@ void knowledgebase::_showLaw(qint32 index)
             ui->gb_laws->setTitle("Фрагменты законов [" + QString::number(index + 1) + "/" + QString::number(m_lawHeadersForShow.count())
                                   + "]");
         }
+
         if (0 <= index && index < m_lawsForShow.count())
             ui->te_law->setText(m_lawsForShow[index]);
+
+        if (0 <= index && index < m_lawParams.count()) {
+            ui->lb_lawParam->setText(LAW_GROUPS[m_lawParams[index] - 1]);
+            if (m_lawParams[index] == 4) {
+                ui->te_law->setText("Пробел в праве");
+            }
+        }
     }
 }
 
 void knowledgebase::_showFragment(qint32 index)
 {
-    if (m_fragmentsForShow.isEmpty() || m_currentFragmentNumber >= m_fragmentsForShow.count())
+    if (m_fragmentsForShow.isEmpty() || m_currentFragmentNumber >= m_fragmentsForShow.count()) {
+        ui->te_text->setText(m_originalText);
+        ui->gb_text->setTitle(STR_START_FRAG);
+        ui->ln_kdName->setText("-");
         return;
+    }
 
     if (m_currentFragmentNumber == -1) {
         ui->te_text->setText(m_originalText);
@@ -261,13 +275,14 @@ void knowledgebase::_select()
     // Очищаем выбранные данные законов
     m_lawHeadersForShow.clear();
     m_lawsForShow.clear();
+    m_lawParams.clear();
     m_currentLaw = 0;
 
     qint32 questionKod = m_originalFrag->requestQuestionCodeFromDB();
 
     // Заполняем законы
     QSqlQuery lawQuery;
-    lawQuery.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона FROM ТФрагмент WHERE "
+    lawQuery.prepare("SELECT ТФрагмент.ТекстФрагмента, ТФрагмент.КодЗакона, ТФрагмент.КодГрПарам FROM ТФрагмент WHERE "
                      "Тфрагмент.КодВопрос = :val1");
     lawQuery.bindValue(":val1", questionKod);
     if (!lawQuery.exec()) {
@@ -276,12 +291,16 @@ void knowledgebase::_select()
     while (lawQuery.next()) {
         QString text = lawQuery.value(0).toString();
         qint32 kodZakona = lawQuery.value(1).toInt();
+        quint32 groupParam = lawQuery.value(2).toUInt();
+        if (groupParam == 0)
+            groupParam = 4;
         for (auto order : TOrder) {
             if (kodZakona == order->id) {
                 m_lawHeadersForShow.append(order);
             }
         }
         m_lawsForShow.append(text);
+        m_lawParams.append(groupParam);
     }
 
     // Готовим фрагменты КД
@@ -330,8 +349,7 @@ void knowledgebase::_select()
 
     m_currentFragmentNumber = -1;
 
-    if (!m_fragmentsForShow.isEmpty())
-        _showFragment(m_currentFragmentNumber);
+    _showFragment(m_currentFragmentNumber);
 
     //! Нельзя листать фрагменты законов - если их меньше двух
     bool noPrevNextLaw = m_lawHeadersForShow.count() <= 1;

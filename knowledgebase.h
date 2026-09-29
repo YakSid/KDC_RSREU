@@ -89,6 +89,7 @@ private:
     QList<structOrder *> m_lawHeadersForShow;
     //! Сами тексты законов
     QStringList m_lawsForShow;
+    QList<quint32> m_lawParams;
     //! Текущий порядковый номер отображаемого закона
     qint32 m_currentLaw{-1};
     // ============================
