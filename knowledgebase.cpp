@@ -56,8 +56,8 @@ void knowledgebase::_prepareUi()
     ui->cmb_act->addItems(ListAct);
 
     // при открытии БЗ всегда выставляем стандартный выбор
-    // if (ui->rb_typical_fragments_kd->isChecked()) {
-    //     ui->rb_typical_fragments_kd->setChecked(false);
+    // if (ui->rb_typical->isChecked()) {
+    //     ui->rb_typical->setChecked(false);
     //     ui->rb_all_fragments_kd->setChecked(true);
     // }
     // ui->ch_all_acts->setChecked(true);
@@ -305,7 +305,8 @@ void knowledgebase::_select()
 
     // Готовим фрагменты КД
     QString strQuery = "SELECT Тексты.Текст, Тексты.Качество, Тексты.Акт, Тексты.[#Дог] FROM Тексты WHERE Тексты.Вопрос = :val1";
-    if (ui->rb_typical_fragments_kd->isChecked())
+    bool typical = ui->rb_typical->isChecked();
+    if (typical)
         strQuery += " AND ВклВСправку=true";
     QSqlQuery querySelect;
     querySelect.prepare(strQuery);
@@ -313,6 +314,11 @@ void knowledgebase::_select()
     if (!querySelect.exec()) {
         qDebug() << querySelect.lastError().text();
     }
+
+    // Новое правило: если типовые - то любое качество
+    bool anyKachestvo = typical;
+    bool anyAct = ui->ch_all_acts->isChecked();
+
     //! Коды учреждений
     QList<QString> vuzCodes;
     while (querySelect.next()) {
@@ -321,7 +327,7 @@ void knowledgebase::_select()
         QString akt = querySelect.value(2).toString();
         QString id = querySelect.value(3).toString();
 
-        bool compared = m_originalFrag->getKachestvo() == kachestvo && (ui->ch_all_acts->isChecked() || m_originalFrag->getAkt() == akt);
+        bool compared = (anyKachestvo || m_originalFrag->getKachestvo() == kachestvo) && (anyAct || m_originalFrag->getAkt() == akt);
 
         if (compared) {
             m_fragmentsForShow.append(text);
