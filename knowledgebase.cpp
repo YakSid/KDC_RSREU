@@ -155,7 +155,7 @@ void knowledgebase::_showFragment(qint32 index)
 {
     if (m_fragmentsForShow.isEmpty() || m_currentFragmentNumber >= m_fragmentsForShow.count()) {
         ui->te_text->setText(m_originalText);
-        ui->lb_newKach->setText(m_selectParams.kachestvo);
+        ui->lb_newKach->setText(_kachAbrToFull(m_selectParams.kachestvo));
         ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
         return;
@@ -163,12 +163,12 @@ void knowledgebase::_showFragment(qint32 index)
 
     if (m_currentFragmentNumber == -1) {
         ui->te_text->setText(m_originalText);
-        ui->lb_newKach->setText(m_selectParams.kachestvo);
+        ui->lb_newKach->setText(_kachAbrToFull(m_selectParams.kachestvo));
         ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
     } else {
         ui->te_text->setText(m_fragmentsForShow[m_currentFragmentNumber]);
-        ui->lb_newKach->setText(m_kachList[m_currentFragmentNumber]);
+        ui->lb_newKach->setText(_kachAbrToFull(m_kachList[m_currentFragmentNumber]));
         ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/" + QString::number(m_fragmentsForShow.size())
                               + STR_FRAG_FROM_SELECTED);
         if (m_currentFragmentNumber >= m_institutionNames.count() || m_currentFragmentNumber < 0) {
@@ -178,6 +178,16 @@ void knowledgebase::_showFragment(qint32 index)
         }
     }
     ui->ln_kdName->home(false);
+}
+
+QString knowledgebase::_kachAbrToFull(const QString &abr)
+{
+    for (int i = 0; i < ListQuality.size(); i++) {
+        if (abr == AbbreviationQuality[i]) {
+            return ListQuality[i];
+        }
+    }
+    return QString();
 }
 
 void knowledgebase::prepare(fragment *frag)
@@ -212,7 +222,7 @@ void knowledgebase::prepare(fragment *frag)
     }
 
     ui->te_text->setText(frag->getText());
-    ui->lb_newKach->setText(m_selectParams.kachestvo);
+    ui->lb_newKach->setText(_kachAbrToFull(m_selectParams.kachestvo));
     m_originalText = frag->getText();
 
     _select();
@@ -317,7 +327,7 @@ void knowledgebase::_select()
         qDebug() << querySelect.lastError().text();
     }
 
-    // Новое правило: если типовые - то любое качество
+    // Новое правило: если значимые - то любое качество
     bool anyKachestvo = typical;
     bool anyAct = ui->ch_all_acts->isChecked();
 
@@ -380,7 +390,7 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     auto transportFrag = new fragment();
     transportFrag = new fragment();
     transportFrag->setText(ui->te_text->toPlainText());
-    // Новое правило: у типовых может отображаться другое качество, тогда его вставим
+    // Новое правило: у значимых может отображаться другое качество, тогда его вставим
     if (!m_kachList.isEmpty() && m_currentFragmentNumber >= 0 && m_currentFragmentNumber < m_kachList.count()) {
         transportFrag->setKachestvo(m_kachList[m_currentFragmentNumber]);
     } else {

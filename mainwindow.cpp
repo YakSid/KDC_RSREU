@@ -1188,6 +1188,7 @@ void MainWindow::on_BazeKnowledge_clicked()
 
 void MainWindow::on_pb_clearField_clicked()
 {
+    m_clearedText = ui->TextRight->toPlainText();
     ui->TextRight->clear();
 }
 

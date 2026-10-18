@@ -59,6 +59,9 @@ private:
     //! Отобразить фрагмент с данным индексом
     void _showFragment(qint32 index);
 
+    //! Получить полное название качества из аббревиатуры
+    QString _kachAbrToFull(const QString &abr);
+
 private:
     Ui::knowledgebase *ui;
 

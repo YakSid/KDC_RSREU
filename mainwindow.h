@@ -151,6 +151,9 @@ private:
 
     // TODO: временный параметр, изменив архитектуру удалить его
     QLineEdit *m_linePointer{nullptr};
+
+    //! Текст, который удалили, нажав "Очистить поле"
+    QString m_clearedText;
 };
 
 #endif // MAINWINDOW_H
