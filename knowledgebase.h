@@ -71,8 +71,24 @@ private:
     //! Показывать ли подсказку
     bool m_showHelp{true};
 
+    // Параметры поиска/запроса (изначально, как у m_originalFrag, а потом те, которые пользователь задал)
+    struct SParams {
+        QString razdel;
+        QString voprosABR;
+        QString act;
+        QString kachestvo;
+
+        SParams() {};
+        SParams(QString razdel, QString voprosABR, QString act, QString kachestvo)
+            : razdel(razdel)
+            , voprosABR(voprosABR)
+            , act(act)
+            , kachestvo(kachestvo) {};
+    };
+    SParams m_selectParams;
+
     // Данные фрагмента
-    //! Изначально оригинальный фраг, а после - с параметрами необходимыми для поиска
+    //! Оригинальный фрагмент
     fragment *m_originalFrag{nullptr};
     //! Текст оригинального фрагмента, пришедшего в Базу Знаний
     QString m_originalText{""};
@@ -82,6 +98,8 @@ private:
     // ======Список запрошенных данных======
     // ...фрагментов
     QList<QString> m_fragmentsForShow;
+    //! Качества показываемых фрагментов
+    QList<QString> m_kachList;
     //! Названия учреждений, откуда взят фрагмент
     QList<QString> m_institutionNames;
     // ...законов

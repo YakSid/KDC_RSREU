@@ -155,6 +155,7 @@ void knowledgebase::_showFragment(qint32 index)
 {
     if (m_fragmentsForShow.isEmpty() || m_currentFragmentNumber >= m_fragmentsForShow.count()) {
         ui->te_text->setText(m_originalText);
+        ui->lb_newKach->setText(m_selectParams.kachestvo);
         ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
         return;
@@ -162,10 +163,12 @@ void knowledgebase::_showFragment(qint32 index)
 
     if (m_currentFragmentNumber == -1) {
         ui->te_text->setText(m_originalText);
+        ui->lb_newKach->setText(m_selectParams.kachestvo);
         ui->gb_text->setTitle(STR_START_FRAG);
         ui->ln_kdName->setText("-");
     } else {
         ui->te_text->setText(m_fragmentsForShow[m_currentFragmentNumber]);
+        ui->lb_newKach->setText(m_kachList[m_currentFragmentNumber]);
         ui->gb_text->setTitle(QString::number(m_currentFragmentNumber + 1) + "/" + QString::number(m_fragmentsForShow.size())
                               + STR_FRAG_FROM_SELECTED);
         if (m_currentFragmentNumber >= m_institutionNames.count() || m_currentFragmentNumber < 0) {
@@ -182,22 +185,19 @@ void knowledgebase::prepare(fragment *frag)
     _prepareUi();
 
     m_originalFrag = frag;
-    QString fragAkt = frag->getAkt();
-    QString fragRazdel = frag->getRazdel();
-    QString fragQuality = frag->getKachestvo();
-    QString fragQuestionABR = frag->getVoprosABR();
+    m_selectParams = SParams(frag->getRazdel(), frag->getVoprosABR(), frag->getAkt(), frag->getKachestvo());
 
     for (int i = 0; i < ListAct.size(); i++) {
-        if (fragAkt == AbbreviationAct[i]) {
+        if (m_selectParams.act == AbbreviationAct[i]) {
             ui->cmb_act->setCurrentIndex(i);
             break;
         }
     }
     for (int i = 0; i < ListRazd.size(); i++) {
-        if (fragRazdel == AbbreviationRazd[i]) {
+        if (m_selectParams.razdel == AbbreviationRazd[i]) {
             ui->cmb_razdel->setCurrentIndex(i);
             for (int j = 0; j < ABRQuestionsAtRazdel[i].size(); j++) {
-                if (fragQuestionABR == ABRQuestionsAtRazdel[i][j]) {
+                if (m_selectParams.voprosABR == ABRQuestionsAtRazdel[i][j]) {
                     ui->cmb_question->setCurrentIndex(j);
                 }
             }
@@ -205,13 +205,14 @@ void knowledgebase::prepare(fragment *frag)
         }
     }
     for (int i = 0; i < ListQuality.size(); i++) {
-        if (fragQuality == AbbreviationQuality[i]) {
+        if (m_selectParams.kachestvo == AbbreviationQuality[i]) {
             ui->cmb_quality->setCurrentIndex(i);
             break;
         }
     }
 
     ui->te_text->setText(frag->getText());
+    ui->lb_newKach->setText(m_selectParams.kachestvo);
     m_originalText = frag->getText();
 
     _select();
@@ -253,10 +254,10 @@ void knowledgebase::on_pb_unlock_clicked()
     ELockState newState = prevState == ELockState::locked ? ELockState::unlocked : ELockState::locked;
 
     if (newState == ELockState::locked) {
-        m_originalFrag->setRazdel(AbbreviationRazd[ui->cmb_razdel->currentIndex()]);
-        m_originalFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);
-        m_originalFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
-        m_originalFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+        m_selectParams.razdel = AbbreviationRazd[ui->cmb_razdel->currentIndex()];
+        m_selectParams.voprosABR = ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()];
+        m_selectParams.act = AbbreviationAct[ui->cmb_act->currentIndex()];
+        m_selectParams.kachestvo = AbbreviationQuality[ui->cmb_quality->currentIndex()];
 
         _select();
     }
@@ -270,6 +271,7 @@ void knowledgebase::_select()
 
     // Очищаем выбранные данные фрагментов
     m_fragmentsForShow.clear();
+    m_kachList.clear();
     m_institutionNames.clear();
 
     // Очищаем выбранные данные законов
@@ -278,7 +280,7 @@ void knowledgebase::_select()
     m_lawParams.clear();
     m_currentLaw = 0;
 
-    qint32 questionKod = m_originalFrag->requestQuestionCodeFromDB();
+    qint32 questionKod = fragment::requestQuestionCodeFromDB(m_selectParams.voprosABR, m_selectParams.razdel);
 
     // Заполняем законы
     QSqlQuery lawQuery;
@@ -327,10 +329,11 @@ void knowledgebase::_select()
         QString akt = querySelect.value(2).toString();
         QString id = querySelect.value(3).toString();
 
-        bool compared = (anyKachestvo || m_originalFrag->getKachestvo() == kachestvo) && (anyAct || m_originalFrag->getAkt() == akt);
+        bool compared = (anyKachestvo || m_selectParams.kachestvo == kachestvo) && (anyAct || m_selectParams.act == akt);
 
         if (compared) {
             m_fragmentsForShow.append(text);
+            m_kachList.append(kachestvo);
             vuzCodes.append(id);
         }
     }
@@ -377,7 +380,12 @@ void knowledgebase::on_pb_insert_into_kd_clicked()
     auto transportFrag = new fragment();
     transportFrag = new fragment();
     transportFrag->setText(ui->te_text->toPlainText());
-    transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    // Новое правило: у типовых может отображаться другое качество, тогда его вставим
+    if (!m_kachList.isEmpty() && m_currentFragmentNumber >= 0 && m_currentFragmentNumber < m_kachList.count()) {
+        transportFrag->setKachestvo(m_kachList[m_currentFragmentNumber]);
+    } else {
+        transportFrag->setKachestvo(AbbreviationQuality[ui->cmb_quality->currentIndex()]);
+    }
 
     transportFrag->setAkt(AbbreviationAct[ui->cmb_act->currentIndex()]);
     transportFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->cmb_razdel->currentIndex()][ui->cmb_question->currentIndex()]);

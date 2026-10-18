@@ -13,6 +13,7 @@ public:
     void Resize();
     //! Вычислить номер вопроса фрагмента зная его раздел и аббревиатуру вопроса
     qint32 requestQuestionCodeFromDB();
+    static qint32 requestQuestionCodeFromDB(QString voprosABR, QString razdel);
     //! Обновить состояние флагов isViDoSv и isUt
     void updateFlagsViDoSvUt();
     // Главные коэффициенты

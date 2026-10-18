@@ -114,7 +114,7 @@ void MainWindow::setWorkMode(EWorkMode newMode)
         ui->groupBox->setEnabled(false);
         ui->tw_navigator->setEnabled(true);
         ui->btn_showFullText->setEnabled(m_navigatorButtonEnabled);
-        SelectedFragment = -1;
+        m_selectedFragmentId = -1;
         break;
     case eItemSelectedMode:
         if (m_currentWorkMode != eItemSelectedMode) {
@@ -148,13 +148,13 @@ void MainWindow::setWorkMode(EWorkMode newMode)
 
 void MainWindow::insertFragFromKB(fragment *frag)
 {
-    qint32 prevSelectedFragId = SelectedFragment;
+    qint32 prevSelectedFragId = m_selectedFragmentId;
     switch (m_currentWorkMode) {
     case eBasicMode:
         return;
     case eItemSelectedMode:
-        _clearSelectionInCentral(currentKolDog->fragments[SelectedFragment]->getPositionFirst(),
-                                 currentKolDog->fragments[SelectedFragment]->getPositionLast());
+        _clearSelectionInCentral(currentKolDog->fragments[m_selectedFragmentId]->getPositionFirst(),
+                                 currentKolDog->fragments[m_selectedFragmentId]->getPositionLast());
         break;
     case eRightFrameMode:
         if (!ui->TextRight->toPlainText().isEmpty())
@@ -169,7 +169,7 @@ void MainWindow::insertFragFromKB(fragment *frag)
     TextCenterIsBlocked = true;
     m_addNewFrag = true;
 
-    SelectedFragment = prevSelectedFragId;
+    m_selectedFragmentId = prevSelectedFragId;
 }
 
 void MainWindow::setParameters()
@@ -379,8 +379,8 @@ void MainWindow::_prepareMainWindow(QString docId)
     ui->te_textCenter->blockSignals(false);
 
     // Сокрытие недоделанных элементов
-    ui->label_16->setVisible(false);
-    ui->QualityWeightSpinBox->setVisible(false);
+    // ui->label_16->setVisible(false);
+    // ui->QualityWeightSpinBox->setVisible(false);
 }
 
 void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
@@ -496,8 +496,8 @@ void MainWindow::_prepareMainWindowFromJson(QJsonDocument jDoc)
     ui->te_textCenter->blockSignals(false);
 
     // Сокрытие недоделанных элементов
-    ui->label_16->setVisible(false);
-    ui->QualityWeightSpinBox->setVisible(false);
+    // ui->label_16->setVisible(false);
+    // ui->QualityWeightSpinBox->setVisible(false);
 }
 
 void MainWindow::_fillCentralField(EDisplayedSection selectedSection)
@@ -789,9 +789,9 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
     if (!TextCenterIsBlocked) {
         setWorkMode(eItemSelectedMode);
 
-        if (SelectedFragment != -1) {
+        if (m_selectedFragmentId != -1) {
             // Узнаём сначала какой цвет был у фрагмента и его возвращаем после выделения жирным
-            auto curFrag = currentKolDog->fragments[SelectedFragment];
+            auto curFrag = currentKolDog->fragments[m_selectedFragmentId];
             auto posFirst = curFrag->getPositionFirst();
             auto posLast = curFrag->getPositionLast();
             if (curFrag->isChanged() && curFrag->isNewAdded()) {
@@ -809,15 +809,15 @@ void MainWindow::on_te_textCenter_cursorPositionChanged()
         qint32 cursorPos = ui->te_textCenter->textCursor().position();
         for (int i = 0; i < currentKolDog->fragments.count(); i++) {
             if (currentKolDog->fragments[i]->getPositionFirst() <= cursorPos && currentKolDog->fragments[i]->getPositionLast() > cursorPos) {
-                SelectedFragment = i;
+                m_selectedFragmentId = i;
                 break;
             }
         }
-        if (SelectedFragment == -1) {
+        if (m_selectedFragmentId == -1) {
             qDebug() << "Сейчас всё навернётся";
             return;
         }
-        auto frag = currentKolDog->fragments[SelectedFragment];
+        auto frag = currentKolDog->fragments[m_selectedFragmentId];
         _prepareSettingsInRight(frag->getAkt(), frag->getRazdel(), frag->getKachestvo(), frag->getVoprosABR());
         _setSelectionInCentral(frag->getPositionFirst(), frag->getPositionLast());
     }
@@ -852,13 +852,13 @@ void MainWindow::on_pb_newFrag_clicked()
 
 void MainWindow::on_pb_deleteFrag_clicked()
 {
-    if (SelectedFragment == -1)
+    if (m_selectedFragmentId == -1)
         return;
 
     // Изменение кэффов //TODO: [улучш.] Убрать кэф из перерасчёта (ещё в создании нового и изменении старого)
-    QVariantList deltaKeffs = currentKolDog->fragments[SelectedFragment]->getKeffsDeltaToZero();
-    QString razdAbr = currentKolDog->fragments[SelectedFragment]->getAffectsOnMinorKeffs();
-    currentKolDog->fragments.removeAt(SelectedFragment);
+    QVariantList deltaKeffs = currentKolDog->fragments[m_selectedFragmentId]->getKeffsDeltaToZero();
+    QString razdAbr = currentKolDog->fragments[m_selectedFragmentId]->getAffectsOnMinorKeffs();
+    currentKolDog->fragments.removeAt(m_selectedFragmentId);
     QVariantList newKeffs = _calculateKeffsWithDelta(deltaKeffs);
     _fillCurrentKeffs(newKeffs);
     //! КЭФ отдельно пересчитываем т.к. она меняется нелинейно
@@ -874,7 +874,7 @@ void MainWindow::on_pb_deleteFrag_clicked()
     } else {
         _fillCentralField(EDisplayedSection(ui->tw_navigator->property(PREVIOUS_SELECTION).toInt()));
     }
-    SelectedFragment = -1;
+    m_selectedFragmentId = -1;
 
     currentKolDog->calculateKzn();
 
@@ -892,12 +892,12 @@ void MainWindow::on_GoRight_clicked()
     setWorkMode(eRightFrameMode);
 
     ui->TextRight->clear();
-    ui->TextRight->setText(currentKolDog->fragments[SelectedFragment]->getText());
+    ui->TextRight->setText(currentKolDog->fragments[m_selectedFragmentId]->getText());
     // Заполнение параметров
-    _prepareSettingsInRight(currentKolDog->fragments[SelectedFragment]->getAkt(),
-                            currentKolDog->fragments[SelectedFragment]->getRazdel(),
-                            currentKolDog->fragments[SelectedFragment]->getKachestvo(),
-                            currentKolDog->fragments[SelectedFragment]->getVoprosABR());
+    _prepareSettingsInRight(currentKolDog->fragments[m_selectedFragmentId]->getAkt(),
+                            currentKolDog->fragments[m_selectedFragmentId]->getRazdel(),
+                            currentKolDog->fragments[m_selectedFragmentId]->getKachestvo(),
+                            currentKolDog->fragments[m_selectedFragmentId]->getVoprosABR());
 
     TextCenterIsBlocked = true;
 }
@@ -936,9 +936,9 @@ void MainWindow::on_GoLeft_clicked()
                 if (section != eAllSections) {
                     auto firstInRazdFragId = currentKolDog->findFirstInRazd(AbbreviationRazd[section]) - 1;
                     if (firstInRazdFragId > -1) {
-                        SelectedFragment = firstInRazdFragId;
-                        posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
-                        posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
+                        m_selectedFragmentId = firstInRazdFragId;
+                        posPrevFragFirst = currentKolDog->fragments[m_selectedFragmentId]->getPositionFirst();
+                        posPrevFragLast = currentKolDog->fragments[m_selectedFragmentId]->getPositionLast();
                         idPrevFrag = firstInRazdFragId;
                     } else {
                         bool insertLast = false;
@@ -966,22 +966,22 @@ void MainWindow::on_GoLeft_clicked()
                                 idPrevFrag = currentKolDog->fragments.count() - 1;
                                 posPrevFragFirst = 0;
                                 posPrevFragLast = 0;
-                                SelectedFragment = idPrevFrag;
+                                m_selectedFragmentId = idPrevFrag;
                             }
                         } else {
                             // Вставляем перед этим фрагментом
-                            SelectedFragment = firstInRazdFragId;
-                            posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
-                            posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
+                            m_selectedFragmentId = firstInRazdFragId;
+                            posPrevFragFirst = currentKolDog->fragments[m_selectedFragmentId]->getPositionFirst();
+                            posPrevFragLast = currentKolDog->fragments[m_selectedFragmentId]->getPositionLast();
                             idPrevFrag = firstInRazdFragId;
                         }
                     }
                 }
             }
         } else {
-            posPrevFragFirst = currentKolDog->fragments[SelectedFragment]->getPositionFirst();
-            posPrevFragLast = currentKolDog->fragments[SelectedFragment]->getPositionLast();
-            idPrevFrag = SelectedFragment;
+            posPrevFragFirst = currentKolDog->fragments[m_selectedFragmentId]->getPositionFirst();
+            posPrevFragLast = currentKolDog->fragments[m_selectedFragmentId]->getPositionLast();
+            idPrevFrag = m_selectedFragmentId;
         }
         // Создание нового фрагмента
         cursor.setPosition(posPrevFragLast, QTextCursor::MoveAnchor);
@@ -1009,11 +1009,12 @@ void MainWindow::on_GoLeft_clicked()
         // Убираем выделение старого и нового фрагмента, окрашиваем старый если тот был
         _clearSelectionInCentral(posPrevFragFirst, frag->getPositionLast());
         if (idPrevFrag != -1) {
-            if (currentKolDog->fragments[SelectedFragment]->isChanged() && currentKolDog->fragments[SelectedFragment]->isNewAdded()) {
+            if (currentKolDog->fragments[m_selectedFragmentId]->isChanged()
+                && currentKolDog->fragments[m_selectedFragmentId]->isNewAdded()) {
                 _markAsChangedAndNewAdded(posPrevFragFirst, posPrevFragLast);
-            } else if (currentKolDog->fragments[SelectedFragment]->isChanged()) {
+            } else if (currentKolDog->fragments[m_selectedFragmentId]->isChanged()) {
                 _markAsChanged(posPrevFragFirst, posPrevFragLast);
-            } else if (currentKolDog->fragments[SelectedFragment]->isNewAdded()) {
+            } else if (currentKolDog->fragments[m_selectedFragmentId]->isNewAdded()) {
                 _markAsNewAdded(posPrevFragFirst, posPrevFragLast);
             }
         }
@@ -1040,8 +1041,8 @@ void MainWindow::on_GoLeft_clicked()
     } else if (!cancel) {
         // Изменение старого фрагмента
         // Обновление текста и параметров в памяти
-        auto fragBeforeChange = *currentKolDog->fragments[SelectedFragment];
-        auto currentFrag = currentKolDog->fragments[SelectedFragment];
+        auto fragBeforeChange = *currentKolDog->fragments[m_selectedFragmentId];
+        auto currentFrag = currentKolDog->fragments[m_selectedFragmentId];
         currentFrag->setText(ui->TextRight->toPlainText());
         currentFrag->setRazdel(AbbreviationRazd[ui->Razd->currentIndex()]);
         currentFrag->setVoprosABR(ABRQuestionsAtRazdel[ui->Razd->currentIndex()][ui->Question->currentIndex()]);
@@ -1061,7 +1062,7 @@ void MainWindow::on_GoLeft_clicked()
         // Вычисление нового размера
         qint32 deltaTextSize = ui->TextRight->toPlainText().size() + argLine.size() + 2 - currentFrag->getSize();
         if (deltaTextSize != 0) {
-            _recountPositions(SelectedFragment, deltaTextSize);
+            _recountPositions(m_selectedFragmentId, deltaTextSize);
         }
         currentFrag->Resize();
         // Изменение главных кэффов и узнаём изменился ли фрагмент
@@ -1105,7 +1106,7 @@ void MainWindow::on_GoLeft_clicked()
             m_addFirst = false;
         } else {
             // Окраска выбранного пункта в исходные цвета
-            auto curFrag = currentKolDog->fragments[SelectedFragment];
+            auto curFrag = currentKolDog->fragments[m_selectedFragmentId];
             auto posFirst = curFrag->getPositionFirst();
             auto posLast = curFrag->getPositionLast();
             if (curFrag->isChanged() && curFrag->isNewAdded()) {
@@ -1165,10 +1166,10 @@ void MainWindow::on_BazeKnowledge_clicked()
     case eBasicMode:
         return;
     case eItemSelectedMode:
-        emit s_requestPrepareKB(currentKolDog->fragments[SelectedFragment]);
+        emit s_requestPrepareKB(currentKolDog->fragments[m_selectedFragmentId]);
         break;
     case eRightFrameMode:
-        if (SelectedFragment == -1) {
+        if (m_selectedFragmentId == -1) {
             // Кинуть дефолтный фрагмент
             auto frag = new fragment();
             frag->setAkt(AbbreviationAct[ui->Act->currentIndex()]);
@@ -1178,7 +1179,7 @@ void MainWindow::on_BazeKnowledge_clicked()
             frag->setText(ui->TextRight->toPlainText());
             emit s_requestPrepareKB(frag);
         } else {
-            emit s_requestPrepareKB(currentKolDog->fragments[SelectedFragment]);
+            emit s_requestPrepareKB(currentKolDog->fragments[m_selectedFragmentId]);
         }
         break;
     }
@@ -1286,8 +1287,8 @@ void MainWindow::on_actionMakeOdt_triggered()
     }
 
     // Убираем выделение выбранного фрагмента в тексте, если оно есть
-    if (SelectedFragment > 0) {
-        auto curFrag = currentKolDog->fragments[SelectedFragment];
+    if (m_selectedFragmentId > 0) {
+        auto curFrag = currentKolDog->fragments[m_selectedFragmentId];
         if (curFrag)
             _clearSelectionInCentral(curFrag->getPositionFirst(), curFrag->getPositionLast());
     }

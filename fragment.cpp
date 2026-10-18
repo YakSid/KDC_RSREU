@@ -38,6 +38,22 @@ qint32 fragment::requestQuestionCodeFromDB()
     }
 }
 
+qint32 fragment::requestQuestionCodeFromDB(QString voprosABR, QString razdel)
+{
+    QSqlQuery querySelect;
+    querySelect.prepare("SELECT Вопросы.Код FROM Вопросы WHERE Вопросы.вопрос = :val1 AND Вопросы.раздел = :val2");
+    querySelect.bindValue(":val1", voprosABR);
+    querySelect.bindValue(":val2", razdel);
+    if (!querySelect.exec()) {
+        qDebug() << querySelect.lastError().text();
+    }
+    if (querySelect.next()) {
+        return querySelect.value(0).toInt();
+    } else {
+        return -1;
+    }
+}
+
 QVariantList fragment::getKeffsDelta(const fragment *pastFrag)
 {
     //! Дельты которые являются одной из основных дельт, но ещё не понятно какой

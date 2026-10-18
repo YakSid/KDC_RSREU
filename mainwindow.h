@@ -144,7 +144,7 @@ private:
     QString SelectedKD;
     CKolDog *currentKolDog;
     bool TextCenterIsBlocked = true;
-    int SelectedFragment = -1;
+    int m_selectedFragmentId = -1;
     // Параметры для формулы КЭФ
     double m_paramA{1.5};
     double m_paramB{1.3};
