@@ -3,7 +3,9 @@
 
 QMap<QString, QString> INSTITUTE_NAMES;
 
-modelList::modelList() {}
+modelList::modelList(QObject *parent) {}
+
+modelList::~modelList() {}
 
 QVariant modelList::data(const QModelIndex &index, int role) const
 {
@@ -22,8 +24,7 @@ QVariant modelList::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole) {
             QModelIndex NewIndex = QAbstractItemModel::createIndex(index.row(), index.column() + 4);
             QModelIndex NewIndex2 = QAbstractItemModel::createIndex(index.row(), index.column() + 7);
-            return 1.5 * QSqlTableModel::data(NewIndex, role).toDouble()
-                    + QSqlTableModel::data(NewIndex2, role).toDouble();
+            return 1.5 * QSqlTableModel::data(NewIndex, role).toDouble() + QSqlTableModel::data(NewIndex2, role).toDouble();
         }
         if (role == Qt::FontRole) {
             QFont Font;
@@ -37,10 +38,9 @@ QVariant modelList::data(const QModelIndex &index, int role) const
             QModelIndex NewIndex3 = QAbstractItemModel::createIndex(index.row(), index.column() + 3);
             QModelIndex NewIndex4 = QAbstractItemModel::createIndex(index.row(), index.column() + 1);
             QModelIndex NewIndex5 = QAbstractItemModel::createIndex(index.row(), index.column() + 4);
-            QVariant tmp = 1.5 * QSqlTableModel::data(NewIndex4, role).toDouble()
-                    + QSqlTableModel::data(NewIndex5, role).toDouble();
+            QVariant tmp = 1.5 * QSqlTableModel::data(NewIndex4, role).toDouble() + QSqlTableModel::data(NewIndex5, role).toDouble();
             QVariant got = 1.3 * tmp.toDouble() + QSqlTableModel::data(NewIndex2, role).toDouble()
-                    + QSqlTableModel::data(NewIndex3, role).toDouble();
+                           + QSqlTableModel::data(NewIndex3, role).toDouble();
             return got;
         }
         if (role == Qt::FontRole) {

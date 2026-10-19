@@ -59,9 +59,14 @@ CDatabaseManager::~CDatabaseManager()
 
     INSTITUTE_NAMES.clear();
 
-    if (m_db.isOpen()) {
-        m_db.close();
+    // Теперь безопасно закрываем и удаляем соединение по умолчанию
+    {
+        QSqlDatabase db = QSqlDatabase::database(QSqlDatabase::defaultConnection);
+        if (db.isOpen()) {
+            db.close();
+        }
     }
+    QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
 }
 
 QSqlDatabase *CDatabaseManager::getDatabase()

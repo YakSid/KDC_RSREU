@@ -88,7 +88,7 @@ void ListKD::_prepareView(EViewMode mode)
     setCursor(Qt::WaitCursor);
 
     if (mode == eStandardView) {
-        modelForList = new modelList();
+        modelForList = new modelList(this);
         modelForList->setTable("Договор");
         modelForList->removeColumns(3, 2);
         modelForList->removeColumns(6, 6);
@@ -96,7 +96,14 @@ void ListKD::_prepareView(EViewMode mode)
         modelForList->removeColumns(9, 7);
         modelForList->removeColumn(1);
 
-        modelForList->select();
+        if (modelForList->select()) {
+            while (modelForList->canFetchMore()) {
+                modelForList->fetchMore();
+            }
+            int realCount = modelForList->rowCount();
+            qDebug() << "count" << realCount;
+        }
+
         modelForList->setEditStrategy(QSqlTableModel::OnManualSubmit);
         proxyModel = new QSortFilterProxyModel(this);
         proxyModel->setSourceModel(modelForList);
@@ -131,7 +138,7 @@ void ListKD::_prepareView(EViewMode mode)
 
         // ui->tableView->verticalHeader()->setVisible(false);
     } else {
-        modelForSecond = new modelSecond();
+        modelForSecond = new modelSecond(this);
         modelForSecond->setTable("Договор");
         modelForSecond->removeColumns(28, 6);
         modelForSecond->removeColumns(16, 5);
@@ -143,7 +150,14 @@ void ListKD::_prepareView(EViewMode mode)
         modelForSecond->removeColumn(1);
         modelForSecond->removeColumns(2, 3);
 
-        modelForSecond->select();
+        if (modelForSecond->select()) {
+            while (modelForSecond->canFetchMore()) {
+                modelForSecond->fetchMore();
+            }
+            int realCount = modelForSecond->rowCount();
+            qDebug() << "count" << realCount;
+        }
+
         modelForSecond->setEditStrategy(QSqlTableModel::OnManualSubmit);
         proxyModel = new QSortFilterProxyModel(this);
         proxyModel->setSourceModel(modelForSecond);
@@ -212,10 +226,12 @@ void ListKD::_releaseDbResources()
         proxyModel = nullptr;
     }
     if (modelForList) {
+        modelForList->clear();
         delete modelForList;
         modelForList = nullptr;
     }
     if (modelForSecond) {
+        modelForSecond->clear();
         delete modelForSecond;
         modelForSecond = nullptr;
     }

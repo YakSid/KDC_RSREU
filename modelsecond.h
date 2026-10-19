@@ -1,14 +1,15 @@
 #ifndef MODELSECOND_H
 #define MODELSECOND_H
 
-#include <QtSql>
 #include <QDateTime>
+#include <QtSql>
 
 class modelSecond : public QSqlRelationalTableModel
 {
     Q_OBJECT
 public:
-    modelSecond();
+    explicit modelSecond(QObject *parent = nullptr);
+    ~modelSecond();
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

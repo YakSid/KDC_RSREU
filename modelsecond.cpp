@@ -1,7 +1,9 @@
 #include "modelsecond.h"
 #include "cconstants.h"
 
-modelSecond::modelSecond() {}
+modelSecond::modelSecond(QObject *parent) {}
+
+modelSecond::~modelSecond() {}
 
 QVariant modelSecond::data(const QModelIndex &index, int role) const
 {
